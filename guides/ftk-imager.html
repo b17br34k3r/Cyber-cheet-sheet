@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTK Imager Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>FTK Imager: Digital Forensics Imaging Tool</h1>
+            <p>Master Disk Imaging and Evidence Acquisition</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is FTK Imager?</h2>
+                <p>FTK Imager is a free forensic imaging tool developed by AccessData (now Exterro) that allows investigators to create forensic images of computer hard drives, removable media, and memory. It's widely used in digital forensics for evidence acquisition, disk imaging, and basic forensic analysis. FTK Imager can create bit-for-bit copies of storage devices while maintaining forensic integrity through hash verification. The tool supports various image formats and provides both GUI and command-line interfaces for different investigation scenarios.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download FTK Imager from:
+# https://www.exterro.com/ftk-imager
+
+# Run installer as Administrator
+# Follow installation wizard
+
+# Verify installation
+# Launch FTK Imager from Start Menu
+# Check version in Help > About</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Version</h3>
+                    <pre><code># Download FTK Imager CLI from Exterro website
+# Extract to desired location
+# Add to PATH environment variable
+
+# Verify CLI installation
+ftkimager --help</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Portable Version</h3>
+                    <pre><code># Download portable version
+# Extract to USB drive or portable location
+# No installation required
+
+# Run directly from extracted folder
+FTKImager.exe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>System Requirements</h3>
+                    <pre><code># Minimum Requirements:
+# - Windows 7 or later
+# - 2 GB RAM (4 GB recommended)
+# - Sufficient storage for image files
+# - Administrator privileges for disk access
+
+# Recommended:
+# - Fast storage (SSD) for image destination
+# - Multiple storage devices for redundancy
+# - Write-blocking hardware for evidence drives</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>GUI Interface</h3>
+                    <pre><code># Launch FTK Imager
+# File > Create Disk Image
+
+# Select source type:
+# - Physical Drive
+# - Logical Drive
+# - Image File
+# - Contents of a Folder
+
+# Choose destination and image format:
+# - Raw (dd)
+# - SMART
+# - E01 (Expert Witness)
+# - AFF (Advanced Forensic Format)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Interface</h3>
+                    <pre><code># Basic syntax
+ftkimager [source] [destination] --[options]
+
+# Create raw image
+ftkimager \\.\PhysicalDrive1 C:\Images\evidence.dd
+
+# Create E01 image
+ftkimager \\.\PhysicalDrive1 C:\Images\evidence --e01
+
+# Verify existing image
+ftkimager C:\Images\evidence.dd --verify</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Image Formats</h3>
+                    <pre><code># Raw/DD Format (default)
+# - Single file or split files
+# - Compatible with most tools
+# - No compression or metadata
+
+# E01 Format (Expert Witness)
+# - Compressed format
+# - Includes metadata and case information
+# - Industry standard for court evidence
+
+# SMART Format
+# - AccessData proprietary format
+# - Optimized for FTK suite
+# - Advanced features and metadata</code></pre>
+                </div>
+            </section>
+
+            <section id="disk-imaging">
+                <h2>Disk Imaging</h2>
+                <div class="command-block">
+                    <h3>Physical Drive Imaging</h3>
+                    <pre><code># GUI Method:
+# 1. File > Create Disk Image
+# 2. Select "Physical Drive"
+# 3. Choose source drive
+# 4. Select destination and format
+# 5. Configure case information
+# 6. Start imaging process
+
+# CLI Method:
+ftkimager \\.\PhysicalDrive0 C:\Images\harddrive.dd
+ftkimager \\.\PhysicalDrive0 C:\Images\harddrive --e01 --case-number "2023-001"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Logical Drive Imaging</h3>
+                    <pre><code># Image specific partition
+ftkimager C: C:\Images\c_drive.dd
+
+# Image with verification
+ftkimager D: C:\Images\d_drive.dd --verify
+
+# Split large images
+ftkimager E: C:\Images\e_drive.dd --split 2GB</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Removable Media Imaging</h3>
+                    <pre><code># USB drive imaging
+ftkimager \\.\PhysicalDrive2 C:\Images\usb_drive.dd
+
+# SD card imaging
+ftkimager \\.\PhysicalDrive3 C:\Images\sd_card.dd
+
+# CD/DVD imaging
+ftkimager D: C:\Images\optical_disc.dd</code></pre>
+                </div>
+            </section>
+
+            <section id="memory-imaging">
+                <h2>Memory Imaging</h2>
+                <div class="command-block">
+                    <h3>Memory Dump Creation</h3>
+                    <pre><code># GUI Method:
+# 1. File > Capture Memory
+# 2. Choose destination file
+# 3. Select "Include pagefile"
+# 4. Start memory capture
+
+# CLI Method:
+ftkimager --memoryimage C:\Images\memory.mem
+
+# Include pagefile in memory dump
+ftkimager --memoryimage C:\Images\memory.mem --pagefile</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Memory Analysis Preparation</h3>
+                    <pre><code># Create memory dump with system info
+ftkimager --memoryimage C:\Images\memory.mem --sysinfo
+
+# Verify memory dump integrity
+ftkimager C:\Images\memory.mem --verify
+
+# Convert memory formats if needed
+# (Use with other memory analysis tools)</code></pre>
+                </div>
+            </section>
+
+            <section id="evidence-analysis">
+                <h2>Evidence Analysis</h2>
+                <div class="command-block">
+                    <h3>Image Mounting and Browsing</h3>
+                    <pre><code># Mount image in FTK Imager
+# File > Add Evidence Item
+# Select image file
+# Browse file system structure
+
+# Export specific files
+# Right-click file > Export Files
+# Choose destination folder
+
+# View file properties
+# Right-click file > Properties
+# Check timestamps, size, attributes</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Recovery</h3>
+                    <pre><code># View deleted files
+# Navigate to [root]\[deleted files]
+# Files shown in red are deleted
+
+# Recover deleted files
+# Right-click deleted file > Export Files
+# Choose recovery destination
+
+# Search for specific files
+# Edit > Find
+# Search by filename, content, or hex</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Metadata Analysis</h3>
+                    <pre><code># View file system information
+# Check Properties tab for mounted image
+# Review partition table
+# Analyze file system structure
+
+# Extract EXIF data
+# Right-click image file > Properties
+# View metadata in Properties tab
+
+# Timeline analysis
+# View file timestamps
+# Sort by creation, modification, access times</code></pre>
+                </div>
+            </section>
+
+            <section id="hash-verification">
+                <h2>Hash Verification</h2>
+                <div class="command-block">
+                    <h3>Image Verification</h3>
+                    <pre><code># Verify image integrity
+ftkimager C:\Images\evidence.dd --verify
+
+# Calculate hash of source drive
+ftkimager \\.\PhysicalDrive1 --hash-only
+
+# Compare hashes
+# Source hash vs. image hash
+# Document hash values for court</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Hashing</h3>
+                    <pre><code># Calculate file hashes in GUI
+# Right-click file > Properties
+# View MD5, SHA1, SHA256 hashes
+
+# Batch hash calculation
+# Select multiple files
+# Tools > Hash Files
+# Export hash list</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Hash Database Comparison</h3>
+                    <pre><code># Import known hash databases
+# Tools > Hash Database
+# Import NSRL, custom hash sets
+
+# Flag known files
+# Compare against hash databases
+# Identify known good/bad files</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Case Management</h3>
+                    <pre><code># Create case information
+# Include case number, examiner name
+# Add evidence description
+# Document chain of custody
+
+# Case notes and documentation
+# Add comments to evidence items
+# Track analysis steps
+# Generate reports</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Drive Imaging</h3>
+                    <pre><code># Image over network
+ftkimager \\server\share\evidence.dd C:\Images\network_evidence.dd
+
+# Remote imaging (with appropriate tools)
+# Use FTK Imager with remote access
+# Ensure secure network connection</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Encryption Support</h3>
+                    <pre><code># Handle encrypted volumes
+# Mount encrypted drives first
+# Use BitLocker recovery keys
+# Image after decryption
+
+# Password-protected images
+# Create encrypted E01 images
+# Set password during creation</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Imaging Script</h3>
+                    <pre><code>@echo off
+REM FTK Imager batch processing script
+
+set SOURCE_DRIVE=%1
+set DEST_DIR=%2
+set CASE_NUM=%3
+
+if "%3"=="" (
+    echo Usage: %0 ^<source_drive^> ^<destination_directory^> ^<case_number^>
+    exit /b 1
+)
+
+echo Starting imaging for case %CASE_NUM%
+echo Source: %SOURCE_DRIVE%
+echo Destination: %DEST_DIR%
+
+REM Create destination directory
+mkdir "%DEST_DIR%" 2>nul
+
+REM Create disk image
+ftkimager %SOURCE_DRIVE% "%DEST_DIR%\%CASE_NUM%_evidence" --e01 --case-number "%CASE_NUM%" --verify
+
+REM Create memory dump
+ftkimager --memoryimage "%DEST_DIR%\%CASE_NUM%_memory.mem"
+
+REM Generate hash report
+ftkimager "%DEST_DIR%\%CASE_NUM%_evidence.E01" --verify > "%DEST_DIR%\%CASE_NUM%_verification.txt"
+
+echo Imaging completed for case %CASE_NUM%</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>PowerShell Integration</h3>
+                    <pre><code># PowerShell script for FTK Imager automation
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$SourceDrive,
+    
+    [Parameter(Mandatory=$true)]
+    [string]$DestinationPath,
+    
+    [Parameter(Mandatory=$true)]
+    [string]$CaseNumber
+)
+
+# Set variables
+$ImagePath = "$DestinationPath\$CaseNumber" + "_evidence"
+$LogPath = "$DestinationPath\$CaseNumber" + "_log.txt"
+
+# Start logging
+Start-Transcript -Path $LogPath
+
+Write-Host "Starting FTK Imager process for case: $CaseNumber"
+Write-Host "Source: $SourceDrive"
+Write-Host "Destination: $ImagePath"
+
+# Create image
+& ftkimager $SourceDrive $ImagePath --e01 --case-number $CaseNumber --verify
+
+# Check exit code
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Imaging completed successfully"
+} else {
+    Write-Host "Imaging failed with exit code: $LASTEXITCODE"
+}
+
+# Stop logging
+Stop-Transcript</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Autopsy</h3>
+                    <pre><code># Create image with FTK Imager
+ftkimager \\.\PhysicalDrive1 C:\Images\evidence.dd
+
+# Import into Autopsy
+# Create new case in Autopsy
+# Add data source: Disk Image
+# Select FTK Imager created image</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Volatility</h3>
+                    <pre><code># Create memory dump with FTK Imager
+ftkimager --memoryimage C:\Images\memory.mem
+
+# Analyze with Volatility
+vol -f C:\Images\memory.mem --profile=Win7SP1x64 pslist</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with EnCase</h3>
+                    <pre><code># Create E01 format for EnCase compatibility
+ftkimager \\.\PhysicalDrive1 C:\Images\evidence --e01
+
+# Import E01 into EnCase
+# File > Add Device
+# Select Evidence File
+# Choose FTK Imager E01 file</code></pre>
+                </div>
+            </section>
+
+            <section id="best-practices">
+                <h2>Best Practices</h2>
+                <div class="command-block">
+                    <h3>Evidence Handling</h3>
+                    <pre><code># Use write-blocking hardware
+# Connect source drive to write blocker
+# Verify write protection before imaging
+
+# Document everything
+# Record serial numbers, model numbers
+# Photograph evidence setup
+# Maintain chain of custody logs
+
+# Verify integrity
+# Always verify images after creation
+# Compare source and image hashes
+# Document verification results</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Storage Management</h3>
+                    <pre><code># Use adequate storage
+# Ensure sufficient space for images
+# Consider compression ratios
+# Plan for multiple copies
+
+# Organize case files
+# Create structured directory layout
+# Use consistent naming conventions
+# Separate cases and evidence types
+
+# Backup strategy
+# Create multiple image copies
+# Store on different media types
+# Maintain offsite backups</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Access denied errors
+# Run as Administrator
+# Check drive permissions
+# Verify write blocker connection
+
+# Insufficient disk space
+# Check available space before imaging
+# Use split images for large drives
+# Clean up temporary files
+
+# Corrupted images
+# Verify source drive health
+# Check for bad sectors
+# Use error recovery options</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Slow imaging speed
+# Use faster destination storage (SSD)
+# Check USB connection speed
+# Avoid network destinations for large images
+
+# Memory issues
+# Close unnecessary applications
+# Increase virtual memory
+# Use 64-bit version for large images
+
+# Hardware compatibility
+# Update device drivers
+# Check USB/SATA connections
+# Test with different cables</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Criminal investigation evidence acquisition</li>
+                        <li>Civil litigation data preservation</li>
+                        <li>Internal investigation imaging</li>
+                        <li>Data recovery operations</li>
+                        <li>Expert witness preparation</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Compromised system imaging</li>
+                        <li>Memory dump acquisition</li>
+                        <li>Evidence preservation during incidents</li>
+                        <li>Malware analysis preparation</li>
+                        <li>Timeline reconstruction support</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Data Recovery</h3>
+                    <ul>
+                        <li>Failed drive imaging</li>
+                        <li>Deleted file recovery</li>
+                        <li>Partition recovery operations</li>
+                        <li>Corrupted file system analysis</li>
+                        <li>Backup verification</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Always use write blockers:</strong> Prevent accidental modification of evidence</li>
+                    <li><strong>Verify before and after:</strong> Hash source and image for integrity verification</li>
+                    <li><strong>Document thoroughly:</strong> Record all steps, settings, and observations</li>
+                    <li><strong>Plan storage needs:</strong> Ensure adequate space for images and working files</li>
+                    <li><strong>Test procedures:</strong> Practice imaging procedures before actual cases</li>
+                    <li><strong>Keep tools updated:</strong> Use latest version for best compatibility</li>
+                    <li><strong>Maintain chain of custody:</strong> Document all evidence handling steps</li>
+                    <li><strong>Create multiple copies:</strong> Always have backup images for critical cases</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> FTK Imager should only be used for:</p>
+                    <ul>
+                        <li>Imaging systems and storage devices you own or have explicit permission to examine</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Corporate incident response with appropriate authorization</li>
+                        <li>Data recovery operations on owned systems</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized disk imaging may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority. Disk images may contain sensitive personal information, confidential business data, and private communications that must be handled according to applicable privacy laws and data protection requirements. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper chain of custody documentation for any evidence that may be used in legal proceedings. Forensic imaging should follow established procedures and industry standards to ensure admissibility in court.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

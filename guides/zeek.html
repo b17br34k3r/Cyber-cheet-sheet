@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeek (Bro) Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Zeek (Bro): Network Analysis Framework</h1>
+            <p>Master Network Security Monitoring and Traffic Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Zeek?</h2>
+                <p>Zeek (formerly known as Bro) is a powerful network analysis framework that is much different from the typical IDS you may know. While focusing on network security monitoring, Zeek provides a comprehensive platform for traffic analysis, incident response, and forensics. It turns network traffic into structured logs and provides a flexible scripting language for custom analysis. Zeek is widely used by security teams, researchers, and network administrators for monitoring network activity, detecting threats, and conducting forensic investigations.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Add Zeek repository
+echo 'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_20.04/ /' | sudo tee /etc/apt/sources.list.d/security:zeek.list
+curl -fsSL https://download.opensuse.org/repositories/security:zeek/xUbuntu_20.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/security_zeek.gpg > /dev/null
+
+# Update and install
+sudo apt update
+sudo apt install zeek
+
+# Verify installation
+zeek --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL/Fedora Installation</h3>
+                    <pre><code># Install from source or use package manager
+sudo yum install zeek
+# or
+sudo dnf install zeek
+
+# From source
+git clone --recursive https://github.com/zeek/zeek
+cd zeek
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install zeek
+
+# Verify installation
+zeek --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Configuration</h3>
+                    <pre><code># Default configuration directory
+/opt/zeek/etc/
+
+# Main configuration files
+/opt/zeek/etc/zeek.cfg
+/opt/zeek/etc/networks.cfg
+/opt/zeek/etc/node.cfg
+
+# Set up environment
+export PATH=/opt/zeek/bin:$PATH</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Command Line Analysis</h3>
+                    <pre><code># Analyze PCAP file
+zeek -r capture.pcap
+
+# Analyze live traffic
+sudo zeek -i eth0
+
+# Analyze with specific scripts
+zeek -r capture.pcap local
+
+# Generate specific logs
+zeek -r capture.pcap protocols/http protocols/dns</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Basic Configuration</h3>
+                    <pre><code># Configure network interfaces
+sudo nano /opt/zeek/etc/node.cfg
+
+# Example node.cfg
+[zeek]
+type=standalone
+host=localhost
+interface=eth0
+
+# Configure networks
+sudo nano /opt/zeek/etc/networks.cfg
+
+# Example networks.cfg
+10.0.0.0/8          Private IP space
+172.16.0.0/12       Private IP space
+192.168.0.0/16      Private IP space</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Starting Zeek</h3>
+                    <pre><code># Start Zeek cluster
+sudo zeekctl start
+
+# Check status
+sudo zeekctl status
+
+# Stop Zeek
+sudo zeekctl stop
+
+# Restart Zeek
+sudo zeekctl restart</code></pre>
+                </div>
+            </section>
+
+            <section id="log-analysis">
+                <h2>Log Analysis</h2>
+                <div class="command-block">
+                    <h3>Understanding Zeek Logs</h3>
+                    <pre><code># Common log files
+conn.log        # Connection summaries
+http.log        # HTTP requests and responses
+dns.log         # DNS queries and responses
+ssl.log         # SSL/TLS connections
+files.log       # File transfers
+weird.log       # Unusual network activity
+notice.log      # Zeek notices and alerts
+
+# Log location
+/opt/zeek/logs/current/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Analyzing Connection Logs</h3>
+                    <pre><code># View connection log
+cat conn.log
+
+# Filter by specific IP
+grep "192.168.1.100" conn.log
+
+# Analyze connection patterns
+zeek-cut ts id.orig_h id.orig_p id.resp_h id.resp_p proto service < conn.log
+
+# Find long connections
+zeek-cut ts duration id.orig_h id.resp_h < conn.log | sort -k2 -nr</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>HTTP Analysis</h3>
+                    <pre><code># Analyze HTTP traffic
+cat http.log
+
+# Extract URLs
+zeek-cut host uri < http.log
+
+# Find suspicious user agents
+zeek-cut user_agent < http.log | sort | uniq -c | sort -nr
+
+# Analyze HTTP methods
+zeek-cut method < http.log | sort | uniq -c</code></pre>
+                </div>
+            </section>
+
+            <section id="scripting">
+                <h2>Zeek Scripting</h2>
+                <div class="command-block">
+                    <h3>Basic Script Structure</h3>
+                    <pre><code># Basic Zeek script (example.zeek)
+@load base/protocols/http
+
+event http_request(c: connection, method: string, original_URI: string,
+                   unescaped_URI: string, version: string)
+{
+    print fmt("HTTP request: %s %s", method, original_URI);
+}
+
+event http_reply(c: connection, version: string, code: count, reason: string)
+{
+    print fmt("HTTP response: %d %s", code, reason);
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Detection Scripts</h3>
+                    <pre><code># Detect suspicious downloads
+@load base/protocols/http
+
+event http_entity_data(c: connection, is_orig: bool, length: count, data: string)
+{
+    if ( is_orig )
+        return;
+    
+    if ( /\.(exe|bat|scr|pif)$/ in c$http$uri )
+    {
+        NOTICE([$note=HTTP::Suspicious_Download,
+                $msg=fmt("Suspicious download: %s", c$http$uri),
+                $conn=c]);
+    }
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Running Custom Scripts</h3>
+                    <pre><code># Run script with PCAP
+zeek -r capture.pcap custom_script.zeek
+
+# Load script in site policy
+echo "@load ./custom_script.zeek" >> /opt/zeek/share/zeek/site/local.zeek
+
+# Reload configuration
+sudo zeekctl deploy</code></pre>
+                </div>
+            </section>
+
+            <section id="threat-detection">
+                <h2>Threat Detection</h2>
+                <div class="command-block">
+                    <h3>Built-in Detection</h3>
+                    <pre><code># Enable threat detection frameworks
+@load frameworks/intel
+@load frameworks/notice
+@load frameworks/signatures
+
+# Load additional detection scripts
+@load policy/protocols/http/detect-webapps
+@load policy/protocols/ftp/detect-bruteforcing
+@load policy/protocols/ssh/detect-bruteforcing</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Intelligence Framework</h3>
+                    <pre><code># Create intelligence file (intel.txt)
+#fields	indicator	indicator_type	meta.source
+192.168.1.100	Intel::ADDR	malware-c2
+evil.com	Intel::DOMAIN	phishing
+/malware.exe	Intel::URL	malware-download
+
+# Load intelligence
+zeek -r capture.pcap frameworks/intel/seen intel.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Threat Detection</h3>
+                    <pre><code># Detect beaconing behavior
+@load base/protocols/http
+
+global beacon_threshold = 10;
+global beacon_hosts: table[addr] of count &default=0;
+
+event http_request(c: connection, method: string, original_URI: string,
+                   unescaped_URI: string, version: string)
+{
+    ++beacon_hosts[c$id$orig_h];
+    
+    if ( beacon_hosts[c$id$orig_h] > beacon_threshold )
+    {
+        NOTICE([$note=HTTP::Possible_Beaconing,
+                $msg=fmt("Possible beaconing from %s", c$id$orig_h),
+                $conn=c]);
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-tuning">
+                <h2>Performance Tuning</h2>
+                <div class="command-block">
+                    <h3>Cluster Configuration</h3>
+                    <pre><code># Configure cluster in node.cfg
+[manager]
+type=manager
+host=manager.local
+
+[proxy-1]
+type=proxy
+host=proxy1.local
+
+[worker-1]
+type=worker
+host=worker1.local
+interface=eth0
+lb_method=pf_ring
+lb_procs=4</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Memory and CPU Optimization</h3>
+                    <pre><code># Optimize memory usage
+redef table_expire_interval = 10min;
+redef table_expire_delay = 1min;
+
+# Reduce logging verbosity
+redef Log::default_rotation_interval = 1hr;
+redef Log::default_mail_alarms_interval = 24hr;
+
+# Optimize for high-speed networks
+redef ignore_checksums = T;</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>ELK Stack Integration</h3>
+                    <pre><code># Configure Filebeat for Zeek logs
+# /etc/filebeat/filebeat.yml
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /opt/zeek/logs/current/*.log
+  fields:
+    logtype: zeek
+  fields_under_root: true
+
+output.elasticsearch:
+  hosts: ["localhost:9200"]</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>SIEM Integration</h3>
+                    <pre><code># Export to JSON format
+zeek -r capture.pcap LogAscii::output_to_stdout=T LogAscii::json_timestamps=JSON::TS_ISO8601
+
+# Send to syslog
+@load policy/tuning/json-logs.zeek
+redef LogAscii::json_timestamps = JSON::TS_ISO8601;</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Check Zeek status
+sudo zeekctl status
+
+# View Zeek logs
+sudo zeekctl diag
+
+# Check configuration
+sudo zeekctl check
+
+# Debug script issues
+zeek -r test.pcap script.zeek 2>&1 | grep -i error</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Monitor packet drops
+zeekctl netstats
+
+# Check system resources
+top -p $(pgrep zeek)
+
+# Optimize capture buffer
+echo 'net.core.rmem_max = 134217728' >> /etc/sysctl.conf
+sysctl -p</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Security Monitoring</h3>
+                    <ul>
+                        <li>Real-time traffic analysis and alerting</li>
+                        <li>Baseline network behavior establishment</li>
+                        <li>Anomaly detection and threat hunting</li>
+                        <li>Protocol analysis and validation</li>
+                        <li>Network forensics and incident response</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Compliance and Auditing</h3>
+                    <ul>
+                        <li>Network activity logging and retention</li>
+                        <li>Data loss prevention monitoring</li>
+                        <li>Regulatory compliance reporting</li>
+                        <li>Access control verification</li>
+                        <li>Security policy enforcement</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start simple:</strong> Begin with basic logging before adding complex detection</li>
+                    <li><strong>Tune for your environment:</strong> Customize scripts and policies for your network</li>
+                    <li><strong>Monitor performance:</strong> Watch for packet drops and resource usage</li>
+                    <li><strong>Use intelligence feeds:</strong> Integrate threat intelligence for better detection</li>
+                    <li><strong>Regular maintenance:</strong> Keep Zeek updated and review configurations</li>
+                    <li><strong>Test scripts:</strong> Validate custom scripts with known traffic samples</li>
+                    <li><strong>Document changes:</strong> Keep track of custom scripts and configurations</li>
+                    <li><strong>Backup configurations:</strong> Maintain backups of working configurations</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Zeek should only be used for:</p>
+                    <ul>
+                        <li>Monitoring networks you own or have explicit permission to monitor</li>
+                        <li>Authorized security monitoring with proper legal authority</li>
+                        <li>Corporate network security with appropriate policies and user notification</li>
+                        <li>Academic research with proper institutional approval</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized network monitoring may violate computer crime laws, privacy statutes, and other regulations. Network monitoring should only be performed by qualified professionals with proper legal authority and organizational policies. Zeek can capture and analyze sensitive network communications that must be handled according to applicable privacy laws and data protection requirements. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper documentation and access controls for any network monitoring activities. Respect user privacy and implement appropriate data retention and disposal policies.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

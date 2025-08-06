@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masscan Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Masscan: High-Speed Port Scanner</h1>
+            <p>Master Internet-Scale Network Scanning</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Masscan?</h2>
+                <p>Masscan is an incredibly fast TCP port scanner designed for scanning large networks and the entire Internet. It can scan the entire Internet in under 6 minutes, transmitting 10 million packets per second. Masscan is asynchronous and uses its own TCP/IP stack, making it much faster than traditional scanners like Nmap for large-scale scanning operations.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install masscan
+
+# CentOS/RHEL
+sudo yum install masscan
+
+# From source
+git clone https://github.com/robertdavidgraham/masscan
+cd masscan
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install masscan
+
+# From source
+git clone https://github.com/robertdavidgraham/masscan
+cd masscan
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download pre-compiled binary from GitHub
+# https://github.com/robertdavidgraham/masscan/releases
+
+# Or compile with Visual Studio
+# Requires WinPcap or Npcap</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+sudo masscan [options] [targets] -p [ports]
+
+# Scan single host
+sudo masscan 192.168.1.100 -p80,443
+
+# Scan network range
+sudo masscan 192.168.1.0/24 -p1-1000
+
+# Scan with rate limiting
+sudo masscan 10.0.0.0/8 -p80 --rate 1000</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Target Specification</h3>
+                    <pre><code># Single IP
+sudo masscan 192.168.1.100 -p80
+
+# IP range
+sudo masscan 192.168.1.1-192.168.1.254 -p80
+
+# CIDR notation
+sudo masscan 192.168.1.0/24 -p80
+
+# Multiple networks
+sudo masscan 192.168.1.0/24,10.0.0.0/8 -p80
+
+# Exclude ranges
+sudo masscan 0.0.0.0/0 --exclude 192.168.0.0/16 -p80</code></pre>
+                </div>
+            </section>
+
+            <section id="port-specification">
+                <h2>Port Specification</h2>
+                <div class="command-block">
+                    <h3>Port Ranges</h3>
+                    <pre><code># Single port
+sudo masscan 192.168.1.0/24 -p80
+
+# Multiple ports
+sudo masscan 192.168.1.0/24 -p80,443,8080
+
+# Port range
+sudo masscan 192.168.1.0/24 -p1-1000
+
+# All ports
+sudo masscan 192.168.1.0/24 -p1-65535
+
+# Common ports
+sudo masscan 192.168.1.0/24 -p80,443,22,21,25,53,110,143,993,995</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Protocol Specification</h3>
+                    <pre><code># TCP ports (default)
+sudo masscan 192.168.1.0/24 -p80
+
+# UDP ports
+sudo masscan 192.168.1.0/24 -pU:53,161
+
+# Both TCP and UDP
+sudo masscan 192.168.1.0/24 -p80,443,U:53,U:161
+
+# SCTP ports
+sudo masscan 192.168.1.0/24 -pS:36412</code></pre>
+                </div>
+            </section>
+
+            <section id="rate-control">
+                <h2>Rate Control & Performance</h2>
+                <div class="command-block">
+                    <h3>Rate Limiting</h3>
+                    <pre><code># Set packet rate (packets per second)
+sudo masscan 192.168.1.0/24 -p1-1000 --rate 1000
+
+# Conservative rate for stealth
+sudo masscan 192.168.1.0/24 -p80 --rate 100
+
+# Maximum rate (default: 100 pps)
+sudo masscan 192.168.1.0/24 -p80 --rate 100000
+
+# Adaptive rate based on network
+sudo masscan 192.168.1.0/24 -p80 --rate 1000 --adapter-ip 192.168.1.50</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Connection Limits</h3>
+                    <pre><code># Maximum number of connections
+sudo masscan 192.168.1.0/24 -p80 --max-rate 1000
+
+# Connection timeout
+sudo masscan 192.168.1.0/24 -p80 --connection-timeout 30
+
+# Retransmission attempts
+sudo masscan 192.168.1.0/24 -p80 --retries 3</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output Options</h2>
+                <div class="command-block">
+                    <h3>Output Formats</h3>
+                    <pre><code># Default output
+sudo masscan 192.168.1.0/24 -p80
+
+# XML output
+sudo masscan 192.168.1.0/24 -p80 -oX scan.xml
+
+# Grepable output
+sudo masscan 192.168.1.0/24 -p80 -oG scan.gnmap
+
+# JSON output
+sudo masscan 192.168.1.0/24 -p80 -oJ scan.json
+
+# List format
+sudo masscan 192.168.1.0/24 -p80 -oL scan.list</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Control</h3>
+                    <pre><code># Save to file
+sudo masscan 192.168.1.0/24 -p80 > results.txt
+
+# Append timestamp
+sudo masscan 192.168.1.0/24 -p80 --append-output
+
+# Show only open ports
+sudo masscan 192.168.1.0/24 -p80 --open-only
+
+# Include timestamps
+sudo masscan 192.168.1.0/24 -p80 --show-timestamp</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Scanning Options</h2>
+                <div class="command-block">
+                    <h3>Source Configuration</h3>
+                    <pre><code># Specify source IP
+sudo masscan 192.168.1.0/24 -p80 --source-ip 192.168.1.50
+
+# Specify source port range
+sudo masscan 192.168.1.0/24 -p80 --source-port 40000-50000
+
+# Use specific interface
+sudo masscan 192.168.1.0/24 -p80 --interface eth0
+
+# Router MAC address
+sudo masscan 192.168.1.0/24 -p80 --router-mac 00:11:22:33:44:55</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Packet Customization</h3>
+                    <pre><code># Custom TTL
+sudo masscan 192.168.1.0/24 -p80 --ttl 64
+
+# Custom TCP window size
+sudo masscan 192.168.1.0/24 -p80 --tcp-window-size 1024
+
+# Custom user-agent (for HTTP)
+sudo masscan 192.168.1.0/24 -p80 --http-user-agent "Custom Scanner"
+
+# Randomize scan order
+sudo masscan 192.168.1.0/24 -p80 --randomize-hosts</code></pre>
+                </div>
+            </section>
+
+            <section id="stealth-scanning">
+                <h2>Stealth Scanning Techniques</h2>
+                <div class="command-block">
+                    <h3>Low-Profile Scanning</h3>
+                    <pre><code># Very slow scan to avoid detection
+sudo masscan 192.168.1.0/24 -p80 --rate 10
+
+# Randomize target order
+sudo masscan 192.168.1.0/24 -p80 --randomize-hosts --rate 100
+
+# Use decoy source IPs
+sudo masscan 192.168.1.0/24 -p80 --source-ip 192.168.1.10,192.168.1.20
+
+# Fragment packets
+sudo masscan 192.168.1.0/24 -p80 --fragment</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timing Options</h3>
+                    <pre><code># Add random delays
+sudo masscan 192.168.1.0/24 -p80 --wait 1000
+
+# Scan during specific time window
+sudo masscan 192.168.1.0/24 -p80 --rate 100 --wait 5000
+
+# Pause between hosts
+sudo masscan 192.168.1.0/24 -p80 --host-timeout 1000</code></pre>
+                </div>
+            </section>
+
+            <section id="configuration-files">
+                <h2>Configuration Files</h2>
+                <div class="command-block">
+                    <h3>Creating Config Files</h3>
+                    <pre><code># Generate config file
+sudo masscan --echo > masscan.conf
+
+# Example config file content:
+# rate = 1000
+# output-format = xml
+# output-filename = scan.xml
+# ports = 80,443,22,21,25
+# range = 192.168.1.0/24
+# exclude = 192.168.1.1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Using Config Files</h3>
+                    <pre><code># Use configuration file
+sudo masscan -c masscan.conf
+
+# Override config options
+sudo masscan -c masscan.conf --rate 2000
+
+# Multiple config files
+sudo masscan -c base.conf -c custom.conf</code></pre>
+                </div>
+            </section>
+
+            <section id="practical-examples">
+                <h2>Practical Examples</h2>
+                <div class="command-block">
+                    <h3>Network Discovery</h3>
+                    <pre><code># Quick network sweep
+sudo masscan 192.168.1.0/24 -p80,443,22,21 --rate 1000
+
+# Find web servers in large network
+sudo masscan 10.0.0.0/8 -p80,443,8080,8443 --rate 10000
+
+# Discover SSH servers
+sudo masscan 192.168.0.0/16 -p22 --rate 5000</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Service Enumeration</h3>
+                    <pre><code># Common service ports
+sudo masscan 192.168.1.0/24 -p21,22,23,25,53,80,110,143,443,993,995 --rate 1000
+
+# Database ports
+sudo masscan 192.168.1.0/24 -p1433,1521,3306,5432,27017 --rate 500
+
+# Remote access ports
+sudo masscan 192.168.1.0/24 -p22,23,3389,5900,5901 --rate 1000</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Internet-Scale Scanning</h3>
+                    <pre><code># Scan entire Internet for web servers (BE CAREFUL!)
+sudo masscan 0.0.0.0/0 -p80,443 --rate 100000 --exclude 255.255.255.255
+
+# Scan specific country IP ranges
+sudo masscan 203.0.0.0/8 -p80 --rate 10000
+
+# Exclude private networks
+sudo masscan 0.0.0.0/0 -p80 --exclude 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Nmap Integration</h3>
+                    <pre><code># Use Masscan for discovery, Nmap for detailed scanning
+sudo masscan 192.168.1.0/24 -p1-65535 --rate 1000 -oG masscan.gnmap
+grep "open" masscan.gnmap | awk '{print $2}' > live_hosts.txt
+nmap -sV -sC -iL live_hosts.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Script Integration</h3>
+                    <pre><code>#!/bin/bash
+# Automated scanning pipeline
+
+# Fast discovery with Masscan
+sudo masscan $1 -p80,443,22,21,25 --rate 1000 -oX masscan.xml
+
+# Parse results and run detailed Nmap scan
+grep "portid" masscan.xml | grep "state=\"open\"" | \
+awk -F'"' '{print $4":"$8}' | sort -u > open_ports.txt
+
+# Follow up with service detection
+while read line; do
+    host=$(echo $line | cut -d: -f1)
+    port=$(echo $line | cut -d: -f2)
+    nmap -sV -p$port $host
+done < open_ports.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-tuning">
+                <h2>Performance Tuning</h2>
+                <div class="command-block">
+                    <h3>System Optimization</h3>
+                    <pre><code># Increase file descriptor limits
+ulimit -n 65535
+
+# Optimize network buffers
+echo 'net.core.rmem_max = 134217728' >> /etc/sysctl.conf
+echo 'net.core.wmem_max = 134217728' >> /etc/sysctl.conf
+sysctl -p
+
+# Use dedicated network interface
+sudo masscan 192.168.1.0/24 -p80 --interface eth1 --rate 100000</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Memory Management</h3>
+                    <pre><code># Monitor memory usage
+sudo masscan 192.168.1.0/24 -p1-65535 --rate 10000 &
+watch -n 1 'ps aux | grep masscan'
+
+# Limit memory usage with smaller ranges
+for subnet in 192.168.{1..10}.0/24; do
+    sudo masscan $subnet -p80,443 --rate 1000
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with low rates:</strong> Begin with --rate 100 and increase gradually</li>
+                    <li><strong>Use appropriate source IPs:</strong> Ensure source IP is routable</li>
+                    <li><strong>Monitor network impact:</strong> Watch for packet loss and network congestion</li>
+                    <li><strong>Save configurations:</strong> Use config files for repeatable scans</li>
+                    <li><strong>Combine with Nmap:</strong> Use Masscan for discovery, Nmap for detailed analysis</li>
+                    <li><strong>Exclude critical systems:</strong> Always exclude production systems</li>
+                    <li><strong>Use appropriate timing:</strong> Scan during maintenance windows</li>
+                    <li><strong>Document your scans:</strong> Keep logs of what was scanned and when</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Common Issues & Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Permission Issues</h3>
+                    <pre><code># Run with sudo
+sudo masscan 192.168.1.0/24 -p80
+
+# Check raw socket permissions
+sudo setcap cap_net_raw+ep /usr/bin/masscan</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Issues</h3>
+                    <pre><code># Check routing table
+route -n
+
+# Verify interface configuration
+ip addr show
+
+# Test connectivity
+ping -c 1 192.168.1.1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Check system limits
+ulimit -a
+
+# Monitor packet drops
+sudo masscan 192.168.1.0/24 -p80 --rate 1000 --stats
+
+# Reduce rate if experiencing issues
+sudo masscan 192.168.1.0/24 -p80 --rate 100</code></pre>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Masscan should only be used for:</p>
+                    <ul>
+                        <li>Scanning your own networks and systems</li>
+                        <li>Authorized penetration testing with written permission</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Security research on isolated test networks</li>
+                    </ul>
+                    <p>Unauthorized network scanning is illegal in many jurisdictions and may violate computer crime laws. Internet-scale scanning can impact network infrastructure and may be considered a denial of service attack. Always obtain proper authorization and follow responsible disclosure practices.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nload Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>nload: Real-time Network Traffic Monitor</h1>
+            <p>Master Interface-Level Bandwidth Monitoring</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is nload?</h2>
+                <p>nload is a console application that monitors network traffic and bandwidth usage in real time. It visualizes the incoming and outgoing traffic using two graphs and provides additional info like the total amount of transferred data and min/max network usage. Unlike tools that show per-process or per-connection usage, nload focuses on interface-level monitoring with an intuitive graphical display that makes it easy to understand network utilization patterns at a glance.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install nload
+sudo apt update
+sudo apt install nload</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+
+# Install nload
+sudo yum install nload
+
+# Or on newer versions
+sudo dnf install nload</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Arch Linux Installation</h3>
+                    <pre><code># Install nload
+sudo pacman -S nload</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install nload
+
+# Using MacPorts
+sudo port install nload</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Download source
+wget http://www.roland-riegel.de/nload/nload-0.7.4.tar.gz
+tar -xzf nload-0.7.4.tar.gz
+cd nload-0.7.4
+
+# Install build dependencies
+sudo apt install build-essential libncurses5-dev
+
+# Configure and compile
+./configure
+make
+sudo make install</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Starting nload</h3>
+                    <pre><code># Basic usage (monitor default interface)
+nload
+
+# Monitor specific interface
+nload eth0
+nload wlan0
+
+# Monitor multiple interfaces
+nload eth0 wlan0
+
+# Monitor all available interfaces
+nload -a</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Interface options
+-a              # Monitor all available interfaces
+-i interval     # Refresh interval in milliseconds (default: 500)
+-t interval     # Averaging time in milliseconds (default: 500)
+-u unit         # Unit for data rates (h/H/b/B/k/K/m/M/g/G)
+
+# Display options
+-U unit         # Unit for data amounts (h/H/b/B/k/K/m/M/g/G)
+-o outfile      # Write CSV output to file
+
+# Example usage
+nload -i 1000 eth0              # Update every 1 second
+nload -u M eth0                 # Show rates in MB/s
+nload -t 2000 -i 1000 eth0      # 2-second averaging, 1-second updates</code></pre>
+                </div>
+            </section>
+
+            <section id="interface-navigation">
+                <h2>Interface Navigation</h2>
+                <div class="command-block">
+                    <h3>Interactive Commands</h3>
+                    <pre><code># Navigation
+Left/Right arrows    # Switch between interfaces
+Up/Down arrows      # Adjust graph scale
+Page Up/Page Down   # Change refresh interval
+
+# Display controls
+q                   # Quit nload
+r                   # Reset statistics
+s                   # Save settings
+F2                  # Show options window
+F5                  # Save current settings
+F6                  # Reload settings</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Display Elements</h3>
+                    <ul>
+                        <li><strong>Interface name:</strong> Currently monitored interface</li>
+                        <li><strong>Incoming graph:</strong> Visual representation of received data</li>
+                        <li><strong>Outgoing graph:</strong> Visual representation of sent data</li>
+                        <li><strong>Current rates:</strong> Real-time in/out data rates</li>
+                        <li><strong>Average rates:</strong> Average in/out data rates</li>
+                        <li><strong>Min/Max rates:</strong> Minimum and maximum observed rates</li>
+                        <li><strong>Total data:</strong> Cumulative data transferred</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="output-analysis">
+                <h2>Output Analysis</h2>
+                <div class="command-block">
+                    <h3>Understanding the Display</h3>
+                    <pre><code># nload display layout:
+# 
+# Device eth0 [192.168.1.100] (1/2):
+# =====================================
+# Incoming:
+# ################                     Curr: 1.23 MBit/s
+# #######                              Avg:  856.7 kBit/s
+# ###                                  Min:  0.00 Bit/s
+# #                                    Max:  2.45 MBit/s
+#                                      Ttl:  1.23 GB
+# 
+# Outgoing:
+# ########                             Curr: 456.2 kBit/s
+# ####                                 Avg:  234.1 kBit/s
+# ##                                   Min:  0.00 Bit/s
+# #                                    Max:  1.12 MBit/s
+#                                      Ttl:  567.8 MB</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Graph Interpretation</h3>
+                    <ul>
+                        <li><strong>Graph bars:</strong> Each line represents a time period</li>
+                        <li><strong>Bar length:</strong> Proportional to data rate</li>
+                        <li><strong>Current (Curr):</strong> Instantaneous data rate</li>
+                        <li><strong>Average (Avg):</strong> Average rate over time period</li>
+                        <li><strong>Minimum (Min):</strong> Lowest observed rate</li>
+                        <li><strong>Maximum (Max):</strong> Highest observed rate</li>
+                        <li><strong>Total (Ttl):</strong> Cumulative data transferred</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="monitoring-scenarios">
+                <h2>Monitoring Scenarios</h2>
+                <div class="command-block">
+                    <h3>Bandwidth Monitoring</h3>
+                    <pre><code># Monitor internet connection
+nload eth0  # External interface
+
+# Monitor internal network
+nload eth1  # Internal interface
+
+# Monitor wireless connection
+nload wlan0
+
+# Monitor all interfaces simultaneously
+nload -a</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Analysis</h3>
+                    <pre><code># High-frequency monitoring for troubleshooting
+nload -i 100 eth0  # Update every 100ms
+
+# Long-term averaging for capacity planning
+nload -t 10000 -i 2000 eth0  # 10-second average, 2-second updates
+
+# Monitor with specific units
+nload -u M eth0  # Show in MB/s for high-bandwidth interfaces
+nload -u k eth0  # Show in KB/s for low-bandwidth interfaces</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Server Monitoring</h3>
+                    <pre><code># Monitor web server traffic
+nload eth0  # Watch for HTTP/HTTPS traffic patterns
+
+# Monitor database server
+nload eth0  # Look for database query patterns
+
+# Monitor backup operations
+nload eth0  # Monitor during backup windows
+
+# Monitor file server
+nload eth0  # Watch file transfer patterns</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>CSV Output for Analysis</h3>
+                    <pre><code># Generate CSV output
+nload -o /tmp/network_stats.csv eth0 &
+NLOAD_PID=$!
+
+# Let it run for specified time
+sleep 300  # 5 minutes
+
+# Stop nload
+kill $NLOAD_PID
+
+# Analyze CSV data
+echo "Network Statistics Analysis:"
+echo "Average incoming rate: $(awk -F',' '{sum+=$2; count++} END {print sum/count}' /tmp/network_stats.csv)"
+echo "Average outgoing rate: $(awk -F',' '{sum+=$3; count++} END {print sum/count}' /tmp/network_stats.csv)"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Automated Monitoring Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated network monitoring with nload
+
+INTERFACE="eth0"
+LOG_DIR="/var/log/network"
+DURATION=3600  # 1 hour
+ALERT_THRESHOLD=80  # 80% of interface capacity
+INTERFACE_CAPACITY=100  # 100 Mbps
+
+# Create log directory
+mkdir -p $LOG_DIR
+
+# Function to monitor interface
+monitor_interface() {
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local csv_file="$LOG_DIR/nload_${INTERFACE}_$timestamp.csv"
+    
+    echo "Starting network monitoring on $INTERFACE"
+    echo "Duration: ${DURATION}s"
+    echo "Output: $csv_file"
+    
+    # Start nload in background
+    timeout $DURATION nload -o $csv_file $INTERFACE &
+    local nload_pid=$!
+    
+    # Monitor for high usage
+    while kill -0 $nload_pid 2>/dev/null; do
+        # Check current usage (this is a simplified example)
+        current_usage=$(cat /sys/class/net/$INTERFACE/statistics/rx_bytes)
+        sleep 10
+        new_usage=$(cat /sys/class/net/$INTERFACE/statistics/rx_bytes)
+        
+        # Calculate rate (simplified)
+        rate=$(( (new_usage - current_usage) * 8 / 10 / 1000000 ))  # Mbps
+        
+        if [ $rate -gt $ALERT_THRESHOLD ]; then
+            echo "$(date): High bandwidth usage detected: ${rate}Mbps" | \
+            tee -a $LOG_DIR/alerts.log
+        fi
+    done
+    
+    echo "Monitoring completed: $csv_file"
+}
+
+# Start monitoring
+monitor_interface</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Bandwidth Usage Report</h3>
+                    <pre><code>#!/bin/bash
+# Generate bandwidth usage report from nload CSV data
+
+CSV_FILE="$1"
+REPORT_FILE="/tmp/bandwidth_report_$(date +%Y%m%d_%H%M%S).txt"
+
+if [ ! -f "$CSV_FILE" ]; then
+    echo "Usage: $0 <csv_file>"
+    exit 1
+fi
+
+echo "Bandwidth Usage Report" > $REPORT_FILE
+echo "Generated: $(date)" >> $REPORT_FILE
+echo "Data source: $CSV_FILE" >> $REPORT_FILE
+echo "=================================" >> $REPORT_FILE
+
+# Calculate statistics
+total_lines=$(wc -l < $CSV_FILE)
+avg_in=$(awk -F',' '{sum+=$2} END {print sum/NR}' $CSV_FILE)
+avg_out=$(awk -F',' '{sum+=$3} END {print sum/NR}' $CSV_FILE)
+max_in=$(awk -F',' 'BEGIN{max=0} {if($2>max) max=$2} END {print max}' $CSV_FILE)
+max_out=$(awk -F',' 'BEGIN{max=0} {if($3>max) max=$3} END {print max}' $CSV_FILE)
+
+echo "Statistics:" >> $REPORT_FILE
+echo "----------" >> $REPORT_FILE
+echo "Total samples: $total_lines" >> $REPORT_FILE
+echo "Average incoming: ${avg_in} Bit/s" >> $REPORT_FILE
+echo "Average outgoing: ${avg_out} Bit/s" >> $REPORT_FILE
+echo "Peak incoming: ${max_in} Bit/s" >> $REPORT_FILE
+echo "Peak outgoing: ${max_out} Bit/s" >> $REPORT_FILE
+
+echo "Report generated: $REPORT_FILE"</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>System Monitoring Integration</h3>
+                    <pre><code># Combine with other monitoring tools
+# Terminal 1: Network traffic
+nload eth0
+
+# Terminal 2: System resources
+htop
+
+# Terminal 3: Disk I/O
+sudo iotop
+
+# Terminal 4: Process network usage
+sudo nethogs eth0</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>SNMP Integration</h3>
+                    <pre><code># Compare nload data with SNMP
+# Get interface statistics via SNMP
+snmpwalk -v2c -c public localhost 1.3.6.1.2.1.2.2.1.10  # ifInOctets
+snmpwalk -v2c -c public localhost 1.3.6.1.2.1.2.2.1.16  # ifOutOctets
+
+# Monitor with nload simultaneously
+nload eth0
+
+# Script to correlate SNMP and nload data
+#!/bin/bash
+interface="eth0"
+community="public"
+host="localhost"
+
+while true; do
+    # Get SNMP data
+    snmp_in=$(snmpget -v2c -c $community $host 1.3.6.1.2.1.2.2.1.10.2 | awk '{print $4}')
+    snmp_out=$(snmpget -v2c -c $community $host 1.3.6.1.2.1.2.2.1.16.2 | awk '{print $4}')
+    
+    echo "$(date): SNMP In: $snmp_in, Out: $snmp_out"
+    sleep 60
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Analysis Integration</h3>
+                    <pre><code># Export nload data for analysis tools
+nload -o network_data.csv eth0 &
+NLOAD_PID=$!
+
+# Let it collect data
+sleep 1800  # 30 minutes
+
+# Stop and analyze
+kill $NLOAD_PID
+
+# Import into analysis tools
+# - Excel/LibreOffice for graphing
+# - R for statistical analysis
+# - Python pandas for data processing
+# - Grafana for visualization</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Interface not found
+ip link show        # List available interfaces
+nload -a           # Show all interfaces
+
+# Permission issues (usually not required for nload)
+# nload typically doesn't require root privileges
+
+# Display issues
+export TERM=xterm-256color
+resize
+
+# No data shown
+# Check if interface is up and has traffic
+ip addr show eth0
+ping -c 5 8.8.8.8  # Generate some traffic</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># High CPU usage
+nload -i 2000 eth0  # Increase refresh interval
+
+# Terminal responsiveness
+nload -t 5000 eth0  # Increase averaging time
+
+# Memory usage
+ulimit -v 50000     # Limit virtual memory if needed</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Display Problems</h3>
+                    <pre><code># Garbled display
+reset
+clear
+nload eth0
+
+# Wrong units displayed
+nload -u k eth0     # Force KB/s
+nload -u M eth0     # Force MB/s
+
+# Graph scaling issues
+# Use Up/Down arrows to adjust scale
+# Or restart with different averaging time</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Administration</h3>
+                    <ul>
+                        <li>Real-time bandwidth monitoring</li>
+                        <li>Interface utilization analysis</li>
+                        <li>Network capacity planning</li>
+                        <li>Troubleshooting network performance</li>
+                        <li>Monitoring during maintenance windows</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Server Monitoring</h3>
+                    <ul>
+                        <li>Web server traffic analysis</li>
+                        <li>Database server network load</li>
+                        <li>File server transfer monitoring</li>
+                        <li>Backup operation monitoring</li>
+                        <li>Application deployment monitoring</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <ul>
+                        <li>Detecting unusual traffic patterns</li>
+                        <li>Monitoring for DDoS attacks</li>
+                        <li>Identifying data exfiltration</li>
+                        <li>Baseline establishment for anomaly detection</li>
+                        <li>Incident response traffic analysis</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="comparison">
+                <h2>Comparison with Similar Tools</h2>
+                <div class="command-block">
+                    <h3>nload vs Other Tools</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                        <tr style="background-color: #f0f0f0;">
+                            <th style="border: 1px solid #ddd; padding: 8px;">Tool</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Focus</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Display</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Best For</th>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>nload</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Interface-level</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Graphical bars</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Visual bandwidth monitoring</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>iftop</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Per-connection</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Connection list</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Host-to-host traffic analysis</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>nethogs</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Per-process</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Process list</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Process bandwidth usage</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>vnstat</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Historical data</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Statistics/graphs</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Long-term usage tracking</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use nload</h3>
+                    <ul>
+                        <li>Need visual representation of interface traffic</li>
+                        <li>Want simple, intuitive bandwidth monitoring</li>
+                        <li>Monitoring overall interface utilization</li>
+                        <li>Quick bandwidth troubleshooting</li>
+                        <li>Prefer graphical display over numerical data</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Adjust refresh rate:</strong> Use -i option to balance responsiveness with system load</li>
+                    <li><strong>Use appropriate units:</strong> Choose units (-u option) that match your interface speed</li>
+                    <li><strong>Monitor multiple interfaces:</strong> Use arrow keys to switch between interfaces</li>
+                    <li><strong>Save CSV data:</strong> Use -o option for later analysis and reporting</li>
+                    <li><strong>Adjust averaging time:</strong> Use -t option for smoother or more responsive graphs</li>
+                    <li><strong>Scale graphs properly:</strong> Use Up/Down arrows to adjust graph scale</li>
+                    <li><strong>Combine with other tools:</strong> Use alongside process and connection monitors</li>
+                    <li><strong>Document baselines:</strong> Record normal traffic patterns for comparison</li>
+                </ul>
+            </section>
+
+            <section id="alternatives">
+                <h2>Alternatives & Similar Tools</h2>
+                <div class="command-block">
+                    <h3>Similar Tools</h3>
+                    <ul>
+                        <li><strong>bmon:</strong> More detailed bandwidth monitoring with multiple views</li>
+                        <li><strong>slurm:</strong> Simple network load monitor</li>
+                        <li><strong>cbm:</strong> Color bandwidth meter</li>
+                        <li><strong>bwm-ng:</strong> Bandwidth monitor next generation</li>
+                        <li><strong>speedometer:</strong> File and network throughput monitor</li>
+                        <li><strong>jnettop:</strong> Network traffic viewer</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>GUI Alternatives</h3>
+                    <ul>
+                        <li><strong>GNOME System Monitor:</strong> GUI system and network monitoring</li>
+                        <li><strong>KDE System Monitor:</strong> KDE's system monitoring tool</li>
+                        <li><strong>Wireshark:</strong> For detailed packet analysis</li>
+                        <li><strong>ntopng:</strong> Web-based network monitoring</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> nload should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own networks and systems</li>
+                        <li>Authorized network administration and monitoring</li>
+                        <li>Performance analysis of owned infrastructure</li>
+                        <li>Troubleshooting network issues with proper authorization</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>While nload typically monitors interface statistics that are generally accessible to system users, network monitoring should still be conducted responsibly and with appropriate authorization. Always ensure compliance with organizational policies and applicable laws when monitoring network traffic. Be aware of privacy implications and data protection requirements in your jurisdiction.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

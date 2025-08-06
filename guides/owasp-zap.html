@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OWASP ZAP Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>OWASP ZAP: Web Application Security Scanner</h1>
+            <p>Master Web Application Security Testing and Vulnerability Assessment</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is OWASP ZAP?</h2>
+                <p>OWASP Zed Attack Proxy (ZAP) is one of the world's most popular free security tools and is actively maintained by hundreds of international volunteers. It can help you automatically find security vulnerabilities in your web applications while you are developing and testing your applications. It's also a great tool for experienced pentesters to use for manual security testing. ZAP provides automated scanners as well as a set of tools that allow you to find security vulnerabilities manually.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from official website
+# https://www.zaproxy.org/download/
+
+# Install using installer
+ZAP_2_14_0_windows.exe
+
+# Or use Chocolatey
+choco install zap
+
+# Verify installation
+zap.bat -version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install zaproxy
+
+# Or download latest release
+wget https://github.com/zaproxy/zaproxy/releases/download/v2.14.0/ZAP_2_14_0_Linux.tar.gz
+tar -xzf ZAP_2_14_0_Linux.tar.gz
+cd ZAP_2.14.0/
+./zap.sh
+
+# Verify installation
+./zap.sh -version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install --cask owasp-zap
+
+# Or download DMG from website
+# https://www.zaproxy.org/download/
+
+# Verify installation
+/Applications/OWASP\ ZAP.app/Contents/Java/zap.sh -version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull ZAP Docker image
+docker pull owasp/zap2docker-stable
+
+# Run ZAP in headless mode
+docker run -t owasp/zap2docker-stable zap-baseline.py -t https://example.com
+
+# Run with GUI (Linux)
+docker run -u zap -p 8080:8080 -p 8090:8090 -i owasp/zap2docker-stable zap-webswing.sh</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>GUI Mode</h3>
+                    <pre><code># Start ZAP GUI
+zap.sh (Linux/macOS)
+zap.bat (Windows)
+
+# Basic workflow:
+1. Configure proxy settings (default: localhost:8080)
+2. Configure browser to use ZAP proxy
+3. Browse target application
+4. Run automated scans
+5. Review results and generate reports</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Mode</h3>
+                    <pre><code># Headless mode
+zap.sh -daemon -port 8080
+
+# Quick baseline scan
+zap-baseline.py -t https://example.com
+
+# Full scan
+zap-full-scan.py -t https://example.com
+
+# API scan
+zap-api-scan.py -t https://example.com/api/openapi.json</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Proxy Configuration</h3>
+                    <pre><code># Configure browser proxy
+Proxy: localhost
+Port: 8080
+
+# Firefox proxy settings
+about:preferences#general -> Network Settings
+Manual proxy configuration
+HTTP Proxy: localhost:8080
+Use this proxy server for all protocols: checked
+
+# Chrome proxy settings
+chrome --proxy-server="localhost:8080"</code></pre>
+                </div>
+            </section>
+
+            <section id="scanning">
+                <h2>Automated Scanning</h2>
+                <div class="command-block">
+                    <h3>Spider/Crawler</h3>
+                    <pre><code># Traditional Spider
+1. Right-click on target URL
+2. Select "Attack" -> "Spider"
+3. Configure spider options
+4. Start spider to discover content
+
+# AJAX Spider
+1. Tools -> AJAX Spider
+2. Enter starting URL
+3. Configure browser and options
+4. Start AJAX spider for JavaScript-heavy apps</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Active Scan</h3>
+                    <pre><code># Active vulnerability scan
+1. Right-click on target
+2. Select "Attack" -> "Active Scan"
+3. Configure scan policy
+4. Start scan
+
+# Custom scan policies
+1. Analyze -> Scan Policy Manager
+2. Create new policy
+3. Configure vulnerability checks
+4. Apply to scans</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Passive Scan</h3>
+                    <pre><code># Passive scanning (automatic)
+- Runs automatically on proxied traffic
+- No intrusive testing
+- Identifies potential issues
+- Safe for production environments
+
+# Configure passive scan rules
+Tools -> Options -> Passive Scanner
+Enable/disable specific rules</code></pre>
+                </div>
+            </section>
+
+            <section id="manual-testing">
+                <h2>Manual Testing</h2>
+                <div class="command-block">
+                    <h3>Intercepting Requests</h3>
+                    <pre><code># Enable request interception
+1. Proxies -> Main Proxy -> Enable intercept
+2. Browse to target application
+3. Modify requests in ZAP
+4. Forward or drop requests
+
+# Breakpoints
+1. Right-click on request
+2. Set breakpoint
+3. Requests will pause for modification</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Fuzzing</h3>
+                    <pre><code># Fuzz testing
+1. Right-click on request parameter
+2. Select "Fuzz"
+3. Add payload generators
+4. Configure fuzzing options
+5. Start fuzzing
+
+# Common fuzz payloads
+- SQL injection payloads
+- XSS payloads
+- Directory traversal
+- Command injection</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Request/Response Analysis</h3>
+                    <pre><code># Analyze HTTP traffic
+1. Review requests in History tab
+2. Examine request/response headers
+3. Look for sensitive data exposure
+4. Check for security headers
+
+# Search functionality
+1. Search tab in bottom panel
+2. Search across all requests/responses
+3. Use regex for advanced searches</code></pre>
+                </div>
+            </section>
+
+            <section id="authentication">
+                <h2>Authentication Testing</h2>
+                <div class="command-block">
+                    <h3>Session Management</h3>
+                    <pre><code># Configure authentication
+1. Context -> Authentication
+2. Select authentication method:
+   - Form-based authentication
+   - HTTP authentication
+   - Script-based authentication
+3. Configure login parameters
+4. Set up users and credentials</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Session Handling</h3>
+                    <pre><code># Session token analysis
+1. Analyze -> Session Token Analysis
+2. Select session tokens
+3. Review randomness and entropy
+4. Check for session fixation issues
+
+# Anti-CSRF token handling
+1. Configure anti-CSRF tokens
+2. ZAP will handle token refresh
+3. Maintain session during scans</code></pre>
+                </div>
+            </section>
+
+            <section id="api-testing">
+                <h2>API Security Testing</h2>
+                <div class="command-block">
+                    <h3>OpenAPI/Swagger Testing</h3>
+                    <pre><code># Import OpenAPI specification
+1. Import -> Import OpenAPI definition
+2. Select OpenAPI/Swagger file or URL
+3. ZAP creates requests for all endpoints
+4. Run scans against API endpoints
+
+# Command line API testing
+zap-api-scan.py -t https://api.example.com/openapi.json -f openapi</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>GraphQL Testing</h3>
+                    <pre><code># GraphQL support
+1. Enable GraphQL add-on
+2. Import GraphQL schema
+3. Generate queries automatically
+4. Test for GraphQL-specific vulnerabilities
+
+# GraphQL introspection
+query IntrospectionQuery {
+  __schema {
+    queryType { name }
+    mutationType { name }
+    subscriptionType { name }
+  }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="reporting">
+                <h2>Reporting & Documentation</h2>
+                <div class="command-block">
+                    <h3>Generate Reports</h3>
+                    <pre><code># HTML Report
+1. Report -> Generate HTML Report
+2. Select template and options
+3. Include/exclude findings
+4. Generate comprehensive report
+
+# XML Report
+1. Report -> Generate XML Report
+2. Machine-readable format
+3. Integration with other tools
+
+# JSON Report
+1. Report -> Generate JSON Report
+2. Structured data format
+3. Custom processing and analysis</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Reports</h3>
+                    <pre><code># Report templates
+1. Create custom report templates
+2. Modify existing templates
+3. Include company branding
+4. Customize vulnerability descriptions
+
+# Export specific findings
+1. Filter alerts by severity
+2. Export selected vulnerabilities
+3. Create executive summaries</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation & CI/CD Integration</h2>
+                <div class="command-block">
+                    <h3>ZAP API</h3>
+                    <pre><code># Start ZAP daemon
+zap.sh -daemon -port 8080 -config api.key=your-api-key
+
+# API examples
+# Start spider
+curl "http://localhost:8080/JSON/spider/action/scan/?url=https://example.com&apikey=your-api-key"
+
+# Start active scan
+curl "http://localhost:8080/JSON/ascan/action/scan/?url=https://example.com&apikey=your-api-key"
+
+# Get alerts
+curl "http://localhost:8080/JSON/core/view/alerts/?apikey=your-api-key"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Jenkins Integration</h3>
+                    <pre><code># Jenkins pipeline example
+pipeline {
+    agent any
+    stages {
+        stage('Security Scan') {
+            steps {
+                script {
+                    sh 'docker run -t owasp/zap2docker-stable zap-baseline.py -t ${TARGET_URL} -J zap-report.json'
+                }
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: 'zap-report.html',
+                    reportName: 'ZAP Security Report'
+                ])
+            }
+        }
+    }
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>GitHub Actions</h3>
+                    <pre><code># .github/workflows/security-scan.yml
+name: Security Scan
+on: [push, pull_request]
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: ZAP Scan
+      uses: zaproxy/action-baseline@v0.7.0
+      with:
+        target: 'https://example.com'
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'</code></pre>
+                </div>
+            </section>
+
+            <section id="add-ons">
+                <h2>Add-ons & Extensions</h2>
+                <div class="command-block">
+                    <h3>Popular Add-ons</h3>
+                    <pre><code># Install add-ons
+1. Manage Add-ons -> Marketplace
+2. Browse available add-ons
+3. Install required extensions
+
+# Essential add-ons:
+- Advanced SQLi Scanner
+- DOM XSS Scanner
+- WebSockets support
+- GraphQL support
+- OpenAPI support
+- Retire.js (JavaScript library scanner)
+- Wappalyzer (Technology detection)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Scripts</h3>
+                    <pre><code># Script types
+- Proxy scripts (modify requests/responses)
+- Active scan rules (custom vulnerability checks)
+- Passive scan rules (analyze traffic)
+- Authentication scripts
+- Session management scripts
+
+# Example proxy script (JavaScript)
+function proxyRequest(msg) {
+    // Modify request headers
+    msg.getRequestHeader().setHeader("X-Custom-Header", "value");
+    return true;
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Certificate issues
+1. Tools -> Options -> Dynamic SSL Certificates
+2. Generate and install ZAP root certificate
+3. Import certificate in browser
+
+# Memory issues
+1. Increase Java heap size
+2. Edit zap.sh or zap.bat
+3. Add: -Xmx4g (for 4GB heap)
+
+# Proxy connection issues
+1. Check firewall settings
+2. Verify proxy configuration
+3. Test with curl: curl -x localhost:8080 http://example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <pre><code># Optimize scanning performance
+1. Adjust thread counts in scan policies
+2. Configure request delays
+3. Limit scan scope
+4. Use appropriate scan policies
+
+# Database optimization
+1. Compact database regularly
+2. Clear unnecessary history
+3. Adjust database settings</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Development Integration</h3>
+                    <ul>
+                        <li>Automated security testing in CI/CD pipelines</li>
+                        <li>Developer security training and awareness</li>
+                        <li>Pre-production vulnerability assessment</li>
+                        <li>API security testing and validation</li>
+                        <li>Security regression testing</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Penetration Testing</h3>
+                    <ul>
+                        <li>Web application security assessments</li>
+                        <li>Manual security testing and exploitation</li>
+                        <li>Vulnerability validation and proof-of-concept</li>
+                        <li>Security control bypass testing</li>
+                        <li>Compliance and regulatory testing</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with passive scanning:</strong> Safe for production environments</li>
+                    <li><strong>Configure contexts:</strong> Define application boundaries and authentication</li>
+                    <li><strong>Use appropriate scan policies:</strong> Customize for your application type</li>
+                    <li><strong>Review false positives:</strong> Validate findings before reporting</li>
+                    <li><strong>Combine automated and manual testing:</strong> Best coverage approach</li>
+                    <li><strong>Keep ZAP updated:</strong> Regular updates include new vulnerability checks</li>
+                    <li><strong>Use session management:</strong> Maintain authentication during scans</li>
+                    <li><strong>Document configurations:</strong> Save and reuse scan configurations</li>
+                    <li><strong>Integrate with development workflow:</strong> Shift security left</li>
+                    <li><strong>Train your team:</strong> Ensure proper tool usage and interpretation</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> OWASP ZAP should only be used for:</p>
+                    <ul>
+                        <li>Testing applications you own or have explicit permission to test</li>
+                        <li>Authorized penetration testing with proper legal agreements</li>
+                        <li>Security assessments with documented scope and approval</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Development and QA testing of your own applications</li>
+                    </ul>
+                    <p>Unauthorized security testing may violate computer crime laws, terms of service, and other regulations. Web application security testing should only be performed by qualified professionals with proper authorization and legal agreements. ZAP can generate significant traffic and may impact application performance or availability. Always ensure you have explicit written permission before testing any web application. Maintain proper documentation of testing activities and findings. Follow responsible disclosure practices for any vulnerabilities discovered. Respect rate limits and implement appropriate delays to avoid service disruption. Be aware that some scan techniques may trigger security controls or logging systems.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

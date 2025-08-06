@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snort Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../guide-styles.css" />
+  </head>
+  <body>
+    <div class="guide-container">
+      <header class="guide-header">
+        <h1>Snort: Network Intrusion Detection System</h1>
+        <p>Master Lightweight NIDS and Packet Sniffing</p>
+        <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+      </header>
+
+      <main class="guide-content">
+        <section id="introduction">
+          <h2>What is Snort?</h2>
+          <p>
+            Snort is an open-source, free, and lightweight network intrusion
+            detection system (NIDS) for Linux and Windows. Developed by Martin
+            Roesch and maintained by Cisco, it performs real-time traffic
+            analysis, packet logging, and rule-based detection to identify
+            malicious activity. Snort can function as a packet sniffer, packet
+            logger, or full-fledged NIDS, making it a versatile tool for network
+            security monitoring and threat detection.
+          </p>
+        </section>
+
+        <section id="installation">
+          <h2>Installation & Setup</h2>
+          <div class="command-block">
+            <h3>Ubuntu/Debian Installation</h3>
+            <pre><code># Install Snort
+sudo apt update
+sudo apt install snort
+
+# Install dependencies
+sudo apt install libpcap-dev libpcre3-dev libdumbnet-dev \
+    zlib1g-dev libluajit-5.1-dev libnghttp2-dev
+
+# Verify installation
+snort -V</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>CentOS/RHEL Installation</h3>
+            <pre><code># Install EPEL repository
+sudo yum install epel-release
+sudo yum install snort
+
+# Install dependencies
+sudo yum install libpcap-devel pcre-devel libdnet-devel \
+    zlib-devel luajit-devel nghttp2-devel
+
+# Verify installation
+snort -V</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Windows Installation</h3>
+            <pre><code># Download from official website
+# Visit: https://www.snort.org/downloads
+
+# Install WinPcap or Npcap
+# Download: https://www.winpcap.org/ or https://nmap.org/npcap/
+
+# Run installer as Administrator
+# Follow installation wizard
+
+# System Requirements:
+# - Windows 7 or later
+# - 2GB RAM (4GB+ recommended)
+# - 500MB free disk space</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Building from Source</h3>
+            <pre><code># Install build tools and dependencies
+sudo apt install build-essential autoconf automake libtool \
+    libpcap-dev libpcre3-dev libdnet-dev zlib1g-dev \
+    libluajit-5.1-dev libnghttp2-dev
+
+# Download and extract source
+wget https://www.snort.org/downloads/snort/snort-2.9.20.tar.gz
+tar -xvzf snort-2.9.20.tar.gz
+cd snort-2.9.20
+
+# Configure, build, and install
+./configure --enable-sourcefire
+make
+sudo make install</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Verification</h3>
+            <pre><code># Check Snort version
+snort -V
+
+# Test configuration
+snort -T -c /etc/snort/snort.conf -i eth0
+
+# System Requirements:
+# - Linux or Windows
+# - 2GB RAM (4GB+ recommended for high traffic)
+# - 500MB free disk space for logs and rules
+# - Supported NIC for packet capture</code></pre>
+          </div>
+        </section>
+
+        <section id="getting-started">
+          <h2>Getting Started</h2>
+          <div class="command-block">
+            <h3>Basic Configuration</h3>
+            <pre><code># Edit configuration file
+sudo nano /etc/snort/snort.conf
+
+# Key settings to configure:
+# - Network variables: HOME_NET, EXTERNAL_NET
+# - Rule files: include $RULE_PATH
+# - Output plugins: output unified2, alert_syslog
+# - Preprocessors: enable/disable as needed
+
+# Example: Set network variables
+var HOME_NET 192.168.1.0/24
+var EXTERNAL_NET any</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Starting Snort</h3>
+            <pre><code># Run Snort in packet sniffer mode
+sudo snort -i eth0 -v
+
+# Run in NIDS mode
+sudo snort -c /etc/snort/snort.conf -i eth0
+
+# Run as daemon
+sudo snort -c /etc/snort/snort.conf -i eth0 -D
+
+# Test configuration
+snort -T -c /etc/snort/snort.conf -i eth0</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Rule Management</h3>
+            <pre><code># Update rules using pulledpork
+sudo apt install pulledpork
+sudo pulledpork.pl -c /etc/pulledpork/pulledpork.conf
+
+# Specify rule sources
+sudo nano /etc/pulledpork/pulledpork.conf
+rule_url=https://www.snort.org/downloads/community|community-rules.tar.gz|Community
+
+# Reload rules
+sudo kill -SIGHUP $(pidof snort)
+
+# Common rule sources:
+# - Snort VRT Rules
+# - Community Rules
+# - Emerging Threats</code></pre>
+          </div>
+        </section>
+
+        <section id="interface-overview">
+          <h2>CLI Interface Overview</h2>
+          <div class="command-block">
+            <h3>Core Commands</h3>
+            <ul>
+              <li><strong>-c:</strong> Specify configuration file</li>
+              <li><strong>-i:</strong> Monitor specific network interface</li>
+              <li><strong>-D:</strong> Run as daemon</li>
+              <li><strong>-T:</strong> Test configuration</li>
+              <li><strong>-v:</strong> Verbose packet output</li>
+              <li><strong>-A:</strong> Set alert mode (fast, full, console)</li>
+              <li><strong>-V:</strong> Display version information</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Navigation Tips</h3>
+            <ul>
+              <li>Check logs in /var/log/snort/ for alerts</li>
+              <li>Use alert.fast for quick alert review</li>
+              <li>Monitor snort.log for packet captures</li>
+              <li>Combine with Barnyard2 for unified2 output</li>
+              <li>Integrate with SIEM for centralized analysis</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="rule-writing">
+          <h2>Rule Writing & Management</h2>
+          <div class="command-block">
+            <h3>Basic Rule Syntax</h3>
+            <pre><code># Example rule structure
+alert tcp $HOME_NET any -> $EXTERNAL_NET 80 \
+    (msg:"Suspicious HTTP Traffic"; \
+     content:"malicious"; http_uri; \
+     sid:1000001; rev:1;)
+
+# Key components:
+# - Action: alert, log, pass
+# - Protocol: tcp, udp, icmp, etc.
+# - Source/Destination: IP, ports
+# - Content: Match patterns
+# - SID: Unique signature ID
+# - Rev: Revision number</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Rule Management</h3>
+            <pre><code># Add custom rule
+sudo nano /etc/snort/rules/local.rules
+
+# Validate rules
+snort -T -c /etc/snort/snort.conf
+
+# Enable rules in snort.conf
+include $RULE_PATH/local.rules
+
+# Suppress noisy rules
+suppress gen_id 1, sig_id 1000001</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Rule Sources</h3>
+            <ul>
+              <li>
+                <strong>Snort VRT Rules:</strong> Official rules from Cisco
+              </li>
+              <li><strong>Community Rules:</strong> Free community rules</li>
+              <li><strong>Emerging Threats:</strong> Open-source rules</li>
+              <li><strong>Custom Rules:</strong> Organization-specific</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="analysis-techniques">
+          <h2>Analysis Techniques</h2>
+          <div class="command-block">
+            <h3>Alert Analysis</h3>
+            <pre><code># View alerts in alert file
+tail -f /var/log/snort/alert
+
+# Use unified2 output with Barnyard2
+barnyard2 -c /etc/snort/barnyard2.conf -d /var/log/snort
+
+# Key alert fields:
+# - SID: Signature ID
+# - Timestamp: Event time
+# - Source/Destination IP
+# - Alert message</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Packet Sniffing</h3>
+            <pre><code># Run Snort as packet sniffer
+sudo snort -i eth0 -v -l /var/log/snort
+
+# Enable packet logging
+output log_tcpdump: snort.log
+
+# Analyze captured packets
+tcpdump -r /var/log/snort/snort.log
+wireshark /var/log/snort/snort.log</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Performance Monitoring</h3>
+            <pre><code># Check performance stats
+tail -f /var/log/snort/snort.stats
+
+# Key metrics:
+# - Packets processed
+# - Alerts generated
+# - CPU usage
+# - Memory usage
+
+# Optimize performance
+# Adjust preprocessor settings
+preprocessor normalize_ip4: off</code></pre>
+          </div>
+        </section>
+
+        <section id="ips-configuration">
+          <h2>IPS Configuration</h2>
+          <div class="command-block">
+            <h3>Setting Up Inline Mode</h3>
+            <pre><code># Configure iptables for inline mode
+sudo iptables -I FORWARD -j QUEUE
+
+# Run Snort in inline mode
+sudo snort -Q -c /etc/snort/snort.conf -i eth0:eth1
+
+# Use drop rules for blocking
+drop tcp $HOME_NET any -> $EXTERNAL_NET 80 \
+    (msg:"Block Malicious HTTP"; content:"malicious"; sid:1000002;)</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Testing Inline Mode</h3>
+            <pre><code># Test drop rule
+curl http://example.com/malicious
+
+# Verify alerts
+grep "1000002" /var/log/snort/alert
+
+# Check packet drops
+cat /proc/net/stat/nf_queue</code></pre>
+          </div>
+        </section>
+
+        <section id="integration">
+          <h2>Integration with Other Tools</h2>
+          <div class="command-block">
+            <h3>SIEM Integration</h3>
+            <ul>
+              <li><strong>ELK Stack:</strong> Forward alerts to Logstash</li>
+              <li><strong>Splunk:</strong> Use Splunk forwarder</li>
+              <li><strong>Graylog:</strong> Syslog output integration</li>
+              <li><strong>ArcSight:</strong> Syslog forwarding</li>
+            </ul>
+            <pre><code># Example: Syslog output
+output alert_syslog: LOG_AUTH LOG_ALERT</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Visualization Tools</h3>
+            <ul>
+              <li><strong>Snorby:</strong> Web-based Snort interface</li>
+              <li><strong>Kibana:</strong> Visualize alerts and logs</li>
+              <li><strong>Grafana:</strong> Monitor performance metrics</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>Troubleshooting</h2>
+          <div class="command-block">
+            <h3>Common Issues</h3>
+            <pre><code># Packet loss
+# Increase buffer size
+config pcap: read-size 1048576
+
+# High CPU usage
+# Disable unnecessary preprocessors
+preprocessor stream5_global: max_tcp 8192, memcap 8388608
+
+# Configuration errors
+snort -T -c /etc/snort/snort.conf -vvv
+
+# Rule syntax errors
+tail -f /var/log/snort/snort.log</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Log Analysis</h3>
+            <pre><code># Check main log
+tail -f /var/log/snort/snort.log
+
+# Common log files:
+# - alert: Alert messages
+# - snort.log: Packet captures
+# - snort.stats: Performance stats</code></pre>
+          </div>
+        </section>
+
+        <section id="best-practices">
+          <h2>Best Practices</h2>
+          <div class="command-block">
+            <h3>Configuration</h3>
+            <ul>
+              <li>Define precise HOME_NET and EXTERNAL_NET</li>
+              <li>Use minimal rule sets for performance</li>
+              <li>Enable only necessary preprocessors</li>
+              <li>Regularly update rules with pulledpork</li>
+              <li>Backup configuration files</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Monitoring</h3>
+            <ul>
+              <li>Monitor disk space for logs</li>
+              <li>Track CPU and memory usage</li>
+              <li>Review alerts daily</li>
+              <li>Correlate with other security tools</li>
+              <li>Automate alert notifications</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Security</h3>
+            <ul>
+              <li>Restrict access to log files</li>
+              <li>Run Snort with least privilege</li>
+              <li>Secure configuration files</li>
+              <li>Monitor for unauthorized rule changes</li>
+              <li>Encrypt sensitive log data</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="use-cases">
+          <h2>Common Use Cases</h2>
+          <div class="command-block">
+            <h3>Network Security</h3>
+            <ul>
+              <li>Detect malware communication</li>
+              <li>Identify command-and-control traffic</li>
+              <li>Monitor for data exfiltration</li>
+              <li>Block malicious IPs and domains</li>
+              <li>Analyze suspicious packets</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Incident Response</h3>
+            <ul>
+              <li>Investigate security incidents</li>
+              <li>Trace attacker activity</li>
+              <li>Collect evidence for forensics</li>
+              <li>Correlate network events</li>
+              <li>Support legal investigations</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Compliance</h3>
+            <ul>
+              <li>Monitor for policy violations</li>
+              <li>Generate audit reports</li>
+              <li>Ensure data protection compliance</li>
+              <li>Track user activity</li>
+              <li>Support regulatory requirements</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="tips">
+          <h2>Pro Tips & Best Practices</h2>
+          <ul>
+            <li>
+              <strong>Tune rules:</strong> Disable noisy or irrelevant rules
+            </li>
+            <li>
+              <strong>Use unified2 output:</strong> For efficient log processing
+            </li>
+            <li>
+              <strong>Automate updates:</strong> Schedule rule and software
+              updates
+            </li>
+            <li>
+              <strong>Monitor performance:</strong> Regularly check snort.stats
+            </li>
+            <li>
+              <strong>Test rules:</strong> Validate custom rules before
+              deployment
+            </li>
+            <li>
+              <strong>Integrate tools:</strong> Combine with SIEM for better
+              visibility
+            </li>
+            <li>
+              <strong>Stay updated:</strong> Follow Snort community and blogs
+            </li>
+          </ul>
+        </section>
+
+        <section id="legal-disclaimer">
+          <h2>Legal Disclaimer</h2>
+          <div class="command-block">
+            <p><strong>WARNING:</strong> Snort should only be used for:</p>
+            <ul>
+              <li>Monitoring networks with proper authorization</li>
+              <li>Security research in controlled environments</li>
+              <li>Authorized incident response activities</li>
+              <li>Compliance auditing with consent</li>
+              <li>Educational purposes with permission</li>
+            </ul>
+            <p>
+              Unauthorized network monitoring or packet interception may violate
+              privacy laws, computer crime statutes, and other regulations.
+              Ensure compliance with applicable laws, organizational policies,
+              and ethical guidelines. Obtain proper authorization before
+              deploying Snort on any network. Be aware of data protection and
+              privacy requirements in your jurisdiction.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

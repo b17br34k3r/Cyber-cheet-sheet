@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnCase Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>EnCase: Industry-Standard Digital Forensics</h1>
+            <p>Master Professional Digital Investigation and Evidence Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is EnCase?</h2>
+                <p>EnCase is a comprehensive digital forensics platform developed by Guidance Software (now part of OpenText) that has been the industry standard for digital investigations for over two decades. EnCase provides powerful capabilities for evidence acquisition, analysis, and reporting across various digital devices including computers, mobile devices, and network systems. It's widely used by law enforcement, corporate security teams, and forensic consultants for criminal investigations, civil litigation, incident response, and compliance auditing. EnCase is known for its court-accepted methodology, extensive evidence handling capabilities, and comprehensive reporting features.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>System Requirements</h3>
+                    <pre><code># Minimum Requirements:
+# - Windows 10 or later (64-bit)
+# - 8 GB RAM (16 GB+ recommended)
+# - 10 GB free disk space
+# - Administrator privileges
+# - Valid license dongle or software license
+
+# Recommended Configuration:
+# - Windows 10/11 Professional
+# - 32 GB+ RAM for large cases
+# - SSD storage for performance
+# - Multiple monitors for workflow
+# - High-speed network for enterprise features</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Installation Process</h3>
+                    <pre><code># Obtain EnCase from OpenText
+# https://www.opentext.com/products/encase-forensic
+
+# Install hardware dongle drivers (if applicable)
+# Run EnCase installer as Administrator
+# Enter license information
+# Configure initial settings
+
+# Verify installation
+# Launch EnCase Forensic
+# Check Help > About for version and license info</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Initial Configuration</h3>
+                    <pre><code># Configure global settings
+# Tools > Options > Global
+# Set temporary directory
+# Configure memory usage
+# Set default evidence directory
+
+# Configure acquisition settings
+# Tools > Options > Acquisition
+# Set default image format
+# Configure verification options
+# Set compression levels</code></pre>
+                </div>
+            </section>
+
+            <section id="case-management">
+                <h2>Case Management</h2>
+                <div class="command-block">
+                    <h3>Creating New Case</h3>
+                    <pre><code># Create new case
+# File > New Case
+# Enter case information:
+#   - Case name and number
+#   - Primary examiner
+#   - Case description
+#   - Evidence custodian
+#   - Acquisition date/time
+
+# Set case folder structure
+# Configure case-specific options
+# Set up evidence handling procedures</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Evidence Management</h3>
+                    <pre><code># Add evidence to case
+# File > Add Device
+# Select evidence type:
+#   - Local drives
+#   - Network drives
+#   - Evidence files
+#   - Remote systems
+
+# Configure evidence properties
+# Set evidence description
+# Record chain of custody
+# Verify acquisition hashes</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Case Documentation</h3>
+                    <pre><code># Case notes and bookmarks
+# Use Bookmarks tab for important findings
+# Add detailed notes to bookmarks
+# Organize bookmarks by category
+
+# Case timeline
+# Create chronological case timeline
+# Document analysis steps
+# Record examiner actions</code></pre>
+                </div>
+            </section>
+
+            <section id="evidence-acquisition">
+                <h2>Evidence Acquisition</h2>
+                <div class="command-block">
+                    <h3>Live Acquisition</h3>
+                    <pre><code># Acquire live system
+# File > Acquire
+# Select physical drive
+# Configure acquisition options:
+#   - Evidence file format (E01, Ex01)
+#   - Compression level
+#   - Segment size
+#   - Verification method
+
+# Set acquisition metadata
+# Case information
+# Evidence description
+# Examiner details
+# Notes and comments</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Acquisition</h3>
+                    <pre><code># Remote acquisition via EnCase Enterprise
+# Connect to target system
+# Authenticate with credentials
+# Select drives for acquisition
+# Configure network transfer options
+
+# Preview before acquisition
+# Examine system remotely
+# Identify relevant data
+# Selective acquisition</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Mobile Device Acquisition</h3>
+                    <pre><code># Mobile forensics with EnCase Mobile Investigator
+# Connect mobile device
+# Bypass lock screens (if authorized)
+# Perform logical or physical extraction
+# Acquire app data and communications</code></pre>
+                </div>
+            </section>
+
+            <section id="evidence-processing">
+                <h2>Evidence Processing</h2>
+                <div class="command-block">
+                    <h3>Evidence Processing Engine</h3>
+                    <pre><code># Process evidence automatically
+# Tools > Process Evidence
+# Select processing options:
+#   - Find email
+#   - Recover folders
+#   - Find internet artifacts
+#   - Extract registry data
+#   - Carve files
+#   - Calculate hashes
+
+# Configure processing modules
+# Set file signature analysis
+# Enable timeline creation
+# Configure keyword indexing</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File System Analysis</h3>
+                    <pre><code># Examine file system structure
+# View partition tables
+# Analyze boot sectors
+# Examine file allocation tables
+# Identify file system errors
+
+# Deleted file recovery
+# View deleted files (shown in red)
+# Recover deleted files
+# Analyze file slack space
+# Examine unallocated clusters</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Hash Analysis</h3>
+                    <pre><code># Hash set management
+# Tools > Hash Sets
+# Import hash libraries (NSRL, custom)
+# Create custom hash sets
+# Flag known/unknown files
+
+# Duplicate file detection
+# Find identical files by hash
+# Group duplicate files
+# Optimize analysis focus</code></pre>
+                </div>
+            </section>
+
+            <section id="search-analysis">
+                <h2>Search and Analysis</h2>
+                <div class="command-block">
+                    <h3>Keyword Searching</h3>
+                    <pre><code># Create search terms
+# Tools > Keywords
+# Add individual keywords
+# Import keyword lists
+# Configure search options:
+#   - Case sensitivity
+#   - Whole words
+#   - Regular expressions
+#   - GREP patterns
+
+# Execute searches
+# Search > Keywords
+# Review search hits
+# Export search results
+# Create bookmarks from hits</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Index Searching</h3>
+                    <pre><code># Create search index
+# Tools > Index
+# Build full-text index
+# Configure indexing options
+# Set file type filters
+
+# Perform index searches
+# Search > Index
+# Boolean search operators
+# Proximity searches
+# Wildcard searches</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Searching</h3>
+                    <pre><code># Conditions and filters
+# Search > Conditions
+# Create complex search conditions
+# Combine multiple criteria
+# Filter by file properties
+
+# Timeline searches
+# Search within date ranges
+# Filter by timestamp types
+# Correlate events</code></pre>
+                </div>
+            </section>
+
+            <section id="registry-analysis">
+                <h2>Registry Analysis</h2>
+                <div class="command-block">
+                    <h3>Registry Examination</h3>
+                    <pre><code># Registry viewer
+# View > Registry
+# Navigate registry hives
+# Examine registry keys and values
+# Export registry data
+
+# Registry reports
+# Generate registry reports
+# User activity analysis
+# System configuration review
+# Installed software inventory</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Registry Artifacts</h3>
+                    <pre><code># User activity artifacts
+# Recent documents
+# Run/RunOnce entries
+# User Assist data
+# Typed URLs
+# Search terms
+
+# System artifacts
+# Services information
+# Network configuration
+# Hardware information
+# Startup programs</code></pre>
+                </div>
+            </section>
+
+            <section id="email-analysis">
+                <h2>Email Analysis</h2>
+                <div class="command-block">
+                    <h3>Email Processing</h3>
+                    <pre><code># Email detection and processing
+# Automatic email file detection
+# PST, OST, EML, MSG formats
+# Thunderbird, Outlook Express
+# Web-based email artifacts
+
+# Email extraction
+# Extract email messages
+# Process attachments
+# Recover deleted emails
+# Analyze email headers</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Email Investigation</h3>
+                    <pre><code># Email metadata analysis
+# Sender/recipient analysis
+# Timestamp verification
+# Routing information
+# Authentication headers
+
+# Email content analysis
+# Search email content
+# Analyze attachments
+# Identify suspicious emails
+# Track email threads</code></pre>
+                </div>
+            </section>
+
+            <section id="internet-artifacts">
+                <h2>Internet Artifacts</h2>
+                <div class="command-block">
+                    <h3>Web Browser Analysis</h3>
+                    <pre><code># Browser history analysis
+# Internet Explorer, Chrome, Firefox
+# Visited URLs and timestamps
+# Search queries
+# Download history
+
+# Browser cache analysis
+# Cached web pages
+# Images and multimedia
+# Temporary internet files
+# Cookie analysis</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Social Media and Communication</h3>
+                    <pre><code># Social media artifacts
+# Facebook, Twitter, LinkedIn
+# Chat applications
+# Instant messaging
+# Video conferencing logs
+
+# Online activity reconstruction
+# Timeline of web activity
+# Communication patterns
+# Social network analysis</code></pre>
+                </div>
+            </section>
+
+            <section id="timeline-analysis">
+                <h2>Timeline Analysis</h2>
+                <div class="command-block">
+                    <h3>Timeline Creation</h3>
+                    <pre><code># Generate timeline
+# View > Timeline
+# Select timestamp types:
+#   - Created
+#   - Modified
+#   - Accessed
+#   - Deleted
+
+# Timeline filtering
+# Date/time range filters
+# File type filters
+# User activity filters
+# System event filters</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeline Analysis</h3>
+                    <pre><code># Event correlation
+# Correlate file system events
+# Match user activities
+# Identify suspicious patterns
+# Reconstruct incident timeline
+
+# Timeline export
+# Export to various formats
+# Integration with other tools
+# Court presentation formats</code></pre>
+                </div>
+            </section>
+
+            <section id="reporting">
+                <h2>Reporting and Documentation</h2>
+                <div class="command-block">
+                    <h3>Report Generation</h3>
+                    <pre><code># Comprehensive reports
+# Report > Generate Report
+# Select report components:
+#   - Case summary
+#   - Evidence inventory
+#   - File listings
+#   - Search results
+#   - Timeline data
+#   - Registry analysis
+#   - Email analysis
+
+# Custom report templates
+# Create custom templates
+# Include specific data fields
+# Format for legal presentation</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Evidence Documentation</h3>
+                    <pre><code># Bookmark management
+# Organize important findings
+# Add detailed descriptions
+# Include screenshots
+# Create evidence packages
+
+# Chain of custody
+# Document evidence handling
+# Track examiner actions
+# Maintain audit trail
+# Generate custody reports</code></pre>
+                </div>
+            </section>
+
+            <section id="scripting-automation">
+                <h2>Scripting and Automation</h2>
+                <div class="command-block">
+                    <h3>EnScript Programming</h3>
+                    <pre><code># EnScript development
+# Tools > EnScript
+# Create custom analysis scripts
+# Automate repetitive tasks
+# Extend EnCase functionality
+
+# EnScript examples:
+# - Custom file carving
+# - Automated reporting
+# - Data extraction routines
+# - Evidence processing workflows</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Batch Processing</h3>
+                    <pre><code># Automated case processing
+# Create processing templates
+# Batch evidence analysis
+# Scheduled processing
+# Unattended operations
+
+# Enterprise automation
+# EnCase Enterprise features
+# Remote processing
+# Distributed analysis
+# Centralized case management</code></pre>
+                </div>
+            </section>
+
+            <section id="enterprise-features">
+                <h2>Enterprise Features</h2>
+                <div class="command-block">
+                    <h3>EnCase Enterprise</h3>
+                    <pre><code># Network investigations
+# Remote system access
+# Live response capabilities
+# Network-wide searches
+# Incident response automation
+
+# Centralized management
+# Case sharing and collaboration
+# Evidence repository
+# User access controls
+# Audit logging</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>EnCase eDiscovery</h3>
+                    <pre><code># Legal hold management
+# Data preservation
+# Early case assessment
+# Privilege review
+# Production management
+
+# Compliance features
+# Regulatory compliance
+# Data governance
+# Privacy protection
+# Audit trails</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Third-Party Integration</h3>
+                    <pre><code># Evidence format support
+# Import various image formats
+# Export to standard formats
+# Interoperability with other tools
+# Data exchange capabilities
+
+# External tool integration
+# Configure external viewers
+# Launch analysis tools
+# Export data for specialized analysis
+# Import results from other tools</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Integration</h3>
+                    <pre><code># Hash database integration
+# NSRL hash sets
+# Custom hash databases
+# Contraband detection
+# Known file filtering
+
+# Case database management
+# Centralized case storage
+# Multi-examiner access
+# Version control
+# Backup and recovery</code></pre>
+                </div>
+            </section>
+
+            <section id="performance">
+                <h2>Performance Optimization</h2>
+                <div class="command-block">
+                    <h3>System Optimization</h3>
+                    <pre><code># Memory management
+# Configure RAM allocation
+# Optimize for large cases
+# Manage temporary files
+# Cache optimization
+
+# Storage optimization
+# Use SSD for performance
+# Optimize disk I/O
+# Network storage considerations
+# Backup strategies</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Processing Optimization</h3>
+                    <pre><code># Multi-threading
+# Parallel processing
+# Background operations
+# Efficient indexing
+# Smart caching
+
+# Large case handling
+# Segment processing
+# Selective analysis
+# Resource management
+# Progress monitoring</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># License problems
+# Check dongle connection
+# Verify license validity
+# Network license issues
+# Contact support
+
+# Performance issues
+# Increase RAM allocation
+# Optimize storage
+# Check system resources
+# Update drivers</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Error Resolution</h3>
+                    <pre><code># Evidence corruption
+# Use error recovery options
+# Skip bad sectors
+# Partial analysis
+# Document limitations
+
+# Processing errors
+# Check system resources
+# Verify evidence integrity
+# Review error logs
+# Restart processing</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Law Enforcement</h3>
+                    <ul>
+                        <li>Criminal investigation evidence analysis</li>
+                        <li>Child exploitation investigations</li>
+                        <li>Financial crime analysis</li>
+                        <li>Cybercrime investigations</li>
+                        <li>Court testimony preparation</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Corporate Security</h3>
+                    <ul>
+                        <li>Internal investigations</li>
+                        <li>Data breach response</li>
+                        <li>Employee misconduct cases</li>
+                        <li>Intellectual property theft</li>
+                        <li>Compliance investigations</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Legal and eDiscovery</h3>
+                    <ul>
+                        <li>Civil litigation support</li>
+                        <li>Electronic discovery processing</li>
+                        <li>Expert witness services</li>
+                        <li>Evidence authentication</li>
+                        <li>Legal hold compliance</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Plan case structure:</strong> Organize cases systematically from the beginning</li>
+                    <li><strong>Use processing efficiently:</strong> Configure processing options based on case requirements</li>
+                    <li><strong>Leverage automation:</strong> Use EnScripts and templates for repetitive tasks</li>
+                    <li><strong>Document thoroughly:</strong> Maintain detailed bookmarks and case notes</li>
+                    <li><strong>Verify evidence integrity:</strong> Always validate acquisition and processing</li>
+                    <li><strong>Optimize performance:</strong> Configure system resources appropriately</li>
+                    <li><strong>Stay current:</strong> Keep software and hash databases updated</li>
+                    <li><strong>Follow procedures:</strong> Maintain consistent forensic methodology</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> EnCase should only be used for:</p>
+                    <ul>
+                        <li>Analyzing systems and data you own or have explicit legal authority to examine</li>
+                        <li>Authorized forensic investigations with proper court orders, warrants, or legal authority</li>
+                        <li>Corporate investigations with appropriate authorization and legal guidance</li>
+                        <li>eDiscovery activities with proper legal oversight and client authorization</li>
+                        <li>Academic research with proper institutional approval and ethical oversight</li>
+                    </ul>
+                    <p>Unauthorized digital forensics analysis may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority, training, and certification. EnCase can access and analyze highly sensitive personal information, confidential business data, privileged communications, and protected information that must be handled according to applicable privacy laws, attorney-client privilege, and data protection requirements. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper chain of custody documentation and follow established forensic procedures to ensure evidence admissibility in legal proceedings. Professional forensic analysis requires adherence to industry standards and ethical guidelines to protect individual privacy rights and ensure justice.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

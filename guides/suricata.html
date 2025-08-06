@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suricata Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../guide-styles.css" />
+  </head>
+  <body>
+    <div class="guide-container">
+      <header class="guide-header">
+        <h1>Suricata: Network Security Monitoring</h1>
+        <p>Master High-Performance IDS/IPS and Threat Detection</p>
+        <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+      </header>
+
+      <main class="guide-content">
+        <section id="introduction">
+          <h2>What is Suricata?</h2>
+          <p>
+            Suricata is an open-source, high-performance network intrusion
+            detection system (IDS), intrusion prevention system (IPS), and
+            network security monitoring (NSM) engine. Developed by the Open
+            Information Security Foundation (OISF), it analyzes network traffic
+            to detect threats, enforce policies, and provide visibility into
+            network activity. Suricata supports advanced features like deep
+            packet inspection, protocol analysis, and signature-based detection,
+            making it a powerful tool for cybersecurity professionals.
+          </p>
+        </section>
+
+        <section id="installation">
+          <h2>Installation & Setup</h2>
+          <div class="command-block">
+            <h3>Ubuntu/Debian Installation</h3>
+            <pre><code># Add Suricata PPA (for latest version)
+sudo add-apt-repository ppa:oisf/suricata-stable
+sudo apt update
+sudo apt install suricata
+
+# Install dependencies
+sudo apt install libpcre3-dev libyaml-dev libjansson-dev \
+    libcap-ng-dev libmagic-dev libssl-dev libnspr4-dev libnss3-dev
+
+# Verify installation
+suricata --build-info</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>CentOS/RHEL Installation</h3>
+            <pre><code># Install EPEL repository
+sudo yum install epel-release
+sudo yum install suricata
+
+# Install dependencies
+sudo yum install libpcap-devel pcre-devel libyaml-devel \
+    file-devel zlib-devel jansson-devel nss-devel
+
+# Verify installation
+suricata --build-info</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>macOS Installation</h3>
+            <pre><code># Install Homebrew (if not installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Suricata
+brew install suricata
+
+# Install dependencies
+brew install libpcap pcre libyaml jansson nss
+
+# Verify installation
+suricata --build-info</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Building from Source</h3>
+            <pre><code># Install build tools and dependencies
+sudo apt install build-essential autoconf automake libtool \
+    libpcre3-dev libyaml-dev libjansson-dev libcap-ng-dev \
+    libmagic-dev libssl-dev libnspr4-dev libnss3-dev
+
+# Download and extract source
+wget https://www.openinfosecfoundation.org/download/suricata-7.0.7.tar.gz
+tar -xvzf suricata-7.0.7.tar.gz
+cd suricata-7.0.7
+
+# Configure, build, and install
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+make
+sudo make install-full</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Verification</h3>
+            <pre><code># Check Suricata version
+suricata --build-info
+
+# Validate configuration
+suricata -T -c /etc/suricata/suricata.yaml -i eth0
+
+# System Requirements:
+# - Linux, macOS, or Windows (Linux preferred)
+# - 4GB RAM (8GB+ recommended for high traffic)
+# - Multi-core CPU (performance scales with cores)
+# - 1GB free disk space for logs and rules</code></pre>
+          </div>
+        </section>
+
+        <section id="getting-started">
+          <h2>Getting Started</h2>
+          <div class="command-block">
+            <h3>Basic Configuration</h3>
+            <pre><code># Edit configuration file
+sudo nano /etc/suricata/suricata.yaml
+
+# Key settings to configure:
+# - Network interfaces: vars.address-groups
+# - Rule files: rule-files
+# - Output modules: outputs (fast, eve-json, etc.)
+# - Logging: outputs.eve-log.types
+# - Home network: HOME_NET
+
+# Example: Set monitored interface
+default-packet-size: 1514
+vars:
+  address-groups:
+    HOME_NET: "[192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12]"
+    EXTERNAL_NET: "!$HOME_NET"</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Starting Suricata</h3>
+            <pre><code># Run Suricata in IDS mode
+sudo suricata -c /etc/suricata/suricata.yaml -i eth0
+
+# Run in IPS mode (requires NFQUEUE)
+sudo suricata -c /etc/suricata/suricata.yaml -q 0
+
+# Run as daemon
+sudo suricata -c /etc/suricata/suricata.yaml -i eth0 -D
+
+# Test configuration
+suricata -T -c /etc/suricata/suricata.yaml -i eth0</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Rule Management</h3>
+            <pre><code># Update rules using suricata-update
+sudo suricata-update
+
+# Specify rule sources
+sudo suricata-update --no-test \
+    -S /etc/suricata/rules/emerging.rules
+
+# Reload rules without restarting
+sudo kill -USR2 $(pidof suricata)
+
+# Common rule sources:
+# - Emerging Threats (ET Open)
+# - Proofpoint ET Pro
+# - Custom rules (/etc/suricata/rules/custom.rules)</code></pre>
+          </div>
+        </section>
+
+        <section id="interface-overview">
+          <h2>CLI Interface Overview</h2>
+          <div class="command-block">
+            <h3>Core Commands</h3>
+            <ul>
+              <li><strong>-c:</strong> Specify configuration file</li>
+              <li><strong>-i:</strong> Monitor specific network interface</li>
+              <li><strong>-D:</strong> Run as daemon</li>
+              <li><strong>-T:</strong> Test configuration</li>
+              <li><strong>-q:</strong> Use NFQUEUE for IPS mode</li>
+              <li><strong>--build-info:</strong> Display build information</li>
+              <li><strong>-v:</strong> Verbose output</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Navigation Tips</h3>
+            <ul>
+              <li>Check logs in /var/log/suricata/ for alerts and errors</li>
+              <li>Use eve.json for structured log analysis</li>
+              <li>Monitor stats.log for performance metrics</li>
+              <li>Use suricata-update for rule management</li>
+              <li>Combine with tools like ELK Stack for visualization</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="rule-writing">
+          <h2>Rule Writing & Management</h2>
+          <div class="command-block">
+            <h3>Basic Rule Syntax</h3>
+            <pre><code># Example rule structure
+alert http $HOME_NET any -> $EXTERNAL_NET any \
+    (msg:"Malicious HTTP Request"; \
+     flow:to_server,established; \
+     content:"malicious"; http_uri; \
+     sid:1000001; rev:1;)
+
+# Key components:
+# - Action: alert, drop, pass
+# - Protocol: http, tcp, udp, etc.
+# - Source/Destination: IP, ports
+# - Content: Match patterns
+# - SID: Unique signature ID
+# - Rev: Revision number</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Rule Management</h3>
+            <pre><code># Add custom rule
+sudo nano /etc/suricata/rules/custom.rules
+
+# Validate rules
+suricata -T -c /etc/suricata/suricata.yaml
+
+# Enable/disable rules in suricata.yaml
+rule-files:
+  - emerging.rules
+  - custom.rules
+
+# Suppress noisy rules
+threshold: type threshold, track by_src, count 1, seconds 60
+suppress: gen_id 1, sig_id 1000001</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Rule Sources</h3>
+            <ul>
+              <li>
+                <strong>Emerging Threats Open:</strong> Free community rules
+              </li>
+              <li><strong>Proofpoint ET Pro:</strong> Commercial rules</li>
+              <li><strong>OISF Traffic Analysis:</strong> Official rules</li>
+              <li><strong>Custom Rules:</strong> Organization-specific</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="analysis-techniques">
+          <h2>Analysis Techniques</h2>
+          <div class="command-block">
+            <h3>Alert Analysis</h3>
+            <pre><code># View alerts in fast.log
+tail -f /var/log/suricata/fast.log
+
+# Analyze structured logs
+jq . /var/log/suricata/eve.json | less
+
+# Key fields in eve.json:
+# - alert: Signature matches
+# - http: HTTP transaction details
+# - flow: Network flow information
+# - packet_info: Packet metadata</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Packet Capture Analysis</h3>
+            <pre><code># Enable PCAP logging
+outputs:
+  - pcap-log:
+      enabled: yes
+      filename: log.pcap
+
+# Analyze PCAP files
+tcpdump -r /var/log/suricata/log.pcap
+wireshark /var/log/suricata/log.pcap</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Performance Monitoring</h3>
+            <pre><code># Check performance stats
+tail -f /var/log/suricata/stats.log
+
+# Key metrics:
+# - capture.kernel_packets
+# - decoder.pkts
+# - flow.memuse
+# - detect.alert
+
+# Optimize performance
+# Increase threads in suricata.yaml
+af-packet:
+  - interface: eth0
+    threads: 4</code></pre>
+          </div>
+        </section>
+
+        <section id="ips-configuration">
+          <h2>IPS Configuration</h2>
+          <div class="command-block">
+            <h3>Setting Up IPS Mode</h3>
+            <pre><code># Configure iptables for NFQUEUE
+sudo iptables -I FORWARD -j NFQUEUE --queue-num 0
+sudo iptables -I INPUT -j NFQUEUE --queue-num 0
+sudo iptables -I OUTPUT -j NFQUEUE --queue-num 0
+
+# Run Suricata in IPS mode
+sudo suricata -c /etc/suricata/suricata.yaml -q 0
+
+# Use drop rules for blocking
+drop http $HOME_NET any -> $EXTERNAL_NET any \
+    (msg:"Block Malicious HTTP"; content:"malicious"; sid:1000002;)</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Testing IPS</h3>
+            <pre><code># Test blocking rule
+curl http://example.com/malicious
+
+# Verify drop in logs
+grep "1000002" /var/log/suricata/fast.log
+
+# Monitor queue stats
+cat /proc/net/netfilter/nfnetlink_queue</code></pre>
+          </div>
+        </section>
+
+        <section id="integration">
+          <h2>Integration with Other Tools</h2>
+          <div class="command-block">
+            <h3>SIEM Integration</h3>
+            <ul>
+              <li><strong>ELK Stack:</strong> Forward eve.json to Logstash</li>
+              <li><strong>Splunk:</strong> Use Splunk forwarder for logs</li>
+              <li><strong>Graylog:</strong> Configure GELF output</li>
+              <li><strong>ArcSight:</strong> Syslog forwarding</li>
+            </ul>
+            <pre><code># Example: Logstash input
+input {
+  file {
+    path => "/var/log/suricata/eve.json"
+    codec => json
+  }
+}</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Visualization Tools</h3>
+            <ul>
+              <li><strong>Kibana:</strong> Visualize alerts and flows</li>
+              <li><strong>Grafana:</strong> Monitor performance metrics</li>
+              <li><strong>Suricata-IDS GUI:</strong> Web-based interface</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>Troubleshooting</h2>
+          <div class="command-block">
+            <h3>Common Issues</h3>
+            <pre><code># Packet loss
+# Increase ring buffer size
+af-packet:
+  - interface: eth0
+    buffer-size: 2097152
+
+# High CPU usage
+# Reduce enabled rules
+# Increase threads in suricata.yaml
+
+# Configuration errors
+suricata -T -c /etc/suricata/suricata.yaml -vvv
+
+# Rule syntax errors
+tail -f /var/log/suricata/suricata.log</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Log Analysis</h3>
+            <pre><code># Check main log
+tail -f /var/log/suricata/suricata.log
+
+# Common log files:
+# - suricata.log: General errors
+# - fast.log: Alerts
+# - eve.json: Structured events
+# - stats.log: Performance stats</code></pre>
+          </div>
+        </section>
+
+        <section id="best-practices">
+          <h2>Best Practices</h2>
+          <div class="command-block">
+            <h3>Configuration</h3>
+            <ul>
+              <li>Define accurate HOME_NET and EXTERNAL_NET</li>
+              <li>Use minimal rule sets for performance</li>
+              <li>Enable only necessary output modules</li>
+              <li>Regularly update rules with suricata-update</li>
+              <li>Backup configuration files</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Monitoring</h3>
+            <ul>
+              <li>Monitor disk space for logs</li>
+              <li>Track CPU and memory usage</li>
+              <li>Review alerts daily</li>
+              <li>Correlate with other security tools</li>
+              <li>Use automated alert notifications</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Security</h3>
+            <ul>
+              <li>Restrict access to log files</li>
+              <li>Use least privilege for Suricata process</li>
+              <li>Secure configuration files</li>
+              <li>Monitor for unauthorized rule changes</li>
+              <li>Encrypt sensitive log data</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="use-cases">
+          <h2>Common Use Cases</h2>
+          <div class="command-block">
+            <h3>Network Security</h3>
+            <ul>
+              <li>Detect malware communication</li>
+              <li>Identify command-and-control traffic</li>
+              <li>Monitor for data exfiltration</li>
+              <li>Block malicious IPs and domains</li>
+              <li>Analyze encrypted traffic metadata</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Incident Response</h3>
+            <ul>
+              <li>Investigate security breaches</li>
+              <li>Trace attacker activity</li>
+              <li>Collect evidence for forensics</li>
+              <li>Correlate events across network</li>
+              <li>Support legal investigations</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Compliance</h3>
+            <ul>
+              <li>Monitor for policy violations</li>
+              <li>Generate audit reports</li>
+              <li>Ensure data protection compliance</li>
+              <li>Track user activity</li>
+              <li>Support regulatory requirements</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="tips">
+          <h2>Pro Tips & Best Practices</h2>
+          <ul>
+            <li>
+              <strong>Tune rules:</strong> Disable noisy or irrelevant rules
+            </li>
+            <li>
+              <strong>Use eve.json:</strong> Leverage structured logs for
+              analysis
+            </li>
+            <li>
+              <strong>Automate updates:</strong> Schedule rule and software
+              updates
+            </li>
+            <li>
+              <strong>Monitor performance:</strong> Regularly check stats.log
+            </li>
+            <li>
+              <strong>Test rules:</strong> Validate custom rules before
+              deployment
+            </li>
+            <li>
+              <strong>Integrate tools:</strong> Combine with SIEM for better
+              visibility
+            </li>
+            <li>
+              <strong>Stay updated:</strong> Follow OISF and community forums
+            </li>
+          </ul>
+        </section>
+
+        <section id="legal-disclaimer">
+          <h2>Legal Disclaimer</h2>
+          <div class="command-block">
+            <p><strong>WARNING:</strong> Suricata should only be used for:</p>
+            <ul>
+              <li>Monitoring networks with proper authorization</li>
+              <li>Security research in controlled environments</li>
+              <li>Authorized incident response activities</li>
+              <li>Compliance auditing with consent</li>
+              <li>Educational purposes with permission</li>
+            </ul>
+            <p>
+              Unauthorized network monitoring or packet interception may violate
+              privacy laws, computer crime statutes, and other regulations.
+              Ensure compliance with applicable laws, organizational policies,
+              and ethical guidelines. Obtain proper authorization before
+              deploying Suricata on any network. Be aware of data protection and
+              privacy requirements in your jurisdiction.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

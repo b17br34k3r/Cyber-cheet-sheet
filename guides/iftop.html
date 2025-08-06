@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iftop Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>iftop: Real-time Network Bandwidth Monitor</h1>
+            <p>Master Live Network Traffic Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is iftop?</h2>
+                <p>iftop is a command-line tool that displays bandwidth usage on an interface by host. It listens to network traffic on a named interface and displays a table of current bandwidth usage by pairs of hosts. It's similar to the top command but for network traffic, showing real-time network connections and their bandwidth consumption. iftop is particularly useful for quickly identifying which connections are consuming the most bandwidth on your network.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install iftop
+sudo apt update
+sudo apt install iftop
+
+# Install dependencies
+sudo apt install libpcap-dev libncurses5-dev</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+
+# Install iftop
+sudo yum install iftop
+
+# Or on newer versions
+sudo dnf install iftop</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Arch Linux Installation</h3>
+                    <pre><code># Install iftop
+sudo pacman -S iftop</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install iftop
+
+# Using MacPorts
+sudo port install iftop</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Download source
+wget http://www.ex-parrot.com/pdw/iftop/download/iftop-1.0pre4.tar.gz
+tar -xzf iftop-1.0pre4.tar.gz
+cd iftop-1.0pre4
+
+# Install build dependencies
+sudo apt install build-essential libpcap-dev libncurses5-dev
+
+# Configure and compile
+./configure
+make
+sudo make install</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Starting iftop</h3>
+                    <pre><code># Basic usage (requires root privileges)
+sudo iftop
+
+# Monitor specific interface
+sudo iftop -i eth0
+sudo iftop -i wlan0
+
+# Monitor all interfaces
+sudo iftop -i any
+
+# Text mode (no ncurses interface)
+sudo iftop -t</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Interface options
+-i interface    # Monitor specific interface
+-f filter       # Apply pcap filter
+-F net/mask     # Show traffic flows in/out of network
+
+# Display options
+-n              # Don't resolve hostnames
+-N              # Don't resolve port numbers
+-p              # Run in promiscuous mode
+-P              # Show ports as well as hosts
+-b              # Don't display bar graphs
+-B              # Display bandwidth in bytes/sec instead of bits/sec
+
+# Output options
+-t              # Text mode output
+-s seconds      # Print a single text output and exit
+-L limit        # Number of lines to print in text mode</code></pre>
+                </div>
+            </section>
+
+            <section id="interface-navigation">
+                <h2>Interface Navigation</h2>
+                <div class="command-block">
+                    <h3>Interactive Commands</h3>
+                    <pre><code># Display controls
+h               # Show/hide help
+q               # Quit iftop
+p               # Toggle port display
+n               # Toggle hostname resolution
+N               # Toggle port resolution
+s               # Toggle source host display
+d               # Toggle destination host display
+t               # Toggle text interface
+
+# Sorting options
+S               # Sort by source
+D               # Sort by destination
+<               # Sort by source name
+>               # Sort by destination name
+
+# Filtering
+f               # Edit filter code
+l               # Set screen filter
+L               # Linear/log scales
+o               # Freeze order
+j/k             # Scroll display up/down</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Display Modes</h3>
+                    <ul>
+                        <li><strong>Default mode:</strong> Shows source → destination pairs</li>
+                        <li><strong>Port mode (P):</strong> Shows ports along with hosts</li>
+                        <li><strong>Single host mode:</strong> Shows traffic for one host</li>
+                        <li><strong>Text mode (-t):</strong> Non-interactive text output</li>
+                        <li><strong>Bar graph mode:</strong> Visual bandwidth representation</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="filtering-options">
+                <h2>Filtering & Monitoring</h2>
+                <div class="command-block">
+                    <h3>Network Filters</h3>
+                    <pre><code># Monitor specific network
+sudo iftop -F 192.168.1.0/24
+
+# Monitor traffic to/from specific host
+sudo iftop -f "host 192.168.1.100"
+
+# Monitor specific protocol
+sudo iftop -f "tcp"
+sudo iftop -f "udp"
+sudo iftop -f "icmp"
+
+# Monitor specific port
+sudo iftop -f "port 80"
+sudo iftop -f "port 443"
+sudo iftop -f "port 22"
+
+# Complex filters
+sudo iftop -f "tcp and port 80"
+sudo iftop -f "host 192.168.1.1 and not port 22"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Filtering</h3>
+                    <pre><code># Monitor web traffic
+sudo iftop -f "port 80 or port 443"
+
+# Monitor email traffic
+sudo iftop -f "port 25 or port 110 or port 143 or port 993 or port 995"
+
+# Monitor DNS traffic
+sudo iftop -f "port 53"
+
+# Monitor P2P traffic (common ports)
+sudo iftop -f "port 6881 or port 6882 or port 6883"
+
+# Exclude local traffic
+sudo iftop -f "not net 192.168.0.0/16"
+
+# Monitor only external traffic
+sudo iftop -f "not net 10.0.0.0/8 and not net 172.16.0.0/12 and not net 192.168.0.0/16"</code></pre>
+                </div>
+            </section>
+
+            <section id="output-analysis">
+                <h2>Output Analysis</h2>
+                <div class="command-block">
+                    <h3>Understanding the Display</h3>
+                    <pre><code># Display columns explanation:
+# Source Host    =>    Destination Host    Rate (2s/10s/40s avg)
+# 192.168.1.100  =>    google.com         1.2Kb  800b   1.1Kb
+# 192.168.1.100  <=    google.com         15.2Kb 12.1Kb 14.3Kb
+
+# Rate columns:
+# - 2s average: Last 2 seconds
+# - 10s average: Last 10 seconds  
+# - 40s average: Last 40 seconds
+
+# Bottom statistics:
+# TX: Total transmitted
+# RX: Total received
+# TOTAL: Combined TX/RX
+# Peak: Peak rates observed
+# Cumulative: Total since start</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Text Mode Output</h3>
+                    <pre><code># Single snapshot
+sudo iftop -t -s 5
+
+# Continuous text output
+sudo iftop -t -s 1 | tee network_usage.log
+
+# Limited lines output
+sudo iftop -t -s 5 -L 10
+
+# Example text output parsing
+sudo iftop -t -s 5 | grep -E "=>" | head -10</code></pre>
+                </div>
+            </section>
+
+            <section id="monitoring-scenarios">
+                <h2>Monitoring Scenarios</h2>
+                <div class="command-block">
+                    <h3>Bandwidth Troubleshooting</h3>
+                    <pre><code># Identify bandwidth hogs
+sudo iftop -P -B  # Show ports and bytes/sec
+
+# Monitor during peak hours
+sudo iftop -i eth0 -s 60 > peak_usage_$(date +%Y%m%d_%H%M).log
+
+# Check for unusual connections
+sudo iftop -n -P  # No DNS resolution, show ports
+
+# Monitor specific service impact
+sudo iftop -f "port 80 or port 443"  # Web traffic
+sudo iftop -f "port 22"              # SSH traffic</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <pre><code># Monitor for data exfiltration
+sudo iftop -f "not net 192.168.0.0/16" -B
+
+# Check for scanning activity
+sudo iftop -P -n  # Show ports without DNS resolution
+
+# Monitor unusual protocols
+sudo iftop -f "not tcp and not udp and not icmp"
+
+# Watch for high-volume transfers
+sudo iftop -B | grep -E "(MB|GB)"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Analysis</h3>
+                    <pre><code># Monitor application performance
+sudo iftop -f "host app-server.local"
+
+# Check database connections
+sudo iftop -f "port 3306 or port 5432"  # MySQL/PostgreSQL
+
+# Monitor backup traffic
+sudo iftop -f "port 873"  # rsync
+
+# Check streaming/media traffic
+sudo iftop -f "port 1935 or port 554"  # RTMP/RTSP</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Monitoring Script</h3>
+                    <pre><code>#!/bin/bash
+# Network monitoring script using iftop
+
+INTERFACE="eth0"
+LOG_DIR="/var/log/network"
+DURATION=60
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+# Create log directory
+mkdir -p $LOG_DIR
+
+# Function to monitor and log
+monitor_network() {
+    local filter="$1"
+    local filename="$2"
+    
+    echo "Starting network monitoring: $filter"
+    sudo iftop -i $INTERFACE -t -s $DURATION -f "$filter" > "$LOG_DIR/${filename}_$TIMESTAMP.log"
+    echo "Log saved: $LOG_DIR/${filename}_$TIMESTAMP.log"
+}
+
+# Monitor different traffic types
+monitor_network "tcp" "tcp_traffic"
+monitor_network "udp" "udp_traffic"
+monitor_network "port 80 or port 443" "web_traffic"
+monitor_network "not net 192.168.0.0/16" "external_traffic"
+
+echo "Network monitoring completed"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Bandwidth Alert Script</h3>
+                    <pre><code>#!/bin/bash
+# Bandwidth threshold alert script
+
+INTERFACE="eth0"
+THRESHOLD_MBPS=50
+CHECK_INTERVAL=30
+ALERT_EMAIL="admin@company.com"
+
+while true; do
+    # Get current bandwidth usage
+    bandwidth=$(sudo iftop -i $INTERFACE -t -s 5 | \
+                grep "Total send and receive rate:" | \
+                awk '{print $6}' | \
+                sed 's/Mb//')
+    
+    # Check if bandwidth exceeds threshold
+    if (( $(echo "$bandwidth > $THRESHOLD_MBPS" | bc -l) )); then
+        # Send alert
+        echo "High bandwidth usage detected: ${bandwidth}Mbps on $INTERFACE" | \
+        mail -s "Bandwidth Alert - $(hostname)" $ALERT_EMAIL
+        
+        # Log high usage details
+        sudo iftop -i $INTERFACE -t -s 10 -L 20 > "/tmp/high_bandwidth_$(date +%Y%m%d_%H%M%S).log"
+    fi
+    
+    sleep $CHECK_INTERVAL
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Top Talkers Report</h3>
+                    <pre><code>#!/bin/bash
+# Generate top talkers report
+
+INTERFACE="eth0"
+DURATION=300  # 5 minutes
+REPORT_FILE="/tmp/top_talkers_$(date +%Y%m%d_%H%M%S).txt"
+
+echo "Network Top Talkers Report" > $REPORT_FILE
+echo "Generated: $(date)" >> $REPORT_FILE
+echo "Interface: $INTERFACE" >> $REPORT_FILE
+echo "Duration: ${DURATION}s" >> $REPORT_FILE
+echo "=================================" >> $REPORT_FILE
+
+# Capture traffic data
+sudo iftop -i $INTERFACE -t -s $DURATION -L 50 >> $REPORT_FILE
+
+# Parse and summarize
+echo "" >> $REPORT_FILE
+echo "Summary:" >> $REPORT_FILE
+echo "--------" >> $REPORT_FILE
+
+# Extract top bandwidth consumers
+grep "=>" $REPORT_FILE | \
+sort -k3 -nr | \
+head -10 | \
+awk '{print "Host: " $1 " -> " $3 " | Bandwidth: " $4}' >> $REPORT_FILE
+
+echo "Report saved: $REPORT_FILE"</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Log Analysis Integration</h3>
+                    <pre><code># Export iftop data for analysis
+sudo iftop -t -s 60 | tee /var/log/iftop/$(date +%Y%m%d_%H%M).log
+
+# Parse with awk for specific data
+sudo iftop -t -s 30 | awk '/=>/ {print $1, $3, $4}' > bandwidth_summary.txt
+
+# Integration with ELK stack
+sudo iftop -t -s 60 | \
+while read line; do
+    echo "{\"timestamp\":\"$(date -Iseconds)\",\"data\":\"$line\"}" | \
+    curl -X POST "localhost:9200/network-traffic/_doc" -H "Content-Type: application/json" -d @-
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Monitoring System Integration</h3>
+                    <pre><code># Nagios check script
+#!/bin/bash
+# Check bandwidth usage with iftop
+
+INTERFACE="$1"
+WARNING_THRESHOLD="$2"
+CRITICAL_THRESHOLD="$3"
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <interface> <warning_mbps> <critical_mbps>"
+    exit 3
+fi
+
+# Get current bandwidth
+current_bw=$(sudo iftop -i $INTERFACE -t -s 5 | \
+             grep "Peak rates" | \
+             awk '{print $4}' | \
+             sed 's/Mb//')
+
+# Compare with thresholds
+if (( $(echo "$current_bw > $CRITICAL_THRESHOLD" | bc -l) )); then
+    echo "CRITICAL - Bandwidth: ${current_bw}Mbps | bandwidth=${current_bw}Mbps;$WARNING_THRESHOLD;$CRITICAL_THRESHOLD"
+    exit 2
+elif (( $(echo "$current_bw > $WARNING_THRESHOLD" | bc -l) )); then
+    echo "WARNING - Bandwidth: ${current_bw}Mbps | bandwidth=${current_bw}Mbps;$WARNING_THRESHOLD;$CRITICAL_THRESHOLD"
+    exit 1
+else
+    echo "OK - Bandwidth: ${current_bw}Mbps | bandwidth=${current_bw}Mbps;$WARNING_THRESHOLD;$CRITICAL_THRESHOLD"
+    exit 0
+fi</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-optimization">
+                <h2>Performance Optimization</h2>
+                <div class="command-block">
+                    <h3>High Traffic Networks</h3>
+                    <pre><code># Optimize for high traffic
+sudo iftop -i eth0 -n -N  # Disable DNS resolution
+
+# Use sampling for very high traffic
+sudo iftop -i eth0 -f "tcp and (port 80 or port 443)"
+
+# Limit display updates
+sudo iftop -i eth0 -s 10  # Update every 10 seconds
+
+# Use text mode for logging
+sudo iftop -t -s 60 -L 100  # Text mode, limited lines</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Resource Management</h3>
+                    <pre><code># Monitor iftop resource usage
+ps aux | grep iftop
+top -p $(pgrep iftop)
+
+# Limit CPU usage with nice
+sudo nice -n 10 iftop -i eth0
+
+# Use ionice for I/O priority
+sudo ionice -c 3 iftop -i eth0</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Permission denied
+sudo iftop -i eth0  # Run with sudo
+
+# Interface not found
+ip link show        # List available interfaces
+sudo iftop -i any   # Monitor all interfaces
+
+# No traffic shown
+sudo iftop -i eth0 -p  # Enable promiscuous mode
+sudo tcpdump -i eth0 -c 10  # Test if interface has traffic</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Display Issues</h3>
+                    <pre><code># Terminal too small
+export TERM=xterm-256color
+resize
+
+# Garbled display
+reset
+sudo iftop -i eth0
+
+# No color support
+sudo iftop -i eth0 -b  # Disable bar graphs</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># High CPU usage
+sudo iftop -i eth0 -n -N  # Disable DNS resolution
+sudo iftop -i eth0 -f "tcp"  # Filter traffic
+
+# Memory issues
+sudo iftop -i eth0 -L 50  # Limit display lines
+ulimit -v 1000000  # Limit virtual memory</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Administration</h3>
+                    <ul>
+                        <li>Real-time bandwidth monitoring</li>
+                        <li>Identifying bandwidth-heavy applications</li>
+                        <li>Troubleshooting network performance issues</li>
+                        <li>Monitoring server connections</li>
+                        <li>Capacity planning and analysis</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <ul>
+                        <li>Detecting unusual network activity</li>
+                        <li>Monitoring for data exfiltration</li>
+                        <li>Identifying suspicious connections</li>
+                        <li>Tracking malware communications</li>
+                        <li>Investigating security incidents</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Analysis</h3>
+                    <ul>
+                        <li>Application performance monitoring</li>
+                        <li>Database connection analysis</li>
+                        <li>Web server traffic analysis</li>
+                        <li>Backup and sync monitoring</li>
+                        <li>Quality of Service (QoS) verification</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use filters:</strong> Focus on specific traffic types for better analysis</li>
+                    <li><strong>Disable DNS:</strong> Use -n flag for faster performance in high-traffic environments</li>
+                    <li><strong>Monitor regularly:</strong> Establish baseline traffic patterns</li>
+                    <li><strong>Combine with other tools:</strong> Use alongside tcpdump, wireshark for detailed analysis</li>
+                    <li><strong>Save logs:</strong> Use text mode to save traffic data for later analysis</li>
+                    <li><strong>Use appropriate intervals:</strong> Adjust monitoring duration based on needs</li>
+                    <li><strong>Monitor multiple interfaces:</strong> Use separate instances for different interfaces</li>
+                    <li><strong>Automate alerts:</strong> Set up scripts for bandwidth threshold monitoring</li>
+                </ul>
+            </section>
+
+            <section id="alternatives">
+                <h2>Alternatives & Similar Tools</h2>
+                <div class="command-block">
+                    <h3>Similar Tools</h3>
+                    <ul>
+                        <li><strong>nethogs:</strong> Per-process bandwidth monitoring</li>
+                        <li><strong>nload:</strong> Real-time network traffic monitor</li>
+                        <li><strong>bmon:</strong> Bandwidth monitor with multiple interfaces</li>
+                        <li><strong>vnstat:</strong> Network statistics with historical data</li>
+                        <li><strong>ntopng:</strong> Web-based network monitoring</li>
+                        <li><strong>iptraf-ng:</strong> IP network monitoring utility</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use iftop</h3>
+                    <ul>
+                        <li>Need real-time connection-based monitoring</li>
+                        <li>Want to see specific host-to-host traffic</li>
+                        <li>Quick bandwidth troubleshooting</li>
+                        <li>Lightweight monitoring solution</li>
+                        <li>Command-line environment preference</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> iftop should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own networks and systems</li>
+                        <li>Authorized network administration and troubleshooting</li>
+                        <li>Security monitoring with proper authorization</li>
+                        <li>Performance analysis of owned infrastructure</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized network monitoring may violate privacy laws, computer crime statutes, and organizational policies. Network traffic monitoring can reveal sensitive information about users and their activities. Always obtain proper authorization before monitoring network traffic, ensure compliance with applicable laws and regulations, and implement appropriate data protection measures. Be aware that promiscuous mode packet capture may be restricted or logged by network security systems.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

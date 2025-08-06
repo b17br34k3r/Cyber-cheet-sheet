@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binwalk Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Binwalk: Firmware Analysis Tool</h1>
+            <p>Master Binary Analysis and Firmware Reverse Engineering</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Binwalk?</h2>
+                <p>Binwalk is a fast, easy to use tool for analyzing, reverse engineering, and extracting firmware images. It is designed to assist security researchers and firmware hackers in identifying and extracting file systems, executable code, and other interesting artifacts from firmware images. Binwalk uses libmagic to identify file types and can recursively scan extracted files. It's particularly useful for IoT device analysis, embedded system research, and malware analysis.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install binwalk
+
+# Install additional dependencies for extraction
+sudo apt install python3-pip unrar-free p7zip-full sqashfs-tools
+
+# Install Python dependencies
+pip3 install binwalk
+
+# CentOS/RHEL/Fedora
+sudo yum install binwalk
+# or
+sudo dnf install binwalk
+
+# Arch Linux
+sudo pacman -S binwalk</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Installation from Source</h3>
+                    <pre><code># Clone repository
+git clone https://github.com/ReFirmLabs/binwalk.git
+cd binwalk
+
+# Install Python dependencies
+sudo python3 setup.py install
+
+# Install extraction dependencies
+sudo ./deps.sh
+
+# For Debian/Ubuntu systems
+sudo apt install mtd-utils gzip bzip2 tar arj lhasa p7zip p7zip-full cabextract cramfsprogs cramfsswap squashfs-tools sleuthkit default-jdk lzop srecord</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Install Python 3.x first
+# Download from: https://www.python.org/downloads/
+
+# Install binwalk via pip
+pip install binwalk
+
+# Install additional tools manually:
+# - 7-Zip for archive extraction
+# - UnRAR for RAR files
+# - Cygwin for Unix-like environment</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install binwalk
+
+# Install additional dependencies
+brew install p7zip unrar squashfs
+
+# Using pip
+pip3 install binwalk
+
+# Install extraction dependencies
+# Some tools may need manual installation</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check installation
+binwalk --help
+
+# Check version
+binwalk --version
+
+# Test basic functionality
+echo "Test data" > test.bin
+binwalk test.bin</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-analysis">
+                <h2>Basic Analysis</h2>
+                <div class="command-block">
+                    <h3>Simple Firmware Scanning</h3>
+                    <pre><code># Basic firmware analysis
+binwalk firmware.bin
+
+# Verbose output
+binwalk -v firmware.bin
+
+# Show file offsets in hexadecimal
+binwalk -x firmware.bin
+
+# Display results in different formats
+binwalk -f firmware.bin  # Show file system info
+binwalk -A firmware.bin  # Show architecture info
+binwalk -E firmware.bin  # Show entropy analysis</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Signature Scanning</h3>
+                    <pre><code># Scan for specific signatures
+binwalk -B firmware.bin  # Show raw signature matches
+
+# Custom signature scanning
+binwalk -R "\x7fELF" firmware.bin  # Search for ELF headers
+binwalk -R "PK\x03\x04" firmware.bin  # Search for ZIP signatures
+
+# Case-insensitive search
+binwalk -I -R "password" firmware.bin
+
+# Search with context
+binwalk -X 32 -R "admin" firmware.bin  # Show 32 bytes of context</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File System Detection</h3>
+                    <pre><code># Detect file systems
+binwalk -f firmware.bin
+
+# Common file systems detected:
+# - SquashFS
+# - CramFS  
+# - JFFS2
+# - YAFFS2
+# - ext2/3/4
+# - FAT
+# - NTFS</code></pre>
+                </div>
+            </section>
+
+            <section id="extraction">
+                <h2>File Extraction</h2>
+                <div class="command-block">
+                    <h3>Basic Extraction</h3>
+                    <pre><code># Extract all identified files
+binwalk -e firmware.bin
+
+# Extract to specific directory
+binwalk -e -C /path/to/output firmware.bin
+
+# Extract specific file types only
+binwalk -e -D 'zip archive:zip' firmware.bin
+binwalk -e -D 'gzip compressed:gz' firmware.bin
+
+# Recursive extraction
+binwalk -e -M firmware.bin
+
+# Extract without creating subdirectories
+binwalk -e -j firmware.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Extraction Options</h3>
+                    <pre><code># Extract with custom rules
+binwalk -e -D 'filesystem:ext' firmware.bin
+
+# Preserve file permissions
+binwalk -e -p firmware.bin
+
+# Extract and analyze recursively
+binwalk -e -M -r firmware.bin
+
+# Limit extraction depth
+binwalk -e -d 3 firmware.bin
+
+# Extract only files larger than specified size
+binwalk -e -s 1024 firmware.bin  # Files > 1KB</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Extraction Rules</h3>
+                    <pre><code># Create custom extraction rules file
+cat > custom_rules.txt << 'EOF'
+# Custom extraction rules
+zip archive:zip:zip %e
+gzip compressed data:gz:gzip -d %e
+bzip2 compressed data:bz2:bzip2 -d %e
+LZMA compressed data:lzma:lzma -d %e
+SquashFS filesystem:squashfs:unsquashfs %e
+CramFS filesystem:cramfs:cramfsck -x %e %0
+EOF
+
+# Use custom rules
+binwalk -e -D custom_rules.txt firmware.bin</code></pre>
+                </div>
+            </section>
+
+            <section id="entropy-analysis">
+                <h2>Entropy Analysis</h2>
+                <div class="command-block">
+                    <h3>Entropy Scanning</h3>
+                    <pre><code># Basic entropy analysis
+binwalk -E firmware.bin
+
+# Save entropy plot
+binwalk -E -J firmware.bin
+
+# Entropy with custom block size
+binwalk -E -K 1024 firmware.bin
+
+# High entropy threshold (detect encryption/compression)
+binwalk -E -H 0.95 firmware.bin
+
+# Low entropy threshold (detect padding/unused space)
+binwalk -E -L 0.05 firmware.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Interpreting Entropy Results</h3>
+                    <ul>
+                        <li><strong>High Entropy (0.8-1.0):</strong> Encrypted data, compressed data, or random data</li>
+                        <li><strong>Medium Entropy (0.4-0.8):</strong> Executable code, mixed data types</li>
+                        <li><strong>Low Entropy (0.0-0.4):</strong> Padding, unused space, repetitive data</li>
+                        <li><strong>Sudden Changes:</strong> Boundaries between different data types</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="firmware-analysis">
+                <h2>Firmware-Specific Analysis</h2>
+                <div class="command-block">
+                    <h3>Router Firmware Analysis</h3>
+                    <pre><code># Analyze router firmware
+binwalk -A router_firmware.bin  # Architecture detection
+binwalk -f router_firmware.bin  # File system detection
+binwalk -e router_firmware.bin  # Extract file systems
+
+# Common router firmware components:
+# - Bootloader (U-Boot)
+# - Linux kernel
+# - Root file system (SquashFS/CramFS)
+# - Configuration data
+# - Web interface files</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>IoT Device Analysis</h3>
+                    <pre><code># IoT firmware analysis workflow
+binwalk -E iot_firmware.bin     # Check for encryption
+binwalk -A iot_firmware.bin     # Identify architecture
+binwalk -f iot_firmware.bin     # Find file systems
+binwalk -e -M iot_firmware.bin  # Extract everything
+
+# Look for common IoT artifacts:
+# - Configuration files
+# - Hardcoded credentials
+# - Certificate files
+# - Update mechanisms
+# - Debug interfaces</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Mobile Device Firmware</h3>
+                    <pre><code># Android firmware analysis
+binwalk android_firmware.img
+binwalk -e android_firmware.img
+
+# Look for Android components:
+# - boot.img (kernel + ramdisk)
+# - system.img (system partition)
+# - userdata.img (user data)
+# - recovery.img (recovery mode)
+
+# iOS firmware analysis
+binwalk ios_firmware.ipsw
+binwalk -e ios_firmware.ipsw</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Analysis Techniques</h2>
+                <div class="command-block">
+                    <h3>Custom Signature Creation</h3>
+                    <pre><code># Create custom signature file
+cat > custom_signatures.txt << 'EOF'
+# Custom signatures for specific firmware
+0       string  CUSTOM_HEADER   Custom firmware header
+0       belong  0x12345678      Custom magic number
+16      string  VERSION         Version string
+EOF
+
+# Use custom signatures
+binwalk -m custom_signatures.txt firmware.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Differential Analysis</h3>
+                    <pre><code># Compare two firmware versions
+binwalk firmware_v1.bin > analysis_v1.txt
+binwalk firmware_v2.bin > analysis_v2.txt
+diff analysis_v1.txt analysis_v2.txt
+
+# Extract both versions
+binwalk -e firmware_v1.bin
+binwalk -e firmware_v2.bin
+
+# Compare extracted file systems
+diff -r _firmware_v1.bin.extracted/ _firmware_v2.bin.extracted/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scripted Analysis</h3>
+                    <pre><code>#!/bin/bash
+# Automated firmware analysis script
+
+FIRMWARE="$1"
+OUTPUT_DIR="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <firmware_file> <output_directory>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Analyzing firmware: $FIRMWARE"
+
+# Basic analysis
+echo "=== Basic Analysis ===" > "$OUTPUT_DIR/analysis_report.txt"
+binwalk "$FIRMWARE" >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Architecture analysis
+echo "=== Architecture Analysis ===" >> "$OUTPUT_DIR/analysis_report.txt"
+binwalk -A "$FIRMWARE" >> "$OUTPUT_DIR/analysis_report.txt"
+
+# File system analysis
+echo "=== File System Analysis ===" >> "$OUTPUT_DIR/analysis_report.txt"
+binwalk -f "$FIRMWARE" >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Entropy analysis
+echo "=== Entropy Analysis ===" >> "$OUTPUT_DIR/analysis_report.txt"
+binwalk -E "$FIRMWARE" >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Extract files
+echo "Extracting files..."
+binwalk -e -M -C "$OUTPUT_DIR" "$FIRMWARE"
+
+# Generate summary
+echo "=== Analysis Summary ===" >> "$OUTPUT_DIR/analysis_report.txt"
+echo "Firmware Size: $(stat -c%s "$FIRMWARE") bytes" >> "$OUTPUT_DIR/analysis_report.txt"
+echo "Analysis Date: $(date)" >> "$OUTPUT_DIR/analysis_report.txt"
+
+echo "Analysis completed. Results in $OUTPUT_DIR"</code></pre>
+                </div>
+            </section>
+
+            <section id="malware-analysis">
+                <h2>Malware Analysis</h2>
+                <div class="command-block">
+                    <h3>Malware Sample Analysis</h3>
+                    <pre><code># Analyze suspicious binary
+binwalk malware_sample.exe
+
+# Look for embedded files
+binwalk -e malware_sample.exe
+
+# Search for specific patterns
+binwalk -R "http://" malware_sample.exe
+binwalk -R "\.exe" malware_sample.exe
+binwalk -R "password" malware_sample.exe
+
+# Entropy analysis for packed malware
+binwalk -E malware_sample.exe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Packed Executable Analysis</h3>
+                    <pre><code># Detect packing/compression
+binwalk -E packed_malware.exe
+
+# Look for common packers
+binwalk -R "UPX" packed_malware.exe
+binwalk -R "FSG" packed_malware.exe
+binwalk -R "PECompact" packed_malware.exe
+
+# Extract embedded resources
+binwalk -e -D 'pe section:pe' packed_malware.exe</code></pre>
+                </div>
+            </section>
+
+            <section id="network-device-analysis">
+                <h2>Network Device Analysis</h2>
+                <div class="command-block">
+                    <h3>Router Firmware Deep Dive</h3>
+                    <pre><code># Extract router firmware
+binwalk -e router.bin
+
+# Navigate to extracted file system
+cd _router.bin.extracted/squashfs-root/
+
+# Look for interesting files
+find . -name "*.conf" -o -name "*.cfg" -o -name "passwd" -o -name "shadow"
+find . -name "*.sh" -o -name "*.cgi"
+find . -type f -executable
+
+# Check for hardcoded credentials
+grep -r "password\|admin\|root" .
+grep -r "192.168" .
+grep -r "telnet\|ssh\|ftp" .</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Switch/Firewall Analysis</h3>
+                    <pre><code># Analyze network appliance firmware
+binwalk -A network_appliance.bin
+binwalk -f network_appliance.bin
+binwalk -e network_appliance.bin
+
+# Look for configuration templates
+find extracted/ -name "*.template" -o -name "*.default"
+
+# Search for network-related strings
+binwalk -R "VLAN\|ACL\|firewall" network_appliance.bin</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-integration">
+                <h2>Automation & Integration</h2>
+                <div class="command-block">
+                    <h3>Python Integration</h3>
+                    <pre><code>#!/usr/bin/env python3
+import binwalk
+import sys
+
+def analyze_firmware(filename):
+    """Analyze firmware using binwalk Python API"""
+    
+    print(f"Analyzing {filename}...")
+    
+    # Basic signature scan
+    for module in binwalk.scan(filename):
+        print(f"\n{module.name} Results:")
+        for result in module.results:
+            print(f"  {result.offset:#x}: {result.description}")
+    
+    # Entropy analysis
+    print("\nEntropy Analysis:")
+    for module in binwalk.scan(filename, entropy=True):
+        for result in module.results:
+            print(f"  Offset: {result.offset:#x}, Entropy: {result.entropy:.3f}")
+    
+    # Extract files
+    print("\nExtracting files...")
+    for module in binwalk.scan(filename, extract=True):
+        for result in module.results:
+            if result.file and result.file.path:
+                print(f"  Extracted: {result.file.path}")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python3 analyze.py <firmware_file>")
+        sys.exit(1)
+    
+    analyze_firmware(sys.argv[1])</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Batch Processing</h3>
+                    <pre><code>#!/bin/bash
+# Batch firmware analysis
+
+FIRMWARE_DIR="$1"
+OUTPUT_BASE="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <firmware_directory> <output_base>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_BASE"
+
+# Process all firmware files
+find "$FIRMWARE_DIR" -type f \( -name "*.bin" -o -name "*.img" -o -name "*.rom" \) | while read firmware; do
+    filename=$(basename "$firmware")
+    output_dir="$OUTPUT_BASE/${filename}_analysis"
+    
+    echo "Processing: $firmware"
+    mkdir -p "$output_dir"
+    
+    # Analyze and extract
+    binwalk "$firmware" > "$output_dir/analysis.txt"
+    binwalk -e -C "$output_dir" "$firmware"
+    binwalk -E -J -C "$output_dir" "$firmware"
+    
+    echo "Completed: $firmware"
+done
+
+echo "Batch processing completed."</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Extraction dependencies missing
+sudo apt install python3-pip unrar-free p7zip-full squashfs-tools
+pip3 install python-lzo python-lz4
+
+# Permission issues
+chmod +r firmware.bin
+sudo binwalk -e firmware.bin
+
+# Memory issues with large files
+# Split large files
+split -b 100M large_firmware.bin chunk_
+for chunk in chunk_*; do
+    binwalk "$chunk"
+done
+
+# Signature database issues
+binwalk --update  # Update signature database</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <pre><code># Speed up analysis
+# Use specific signature types only
+binwalk -y filesystem firmware.bin
+
+# Limit scan depth
+binwalk -d 2 firmware.bin
+
+# Skip entropy analysis for speed
+binwalk -B firmware.bin  # Raw signatures only
+
+# Parallel processing
+ls *.bin | xargs -n 1 -P 4 binwalk</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Security Research</h3>
+                    <ul>
+                        <li>IoT device vulnerability assessment</li>
+                        <li>Router firmware analysis</li>
+                        <li>Embedded system reverse engineering</li>
+                        <li>Firmware backdoor detection</li>
+                        <li>Update mechanism analysis</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Malware Analysis</h3>
+                    <ul>
+                        <li>Packed executable analysis</li>
+                        <li>Embedded payload extraction</li>
+                        <li>Multi-stage malware analysis</li>
+                        <li>Configuration data extraction</li>
+                        <li>Command and control server identification</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Mobile device firmware analysis</li>
+                        <li>Network appliance investigation</li>
+                        <li>Embedded system evidence extraction</li>
+                        <li>Firmware tampering detection</li>
+                        <li>Device capability assessment</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with entropy analysis:</strong> Identify encrypted/compressed regions first</li>
+                    <li><strong>Use recursive extraction:</strong> -M flag for comprehensive analysis</li>
+                    <li><strong>Check architecture:</strong> -A flag helps understand target platform</li>
+                    <li><strong>Custom signatures:</strong> Create specific signatures for your targets</li>
+                    <li><strong>Combine with other tools:</strong> Use with strings, hexdump, and disassemblers</li>
+                    <li><strong>Document findings:</strong> Keep detailed notes of analysis results</li>
+                    <li><strong>Validate extractions:</strong> Verify extracted files are complete and valid</li>
+                    <li><strong>Stay updated:</strong> Keep binwalk and signature database current</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Binwalk should only be used for:</p>
+                    <ul>
+                        <li>Analyzing firmware from devices you own</li>
+                        <li>Authorized security research with proper permissions</li>
+                        <li>Malware analysis in controlled environments</li>
+                        <li>Academic research with appropriate authorization</li>
+                        <li>Corporate security assessments with proper authority</li>
+                    </ul>
+                    <p>Unauthorized firmware analysis or reverse engineering may violate copyright laws, terms of service, and other legal agreements. Always ensure you have proper authorization before analyzing firmware or software. Respect intellectual property rights and comply with applicable laws and regulations. Some firmware may contain proprietary or confidential information that must be handled appropriately. Use binwalk responsibly and ethically in accordance with applicable laws and organizational policies.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

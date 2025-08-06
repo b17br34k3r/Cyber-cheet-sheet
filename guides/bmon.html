@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bmon Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>bmon: Bandwidth Monitor</h1>
+            <p>Master Advanced Interface Monitoring and Statistics</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is bmon?</h2>
+                <p>bmon is a portable bandwidth monitor and rate estimator running on various Unix-like operating systems. It supports various input methods for different architectures and provides a curses-based interface with detailed graphs and statistics. bmon can read statistics from various sources including /proc/net/dev, netlink, SNMP, and more. It's particularly useful for monitoring multiple interfaces simultaneously and provides both real-time and historical data visualization.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install bmon
+sudo apt update
+sudo apt install bmon</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+
+# Install bmon
+sudo yum install bmon
+
+# Or on newer versions
+sudo dnf install bmon</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Arch Linux Installation</h3>
+                    <pre><code># Install bmon
+sudo pacman -S bmon</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install bmon
+
+# Using MacPorts
+sudo port install bmon</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Clone repository
+git clone https://github.com/tgraf/bmon.git
+cd bmon
+
+# Install build dependencies
+sudo apt install build-essential libncurses5-dev libconfuse-dev libnl-3-dev
+
+# Configure and compile
+./autogen.sh
+./configure
+make
+sudo make install</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Starting bmon</h3>
+                    <pre><code># Basic usage (curses interface)
+bmon
+
+# Monitor specific interface
+bmon -p eth0
+bmon -p wlan0
+
+# Monitor multiple interfaces
+bmon -p eth0,wlan0,lo
+
+# Text output mode
+bmon -o ascii</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Interface selection
+-p, --policy POLICY     # Interface selection policy
+-i, --input MODULE      # Input module (proc, netlink, etc.)
+-o, --output MODULE     # Output module (curses, ascii, etc.)
+
+# Display options
+-f, --show-all          # Show all interfaces
+-a, --show-only-running # Show only running interfaces
+-r, --read-interval SEC # Read interval in seconds
+-R, --rate-interval SEC # Rate calculation interval
+
+# Output options
+-U, --use-si            # Use SI units (1000 instead of 1024)
+-b, --use-bit           # Show bits instead of bytes
+
+# Example usage
+bmon -p eth0 -r 1       # Monitor eth0, update every 1 second
+bmon -o ascii -f        # ASCII output, show all interfaces</code></pre>
+                </div>
+            </section>
+
+            <section id="interface-navigation">
+                <h2>Interface Navigation</h2>
+                <div class="command-block">
+                    <h3>Curses Interface Controls</h3>
+                    <pre><code># Navigation
+Up/Down arrows     # Navigate between interfaces
+Left/Right arrows  # Navigate between graphs
+Tab               # Switch between different views
+Enter             # Select interface for detailed view
+
+# Display controls
+d                 # Toggle detailed statistics
+g                 # Toggle graph display
+s                 # Toggle show all interfaces
+q                 # Quit bmon
+h                 # Show help
+
+# Graph controls
++/-               # Zoom in/out on graphs
+r                 # Reset graph scale
+p                 # Pause/unpause updates</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Display Views</h3>
+                    <ul>
+                        <li><strong>Interface List:</strong> Overview of all interfaces</li>
+                        <li><strong>Detailed View:</strong> Detailed statistics for selected interface</li>
+                        <li><strong>Graph View:</strong> Historical graphs for interface</li>
+                        <li><strong>Statistics View:</strong> Comprehensive statistics</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="output-modules">
+                <h2>Output Modules</h2>
+                <div class="command-block">
+                    <h3>Curses Output (Default)</h3>
+                    <pre><code># Start with curses interface
+bmon
+
+# Features:
+# - Interactive interface
+# - Real-time graphs
+# - Multiple interface support
+# - Detailed statistics
+# - Configurable display</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>ASCII Output</h3>
+                    <pre><code># ASCII text output
+bmon -o ascii
+
+# ASCII with specific format
+bmon -o ascii:fmt='$(element:name) $(attr:rx:packets) $(attr:tx:packets)'
+
+# Continuous ASCII output
+bmon -o ascii -r 5  # Update every 5 seconds</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>HTML Output</h3>
+                    <pre><code># Generate HTML output
+bmon -o html > network_stats.html
+
+# HTML with custom refresh
+bmon -o html:refresh=10 > network_stats.html
+
+# Continuous HTML generation
+while true; do
+    bmon -o html > /var/www/html/network_stats.html
+    sleep 60
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CSV Output</h3>
+                    <pre><code># CSV format output
+bmon -o format:fmt='$(element:name),$(attr:rx:bytes),$(attr:tx:bytes),$(attr:rx:packets),$(attr:tx:packets)'
+
+# Save to CSV file
+bmon -o format:fmt='$(element:name),$(attr:rx:bytes),$(attr:tx:bytes)' > network_data.csv</code></pre>
+                </div>
+            </section>
+
+            <section id="input-modules">
+                <h2>Input Modules</h2>
+                <div class="command-block">
+                    <h3>Proc Input (Default)</h3>
+                    <pre><code># Use /proc/net/dev (default on Linux)
+bmon -i proc
+
+# Proc input provides:
+# - Interface statistics from kernel
+# - Bytes and packet counters
+# - Error and drop counters
+# - Standard Linux interface data</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Netlink Input</h3>
+                    <pre><code># Use netlink sockets
+bmon -i netlink
+
+# Netlink provides:
+# - Real-time kernel statistics
+# - More detailed interface information
+# - Better performance for high-frequency monitoring
+# - Additional interface attributes</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>SNMP Input</h3>
+                    <pre><code># Monitor remote devices via SNMP
+bmon -i snmp:host=192.168.1.1,community=public
+
+# SNMP with custom OIDs
+bmon -i snmp:host=router.local,community=public,version=2c
+
+# Multiple SNMP hosts
+bmon -i snmp:host=192.168.1.1,community=public -i snmp:host=192.168.1.2,community=public</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Input</h3>
+                    <pre><code># Read from file
+bmon -i file:path=/tmp/network_stats.txt
+
+# File format should contain interface statistics
+# Compatible with various formats including custom logs</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Policy Configuration</h3>
+                    <pre><code># Interface selection policies
+bmon -p 'eth*'          # All ethernet interfaces
+bmon -p 'wlan*,eth*'    # Wireless and ethernet
+bmon -p '!lo'           # All except loopback
+bmon -p 'eth0,eth1'     # Specific interfaces
+
+# Complex policies
+bmon -p 'eth*,wlan*,!eth0'  # All eth/wlan except eth0</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Rate Calculation</h3>
+                    <pre><code># Custom rate intervals
+bmon -R 1               # 1-second rate calculation
+bmon -R 5               # 5-second rate calculation
+bmon -R 60              # 1-minute rate calculation
+
+# Read intervals
+bmon -r 0.5             # Read every 0.5 seconds
+bmon -r 2               # Read every 2 seconds</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Units and Formatting</h3>
+                    <pre><code># Use SI units (1000-based)
+bmon -U
+
+# Show bits instead of bytes
+bmon -b
+
+# Combine options
+bmon -U -b              # SI units in bits</code></pre>
+                </div>
+            </section>
+
+            <section id="monitoring-scenarios">
+                <h2>Monitoring Scenarios</h2>
+                <div class="command-block">
+                    <h3>Server Monitoring</h3>
+                    <pre><code># Monitor all server interfaces
+bmon -f
+
+# Monitor specific server interfaces
+bmon -p 'eth*,bond*'
+
+# High-frequency monitoring for troubleshooting
+bmon -r 0.1 -R 1        # Read every 0.1s, calculate rates every 1s</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Device Monitoring</h3>
+                    <pre><code># Monitor router via SNMP
+bmon -i snmp:host=192.168.1.1,community=public
+
+# Monitor switch interfaces
+bmon -i snmp:host=switch.local,community=private,version=2c
+
+# Monitor multiple network devices
+bmon -i snmp:host=router1.local,community=public \
+     -i snmp:host=router2.local,community=public</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Analysis</h3>
+                    <pre><code># Long-term monitoring with logging
+bmon -o ascii -r 60 | tee /var/log/network_performance.log
+
+# High-resolution monitoring
+bmon -r 0.5 -R 2        # Very frequent updates
+
+# Specific interface deep monitoring
+bmon -p eth0 -r 1       # Focus on single interface</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Monitoring Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated network monitoring with bmon
+
+INTERFACES="eth0,wlan0"
+LOG_DIR="/var/log/bmon"
+DURATION=3600  # 1 hour
+INTERVAL=60    # 1 minute
+
+# Create log directory
+mkdir -p $LOG_DIR
+
+# Function to monitor interfaces
+monitor_interfaces() {
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local logfile="$LOG_DIR/bmon_$timestamp.log"
+    
+    echo "Starting bmon monitoring"
+    echo "Interfaces: $INTERFACES"
+    echo "Duration: ${DURATION}s"
+    echo "Log file: $logfile"
+    
+    # Start bmon with ASCII output
+    timeout $DURATION bmon -p $INTERFACES -o ascii -r $INTERVAL | tee $logfile
+    
+    echo "Monitoring completed: $logfile"
+}
+
+# Start monitoring
+monitor_interfaces</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CSV Data Collection</h3>
+                    <pre><code>#!/bin/bash
+# Collect network statistics in CSV format
+
+OUTPUT_FILE="/var/log/network_stats_$(date +%Y%m%d).csv"
+INTERFACES="eth0,wlan0"
+
+# CSV header
+echo "timestamp,interface,rx_bytes,tx_bytes,rx_packets,tx_packets" > $OUTPUT_FILE
+
+# Function to collect data
+collect_data() {
+    while true; do
+        timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        
+        # Get bmon data and format as CSV
+        bmon -p $INTERFACES -o format:fmt='$(element:name),$(attr:rx:bytes),$(attr:tx:bytes),$(attr:rx:packets),$(attr:tx:packets)' | \
+        while IFS=',' read -r interface rx_bytes tx_bytes rx_packets tx_packets; do
+            echo "$timestamp,$interface,$rx_bytes,$tx_bytes,$rx_packets,$tx_packets" >> $OUTPUT_FILE
+        done
+        
+        sleep 60  # Collect every minute
+    done
+}
+
+echo "Starting CSV data collection: $OUTPUT_FILE"
+collect_data</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Alert System</h3>
+                    <pre><code>#!/bin/bash
+# Network usage alert system using bmon
+
+INTERFACE="eth0"
+THRESHOLD_MBPS=100
+CHECK_INTERVAL=30
+ALERT_EMAIL="admin@company.com"
+
+# Function to check bandwidth usage
+check_bandwidth() {
+    # Get current rates from bmon
+    rates=$(bmon -p $INTERFACE -o format:fmt='$(attr:rx:rate) $(attr:tx:rate)' | head -1)
+    rx_rate=$(echo $rates | awk '{print $1}')
+    tx_rate=$(echo $rates | awk '{print $2}')
+    
+    # Convert to Mbps (assuming rates are in bytes/sec)
+    rx_mbps=$(echo "scale=2; $rx_rate * 8 / 1000000" | bc -l)
+    tx_mbps=$(echo "scale=2; $tx_rate * 8 / 1000000" | bc -l)
+    
+    # Check thresholds
+    if (( $(echo "$rx_mbps > $THRESHOLD_MBPS" | bc -l) )) || \
+       (( $(echo "$tx_mbps > $THRESHOLD_MBPS" | bc -l) )); then
+        
+        # Send alert
+        echo "High bandwidth usage detected on $INTERFACE" | \
+        mail -s "Bandwidth Alert" $ALERT_EMAIL
+        
+        echo "$(date): ALERT - RX: ${rx_mbps}Mbps, TX: ${tx_mbps}Mbps" | \
+        tee -a /var/log/bandwidth_alerts.log
+    fi
+    
+    echo "$(date): $INTERFACE - RX: ${rx_mbps}Mbps, TX: ${tx_mbps}Mbps"
+}
+
+# Main monitoring loop
+while true; do
+    check_bandwidth
+    sleep $CHECK_INTERVAL
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Web Dashboard Integration</h3>
+                    <pre><code># Generate HTML for web dashboard
+#!/bin/bash
+WEB_DIR="/var/www/html/network"
+mkdir -p $WEB_DIR
+
+# Generate HTML report
+bmon -o html:refresh=30 > $WEB_DIR/network_stats.html
+
+# Generate JSON for API consumption
+bmon -o format:fmt='{"interface":"$(element:name)","rx_bytes":$(attr:rx:bytes),"tx_bytes":$(attr:tx:bytes),"timestamp":"$(date)"}' > $WEB_DIR/network_stats.json
+
+# Update every minute
+while true; do
+    bmon -o html:refresh=30 > $WEB_DIR/network_stats.html
+    sleep 60
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>SNMP Integration</h3>
+                    <pre><code># Monitor multiple SNMP devices
+#!/bin/bash
+DEVICES=("192.168.1.1" "192.168.1.2" "192.168.1.3")
+COMMUNITY="public"
+
+for device in "${DEVICES[@]}"; do
+    echo "Monitoring $device"
+    bmon -i snmp:host=$device,community=$COMMUNITY -o ascii > /tmp/bmon_$device.log &
+done
+
+# Wait for all background processes
+wait
+echo "SNMP monitoring completed"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Integration</h3>
+                    <pre><code># Store bmon data in database
+#!/bin/bash
+DB_HOST="localhost"
+DB_NAME="network_stats"
+DB_USER="netmon"
+DB_PASS="password"
+
+# Function to insert data
+insert_data() {
+    local interface="$1"
+    local rx_bytes="$2"
+    local tx_bytes="$3"
+    local timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    
+    mysql -h $DB_HOST -u $DB_USER -p$DB_PASS $DB_NAME << EOF
+INSERT INTO interface_stats (timestamp, interface, rx_bytes, tx_bytes) 
+VALUES ('$timestamp', '$interface', $rx_bytes, $tx_bytes);
+EOF
+}
+
+# Collect and store data
+bmon -o format:fmt='$(element:name) $(attr:rx:bytes) $(attr:tx:bytes)' | \
+while read interface rx_bytes tx_bytes; do
+    insert_data "$interface" "$rx_bytes" "$tx_bytes"
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Interface not found
+bmon -f                 # Show all interfaces
+ip link show           # List available interfaces
+
+# Permission issues (for SNMP or special interfaces)
+sudo bmon              # Run with elevated privileges
+
+# Display issues
+export TERM=xterm-256color
+resize</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Input Module Issues</h3>
+                    <pre><code># Netlink issues
+bmon -i proc           # Fall back to proc input
+
+# SNMP issues
+snmpwalk -v2c -c public 192.168.1.1 1.3.6.1.2.1.2.2.1.10  # Test SNMP
+
+# File input issues
+ls -la /path/to/file    # Check file permissions
+cat /path/to/file       # Verify file format</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># High CPU usage
+bmon -r 5              # Increase read interval
+
+# Memory issues
+bmon -p eth0           # Monitor fewer interfaces
+ulimit -v 100000       # Limit virtual memory
+
+# Display lag
+bmon -R 10             # Increase rate calculation interval</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Administration</h3>
+                    <ul>
+                        <li>Multi-interface monitoring</li>
+                        <li>Real-time bandwidth analysis</li>
+                        <li>Network performance troubleshooting</li>
+                        <li>Capacity planning and analysis</li>
+                        <li>Interface utilization monitoring</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Data Center Operations</h3>
+                    <ul>
+                        <li>Server network monitoring</li>
+                        <li>Switch and router monitoring via SNMP</li>
+                        <li>Performance baseline establishment</li>
+                        <li>Automated reporting and alerting</li>
+                        <li>Historical data collection</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <ul>
+                        <li>Anomaly detection in network traffic</li>
+                        <li>Baseline establishment for normal traffic</li>
+                        <li>DDoS attack detection</li>
+                        <li>Data exfiltration monitoring</li>
+                        <li>Incident response traffic analysis</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use appropriate intervals:</strong> Balance between responsiveness and system load</li>
+                    <li><strong>Leverage output modules:</strong> Choose the right output format for your needs</li>
+                    <li><strong>Monitor multiple interfaces:</strong> Use policies to select relevant interfaces</li>
+                    <li><strong>Integrate with automation:</strong> Use scripting for automated monitoring</li>
+                    <li><strong>Save historical data:</strong> Log output for trend analysis</li>
+                    <li><strong>Use SNMP for remote monitoring:</strong> Monitor network devices remotely</li>
+                    <li><strong>Customize display:</strong> Use curses interface features effectively</li>
+                    <li><strong>Document configurations:</strong> Keep track of monitoring setups</li>
+                </ul>
+            </section>
+
+            <section id="alternatives">
+                <h2>Alternatives & Similar Tools</h2>
+                <div class="command-block">
+                    <h3>Similar Tools</h3>
+                    <ul>
+                        <li><strong>iftop:</strong> Connection-based monitoring</li>
+                        <li><strong>nload:</strong> Simple interface monitoring</li>
+                        <li><strong>nethogs:</strong> Process-based monitoring</li>
+                        <li><strong>vnstat:</strong> Historical statistics</li>
+                        <li><strong>ntopng:</strong> Web-based monitoring</li>
+                        <li><strong>cacti:</strong> SNMP-based graphing</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use bmon</h3>
+                    <ul>
+                        <li>Need flexible input/output options</li>
+                        <li>Want to monitor multiple interfaces</li>
+                        <li>Require SNMP monitoring capabilities</li>
+                        <li>Need customizable display formats</li>
+                        <li>Want both interactive and batch modes</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> bmon should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own networks and systems</li>
+                        <li>Authorized network administration and monitoring</li>
+                        <li>SNMP monitoring with proper community strings and permissions</li>
+                        <li>Performance analysis of owned infrastructure</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized network monitoring may violate privacy laws, computer crime statutes, and organizational policies. SNMP monitoring of network devices should only be performed with proper authorization and appropriate community strings. Always ensure compliance with organizational policies and applicable laws when monitoring network traffic and devices. Be aware of privacy implications and data protection requirements in your jurisdiction.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

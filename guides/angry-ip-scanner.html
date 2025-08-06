@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angry IP Scanner Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Angry IP Scanner: Fast Network Scanner</h1>
+            <p>Master GUI-Based Network Discovery and Port Scanning</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Angry IP Scanner?</h2>
+                <p>Angry IP Scanner (ipscan) is a very fast IP address and port scanner. It can scan IP addresses in any range as well as any their ports. It is cross-platform and lightweight, not requiring any installation. It simply pings each IP address to check if it's alive, then optionally it is resolving its hostname, determines the MAC address, scans ports, etc. The amount of gathered data about each host can be extended with plugins.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from official website
+# https://angryip.org/download/
+
+# Portable version (no installation required)
+# Download ipscan-win64-3.x.x.exe
+# Run directly from download location
+
+# Installer version
+# Download ipscan-win64-3.x.x-setup.exe
+# Run installer and follow prompts</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian (DEB package)
+wget https://github.com/angryip/ipscan/releases/download/3.x.x/ipscan_3.x.x_amd64.deb
+sudo dpkg -i ipscan_3.x.x_amd64.deb
+
+# RPM-based systems
+wget https://github.com/angryip/ipscan/releases/download/3.x.x/ipscan-3.x.x-1.x86_64.rpm
+sudo rpm -i ipscan-3.x.x-1.x86_64.rpm
+
+# Generic JAR file (requires Java)
+wget https://github.com/angryip/ipscan/
+java -jar ipscan-3.x.x.jar</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Download DMG file from official website
+# https://angryip.org/download/
+
+# Mount DMG and drag to Applications folder
+# Or run directly from DMG
+
+# Command line (requires Java)
+java -jar ipscan-3.x.x.jar</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Interface</h2>
+                <div class="command-block">
+                    <h3>Starting the Application</h3>
+                    <pre><code># Windows
+# Double-click ipscan.exe or run from Start Menu
+
+# Linux
+ipscan
+# or
+java -jar ipscan.jar
+
+# macOS
+# Launch from Applications folder or Launchpad</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Main Interface Components</h3>
+                    <ul>
+                        <li><strong>IP Range:</strong> Specify target IP addresses or ranges</li>
+                        <li><strong>Fetchers:</strong> Select what information to gather</li>
+                        <li><strong>Ports:</strong> Configure port scanning options</li>
+                        <li><strong>Results:</strong> View scan results in table format</li>
+                        <li><strong>Statistics:</strong> Monitor scan progress and statistics</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="ip-range-configuration">
+                <h2>IP Range Configuration</h2>
+                <div class="command-block">
+                    <h3>Range Specification Methods</h3>
+                    <pre><code># Single IP address
+192.168.1.100
+
+# IP range with dash
+192.168.1.1-192.168.1.254
+
+# CIDR notation
+192.168.1.0/24
+
+# Subnet mask notation
+192.168.1.0/255.255.255.0
+
+# Multiple ranges (comma-separated)
+192.168.1.0/24,10.0.0.0/24
+
+# Hostname
+example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Network Ranges</h3>
+                    <pre><code># Class C private network
+192.168.1.0/24
+
+# Class B private network
+172.16.0.0/16
+
+# Class A private network
+10.0.0.0/8
+
+# Local subnet (auto-detected)
+# Use "Tools" → "Fetch from current IP"
+
+# Custom ranges
+192.168.1.50-192.168.1.150</code></pre>
+                </div>
+            </section>
+
+            <section id="scanning-options">
+                <h2>Scanning Options & Configuration</h2>
+                <div class="command-block">
+                    <h3>Basic Scan Settings</h3>
+                    <ul>
+                        <li><strong>Ping:</strong> Check if hosts are alive</li>
+                        <li><strong>Hostname:</strong> Resolve hostnames</li>
+                        <li><strong>Ports:</strong> Scan specific ports</li>
+                        <li><strong>NetBIOS:</strong> Get NetBIOS information (Windows)</li>
+                        <li><strong>MAC Address:</strong> Retrieve MAC addresses</li>
+                        <li><strong>TTL:</strong> Show Time To Live values</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Port Scanning Configuration</h3>
+                    <pre><code># Common ports
+21,22,23,25,53,80,110,143,443,993,995
+
+# Web server ports
+80,443,8080,8443
+
+# Database ports
+1433,1521,3306,5432
+
+# Remote access ports
+22,23,3389,5900
+
+# Port ranges
+1-1000
+20-25,80,443</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Settings</h3>
+                    <ul>
+                        <li><strong>Thread count:</strong> Number of concurrent threads</li>
+                        <li><strong>Timeout:</strong> Connection timeout in milliseconds</li>
+                        <li><strong>Delay:</strong> Delay between requests</li>
+                        <li><strong>Retry count:</strong> Number of retries for failed requests</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="fetchers-plugins">
+                <h2>Fetchers & Plugins</h2>
+                <div class="command-block">
+                    <h3>Built-in Fetchers</h3>
+                    <ul>
+                        <li><strong>IP:</strong> Target IP address</li>
+                        <li><strong>Ping:</strong> Ping response time</li>
+                        <li><strong>Hostname:</strong> Resolved hostname</li>
+                        <li><strong>Ports:</strong> Open ports list</li>
+                        <li><strong>NetBIOS Info:</strong> Windows NetBIOS information</li>
+                        <li><strong>MAC Address:</strong> Hardware address</li>
+                        <li><strong>MAC Vendor:</strong> Hardware manufacturer</li>
+                        <li><strong>TTL:</strong> Time To Live value</li>
+                        <li><strong>Comments:</strong> User-defined comments</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Configuring Fetchers</h3>
+                    <p>1. Go to Tools → Preferences</p>
+                    <p>2. Select "Fetchers" tab</p>
+                    <p>3. Enable/disable desired fetchers</p>
+                    <p>4. Configure fetcher-specific options</p>
+                    <p>5. Adjust column order and visibility</p>
+                </div>
+            </section>
+
+            <section id="scanning-process">
+                <h2>Scanning Process & Results</h2>
+                <div class="command-block">
+                    <h3>Starting a Scan</h3>
+                    <p>1. Enter IP range in the input field</p>
+                    <p>2. Configure ports (if port scanning is needed)</p>
+                    <p>3. Select desired fetchers</p>
+                    <p>4. Click "Start" button or press Enter</p>
+                    <p>5. Monitor progress in status bar</p>
+                </div>
+                <div class="command-block">
+                    <h3>Interpreting Results</h3>
+                    <ul>
+                        <li><strong>Red rows:</strong> Alive hosts (responding to ping)</li>
+                        <li><strong>White rows:</strong> Dead hosts (not responding)</li>
+                        <li><strong>Blue rows:</strong> Hosts with open ports</li>
+                        <li><strong>Green rows:</strong> Hosts with additional information</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Result Filtering</h3>
+                    <p>• View → Show only alive hosts</p>
+                    <p>• View → Show only hosts with ports</p>
+                    <p>• Use search functionality to filter results</p>
+                    <p>• Sort by any column by clicking column header</p>
+                </div>
+            </section>
+
+            <section id="export-options">
+                <h2>Export & Reporting Options</h2>
+                <div class="command-block">
+                    <h3>Export Formats</h3>
+                    <ul>
+                        <li><strong>TXT:</strong> Plain text format</li>
+                        <li><strong>CSV:</strong> Comma-separated values</li>
+                        <li><strong>XML:</strong> Structured XML format</li>
+                        <li><strong>IP:Port List:</strong> Simple IP:port format</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Export Process</h3>
+                    <p>1. Complete your scan</p>
+                    <p>2. Go to File → Export</p>
+                    <p>3. Choose export format</p>
+                    <p>4. Select export options:</p>
+                    <ul>
+                        <li>All hosts or only alive hosts</li>
+                        <li>Which columns to include</li>
+                        <li>Output file location</li>
+                    </ul>
+                    <p>5. Click "Export" to save results</p>
+                </div>
+            </section>
+
+            <section id="command-line-usage">
+                <h2>Command Line Usage</h2>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Basic command line scan
+java -jar ipscan.jar -c -f:range 192.168.1.0/24
+
+# Export to file
+java -jar ipscan.jar -c -f:range 192.168.1.0/24 -o results.txt
+
+# Specify output format
+java -jar ipscan.jar -c -f:range 192.168.1.0/24 -f:csv -o results.csv
+
+# Quiet mode
+java -jar ipscan.jar -c -q -f:range 192.168.1.0/24</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Batch Scanning Script</h3>
+                    <pre><code>#!/bin/bash
+# Batch network scanning script
+
+networks=("192.168.1.0/24" "192.168.2.0/24" "10.0.0.0/24")
+timestamp=$(date +%Y%m%d_%H%M%S)
+
+for network in "${networks[@]}"; do
+    echo "Scanning $network..."
+    output_file="scan_${network//\//_}_${timestamp}.csv"
+    java -jar ipscan.jar -c -q -f:range $network -f:csv -o $output_file
+    echo "Results saved to: $output_file"
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Custom Openers</h3>
+                    <p>Configure custom applications to open when double-clicking results:</p>
+                    <ul>
+                        <li><strong>Web browser:</strong> For HTTP/HTTPS services</li>
+                        <li><strong>SSH client:</strong> For SSH services</li>
+                        <li><strong>Telnet client:</strong> For Telnet services</li>
+                        <li><strong>FTP client:</strong> For FTP services</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Favorites Management</h3>
+                    <p>• Save frequently scanned IP ranges</p>
+                    <p>• Quick access to common network segments</p>
+                    <p>• Organize ranges by location or purpose</p>
+                    <p>• Import/export favorites for sharing</p>
+                </div>
+                <div class="command-block">
+                    <h3>Statistics and Monitoring</h3>
+                    <ul>
+                        <li><strong>Scan progress:</strong> Real-time progress indicator</li>
+                        <li><strong>Speed statistics:</strong> IPs per second</li>
+                        <li><strong>Thread utilization:</strong> Active thread count</li>
+                        <li><strong>Response times:</strong> Average ping times</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="security-applications">
+                <h2>Security Applications</h2>
+                <div class="command-block">
+                    <h3>Network Discovery</h3>
+                    <ul>
+                        <li>Identify all active devices on network</li>
+                        <li>Discover unauthorized devices</li>
+                        <li>Map network topology</li>
+                        <li>Inventory network assets</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Vulnerability Assessment</h3>
+                    <ul>
+                        <li>Identify open ports and services</li>
+                        <li>Detect default or weak configurations</li>
+                        <li>Find unnecessary services</li>
+                        <li>Assess network exposure</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <ul>
+                        <li>Regular network scans for changes</li>
+                        <li>Detect rogue devices</li>
+                        <li>Monitor service availability</li>
+                        <li>Track network growth</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="practical-examples">
+                <h2>Practical Examples</h2>
+                <div class="command-block">
+                    <h3>Home Network Audit</h3>
+                    <p>1. Scan your home network: 192.168.1.0/24</p>
+                    <p>2. Enable fetchers: IP, Ping, Hostname, Ports, MAC Vendor</p>
+                    <p>3. Scan common ports: 22,23,80,443,8080</p>
+                    <p>4. Review results for unknown devices</p>
+                    <p>5. Export results for documentation</p>
+                </div>
+                <div class="command-block">
+                    <h3>Office Network Discovery</h3>
+                    <p>1. Identify network range from IT department</p>
+                    <p>2. Configure appropriate port list for business services</p>
+                    <p>3. Enable NetBIOS fetcher for Windows environments</p>
+                    <p>4. Use multiple threads for faster scanning</p>
+                    <p>5. Export to CSV for analysis in spreadsheet</p>
+                </div>
+                <div class="command-block">
+                    <h3>Security Assessment</h3>
+                    <p>1. Scan target network with comprehensive port list</p>
+                    <p>2. Focus on security-relevant ports (22,23,80,443,3389)</p>
+                    <p>3. Document all discovered services</p>
+                    <p>4. Compare results with authorized service inventory</p>
+                    <p>5. Report unauthorized or unexpected services</p>
+                </div>
+            </section>
+
+            <section id="performance-optimization">
+                <h2>Performance Optimization</h2>
+                <div class="command-block">
+                    <h3>Speed Optimization</h3>
+                    <ul>
+                        <li><strong>Increase threads:</strong> More concurrent connections</li>
+                        <li><strong>Reduce timeout:</strong> Faster detection of dead hosts</li>
+                        <li><strong>Limit fetchers:</strong> Only enable needed information</li>
+                        <li><strong>Targeted scanning:</strong> Scan specific subnets only</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Resource Management</h3>
+                    <ul>
+                        <li><strong>Memory usage:</strong> Monitor for large scans</li>
+                        <li><strong>Network impact:</strong> Consider bandwidth usage</li>
+                        <li><strong>System load:</strong> Balance threads with system capacity</li>
+                        <li><strong>Scan scheduling:</strong> Run during off-peak hours</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting & Common Issues</h2>
+                <div class="command-block">
+                    <h3>Java-Related Issues</h3>
+                    <pre><code># Check Java version
+java -version
+
+# Minimum Java 8 required
+# Download from: https://www.oracle.com/java/technologies/downloads/
+
+# Run with specific Java version
+/path/to/java8/bin/java -jar ipscan.jar</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Issues</h3>
+                    <ul>
+                        <li><strong>No results:</strong> Check network connectivity</li>
+                        <li><strong>Slow scanning:</strong> Reduce thread count or increase timeout</li>
+                        <li><strong>Firewall blocking:</strong> Configure firewall exceptions</li>
+                        <li><strong>Permission issues:</strong> Run as administrator if needed</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <ul>
+                        <li><strong>High memory usage:</strong> Reduce scan range or threads</li>
+                        <li><strong>Application freezing:</strong> Lower thread count</li>
+                        <li><strong>Network congestion:</strong> Add delays between requests</li>
+                        <li><strong>Incomplete results:</strong> Increase timeout values</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start small:</strong> Test with small ranges before large scans</li>
+                    <li><strong>Save configurations:</strong> Use favorites for repeated scans</li>
+                    <li><strong>Regular baselines:</strong> Create network inventory baselines</li>
+                    <li><strong>Export results:</strong> Keep records for comparison and analysis</li>
+                    <li><strong>Combine tools:</strong> Use with other scanners for comprehensive assessment</li>
+                    <li><strong>Respect networks:</strong> Don't scan networks without permission</li>
+                    <li><strong>Monitor impact:</strong> Watch for network performance effects</li>
+                    <li><strong>Document findings:</strong> Keep detailed records of discoveries</li>
+                </ul>
+            </section>
+
+            <section id="alternatives">
+                <h2>Alternatives & Comparisons</h2>
+                <div class="command-block">
+                    <h3>Similar Tools</h3>
+                    <ul>
+                        <li><strong>Nmap:</strong> More advanced, command-line focused</li>
+                        <li><strong>Advanced IP Scanner:</strong> Windows-only, similar GUI</li>
+                        <li><strong>Fing:</strong> Mobile and desktop network discovery</li>
+                        <li><strong>LanScan:</strong> macOS network scanner</li>
+                        <li><strong>Network Scanner:</strong> Various GUI-based scanners</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use Angry IP Scanner</h3>
+                    <ul>
+                        <li>Quick network discovery tasks</li>
+                        <li>GUI-based scanning preference</li>
+                        <li>Cross-platform compatibility needed</li>
+                        <li>Simple port scanning requirements</li>
+                        <li>Export functionality important</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Angry IP Scanner should only be used for:</p>
+                    <ul>
+                        <li>Scanning your own networks and systems</li>
+                        <li>Authorized network administration and troubleshooting</li>
+                        <li>Security assessments with proper written authorization</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                    </ul>
+                    <p>Unauthorized network scanning may violate computer crime laws, network policies, and terms of service. Network scanning can be detected by intrusion detection systems and may be considered reconnaissance activity. Always obtain proper authorization before scanning networks you don't own or administer. Be respectful of network resources and avoid causing disruption through excessive scanning.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

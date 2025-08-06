@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIFT Workstation Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../guide-styles.css" />
+  </head>
+  <body>
+    <div class="guide-container">
+      <header class="guide-header">
+        <h1>SIFT Workstation: SANS Investigative Forensic Toolkit</h1>
+        <p>
+          Master Digital Forensics and Incident Response with a Pre-Configured
+          Linux Distro
+        </p>
+        <a href="../index.html" class="back-link">← Back to Cheat Sheet</a>
+      </header>
+
+      <main class="guide-content">
+        <section id="introduction">
+          <h2>What is SIFT Workstation?</h2>
+          <p>
+            The SANS Investigative Forensic Toolkit (SIFT) Workstation is a
+            VMware appliance and Linux distribution pre-configured with a
+            comprehensive set of open-source tools for digital forensics and
+            incident response (DFIR). Designed for security professionals,
+            forensic investigators, and incident responders, SIFT provides a
+            robust platform for analyzing digital evidence, including file
+            systems, memory, network traffic, and logs. Built on Ubuntu, it is
+            widely used for its ease of use, extensive toolset, and
+            compatibility with forensic workflows.
+          </p>
+        </section>
+
+        <section id="installation">
+          <h2>Installation & Setup</h2>
+          <div class="command-block">
+            <h3>VMware Appliance Installation</h3>
+            <pre><code># Download SIFT Workstation OVA
+# Visit: https://www.sans.org/tools/sift-workstation/
+# Download the latest OVA file (requires registration)
+
+# Import into VMware
+# Open VMware Workstation/Player
+# File -> Open -> Select the downloaded .ova file
+# Follow prompts to configure VM settings (RAM, CPU, etc.)
+
+# Start the VM
+# Default credentials: sansforensics / forensics
+
+# Update SIFT
+sudo apt update
+sudo apt upgrade
+sudo sift-upgrade</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Native Ubuntu Installation</h3>
+            <pre><code># Install SIFT on existing Ubuntu system
+wget --quiet -O - https://raw.githubusercontent.com/sans-dfir/sift-bootstrap/master/bootstrap.sh | sudo bash -s -- -i
+
+# Verify installation
+sift --version
+
+# Update SIFT tools
+sudo sift-upgrade</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Docker Installation</h3>
+            <pre><code># Pull SIFT Docker image
+docker pull sansdfir/sift
+
+# Run SIFT in Docker
+docker run --rm -it sansdfir/sift /bin/bash
+
+# Mount local evidence directory
+docker run --rm -it -v /path/to/evidence:/evidence sansdfir/sift /bin/bash</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>System Requirements</h3>
+            <pre><code># Minimum requirements
+- 8GB RAM (16GB recommended)
+- 4 CPU cores
+- 50GB free disk space
+- VMware Workstation/Player or VirtualBox
+- Ubuntu 20.04 or later for native installs</code></pre>
+          </div>
+        </section>
+
+        <section id="basic-usage">
+          <h2>Basic Usage</h2>
+          <div class="command-block">
+            <h3>File System Analysis</h3>
+            <pre><code># Mount forensic image read-only
+sudo mount -o ro /evidence/disk.img /mnt/evidence
+
+# List filesystem details
+fsstat /evidence/disk.img
+
+# Recover deleted files
+fls -r -d /evidence/disk.img > deleted_files.txt
+
+# Timeline analysis with log2timeline
+log2timeline.py --partition all /evidence/disk.img timeline.csv</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Memory Analysis</h3>
+            <pre><code># Analyze memory dump with Volatility
+vol.py -f /evidence/memory.dmp --profile=Win10x64 pslist
+
+# Dump process memory
+vol.py -f /evidence/memory.dmp --profile=Win10x64 memdump -p 1234 -D /evidence/output/
+
+# Extract network connections
+vol.py -f /evidence/memory.dmp --profile=Win10x64 netscan</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Network Forensics</h3>
+            <pre><code># Analyze PCAP with Wireshark
+wireshark /evidence/capture.pcap &
+
+# Extract files from PCAP
+networkminer /evidence/capture.pcap
+
+# Parse network logs
+tshark -r /evidence/capture.pcap -T fields -e ip.src -e ip.dst -e http.request.uri > network_summary.txt</code></pre>
+          </div>
+        </section>
+
+        <section id="advanced-techniques">
+          <h2>Advanced Forensic Techniques</h2>
+          <div class="command-block">
+            <h3>Disk Image Analysis</h3>
+            <pre><code># Carve files from unallocated space
+scalpel /evidence/disk.img -c /etc/scalpel/scalpel.conf -o /evidence/carved/
+
+# Extract file metadata
+icat /evidence/disk.img 12345 | istat
+
+# Recover file contents
+icat /evidence/disk.img 12345 > recovered_file.bin</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Log Analysis</h3>
+            <pre><code># Parse Windows Event Logs
+evtxtract /evidence/system.evtx > events.txt
+
+# Analyze Apache logs
+log2timeline.py /evidence/access.log apache_timeline.csv
+
+# Correlate logs with Plaso
+psort.py -o csv apache_timeline.csv > sorted_timeline.csv</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Malware Analysis</h3>
+            <pre><code># Static analysis with Radare2
+r2 /evidence/malware.exe
+
+# Dynamic analysis with REMnux tools
+remnux /evidence/malware.exe
+
+# Extract strings
+strings /evidence/malware.exe > strings.txt</code></pre>
+          </div>
+        </section>
+
+        <section id="filtering">
+          <h2>Evidence Filtering</h2>
+          <div class="command-block">
+            <h3>Timeline Filtering</h3>
+            <pre><code># Filter timeline by date
+psort.py -o csv timeline.csv --slice "2023-01-01 00:00:00 to 2023-12-31 23:59:59" > filtered_timeline.csv
+
+# Filter by event type
+psort.py -o csv timeline.csv --filter "source_type='FILE'" > file_events.csv</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>File Type Filtering</h3>
+            <pre><code># Identify file types
+bulk_extractor -o /evidence/output/ / evidence/disk.img
+
+# Filter by file extension
+find /mnt/evidence -type f -name "*.pdf" > pdf_files.txt
+
+# Extract specific file types
+foremost -t jpg,pdf,doc -i /evidence/disk.img -o /evidence/extracted/</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Keyword Search</h3>
+            <pre><code># Search for keywords in evidence
+grep -r "password" /mnt/evidence > keyword_hits.txt
+
+# Case-insensitive search
+strings /evidence/disk.img | grep -i "login" > login_strings.txt
+
+# Regex-based search
+grep -rE "credit_card|ssn" /mnt/evidence > sensitive_data.txt</code></pre>
+          </div>
+        </section>
+
+        <section id="output-options">
+          <h2>Output and Reporting</h2>
+          <div class="command-block">
+            <h3>Output Formats</h3>
+            <pre><code># Export timeline to CSV
+psort.py -o csv timeline.csv > report.csv
+
+# Generate JSON output
+psort.py -o json timeline.csv > report.json
+
+# Create HTML report with Autopsy
+autopsy /evidence/case/ -o /evidence/report.html</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Verbose and Debug Output</h3>
+            <pre><code># Enable verbose mode for tools
+vol.py -f /evidence/memory.dmp --profile=Win10x64 pslist --verbose
+
+# Log debug output
+log2timeline.py --log-file debug.log /evidence/disk.img timeline.csv
+
+# Save command output
+fsstat /evidence/disk.img > filesystem_details.txt</code></pre>
+          </div>
+        </section>
+
+        <section id="tools">
+          <h2>Key Tools in SIFT Workstation</h2>
+          <div class="command-block">
+            <h3>Core Forensic Tools</h3>
+            <pre><code># Autopsy: GUI-based forensic suite
+autopsy &
+
+# Volatility: Memory forensics framework
+vol.py --info
+
+# Plaso: Timeline generation and analysis
+log2timeline.py --help
+
+# Sleuth Kit: Filesystem analysis tools
+tsk_recover /evidence/disk.img /evidence/recovered/</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Network Analysis Tools</h3>
+            <pre><code># Wireshark: Packet analysis
+wireshark &
+
+# NetworkMiner: Network forensic analysis
+networkminer &
+
+# tcpdump: Packet capture
+tcpdump -i eth0 -w capture.pcap</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Malware Analysis Tools</h3>
+            <pre><code># Radare2: Reverse engineering
+r2 /evidence/malware.exe
+
+# REMnux tools: Malware analysis suite
+remnux --help
+
+# YARA: Pattern matching for malware
+yara rules.yar /evidence/malware.exe</code></pre>
+          </div>
+        </section>
+
+        <section id="automation">
+          <h2>Automation and Scripting</h2>
+          <div class="command-block">
+            <h3>Bash Automation</h3>
+            <pre><code># Batch process multiple images
+#!/bin/bash
+images=("/evidence/disk1.img" "/evidence/disk2.img")
+for img in "${images[@]}"; do
+    echo "Processing $img"
+    fsstat "$img" > "$(basename $img .img)_fsstat.txt"
+    log2timeline.py "$img" "$(basename $img .img)_timeline.csv"
+done</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Result Processing</h3>
+            <pre><code># Extract specific fields from timeline
+psort.py -o csv timeline.csv | awk -F',' '{print $1,$2,$5}' > summary.csv
+
+# Python script for report generation
+import csv
+with open('timeline.csv', 'r') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        if 'malware' in row[4].lower():
+            print(f"Malware event: {row[0]} - {row[4]}")</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Tool Integration</h3>
+            <pre><code># Chain Volatility with grep
+vol.py -f /evidence/memory.dmp --profile=Win10x64 pslist | grep "malware.exe"
+
+# Export Autopsy results to Burp
+autopsy /evidence/case/ --export-urls | ffuf -u FUZZ -w -</code></pre>
+          </div>
+        </section>
+
+        <section id="specialized-techniques">
+          <h2>Specialized Forensic Techniques</h2>
+          <div class="command-block">
+            <h3>Memory Forensics</h3>
+            <pre><code># Dump all processes
+vol.py -f /evidence/memory.dmp --profile=Win10x64 procdump -D /evidence/procs/
+
+# Extract registry hives
+vol.py -f /evidence/memory.dmp --profile=Win10x64 hivedump
+
+# Recover command history
+vol.py -f /evidence/memory.dmp --profile=Win10x64 cmdline</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Artifact Analysis</h3>
+            <pre><code># Parse browser history
+hindsight -i /evidence/user/chrome -o browser_history.html
+
+# Extract USB device artifacts
+vol.py -f /evidence/memory.dmp --profile=Win10x64 usbartifacts
+
+# Analyze shellbags
+vol.py -f /evidence/memory.dmp --profile=Win10x64 shellbags</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>File Carving</h3>
+            <pre><code># Carve files with Scalpel
+scalpel /evidence/disk.img -o /evidence/carved/
+
+# Recover files with Foremost
+foremost -i /evidence/disk.img -o /evidence/recovered/
+
+# Extract embedded files
+binwalk -e /evidence/file.bin</code></pre>
+          </div>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>Troubleshooting</h2>
+          <div class="command-block">
+            <h3>Common Issues</h3>
+            <pre><code># Check disk image integrity
+md5sum /evidence/disk.img
+
+# Debug tool errors
+vol.py -f /evidence/memory.dmp --profile=Win10x64 pslist --debug > debug.log
+
+# Verify mount points
+mount | grep /mnt/evidence
+
+# Check tool versions
+sift --version</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Performance Issues</h3>
+            <pre><code># Monitor system resources
+top
+
+# Limit CPU usage
+cpulimit -p $(pgrep log2timeline) -l 50
+
+# Increase swap space
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile</code></pre>
+          </div>
+        </section>
+
+        <section id="use-cases">
+          <h2>Common Use Cases</h2>
+          <div class="command-block">
+            <h3>Digital Forensics</h3>
+            <ul>
+              <li>File system and partition analysis</li>
+              <li>Memory forensics and process analysis</li>
+              <li>Log and artifact correlation</li>
+              <li>File carving and recovery</li>
+              <li>Timeline generation and analysis</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Incident Response</h3>
+            <ul>
+              <li>Malware analysis and identification</li>
+              <li>Network traffic analysis</li>
+              <li>Compromise assessment</li>
+              <li>Artifact extraction and correlation</li>
+              <li>Reporting for legal proceedings</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="tips">
+          <h2>Pro Tips & Best Practices</h2>
+          <ul>
+            <li>
+              <strong>Maintain chain of custody:</strong> Document all actions
+              and evidence handling
+            </li>
+            <li>
+              <strong>Use write blockers:</strong> Ensure evidence integrity
+              with read-only access
+            </li>
+            <li>
+              <strong>Validate findings:</strong> Cross-check results with
+              multiple tools
+            </li>
+            <li>
+              <strong>Preserve originals:</strong> Work with copies of evidence
+              to avoid corruption
+            </li>
+            <li>
+              <strong>Automate repetitive tasks:</strong> Use scripts for
+              consistent analysis
+            </li>
+            <li>
+              <strong>Monitor resource usage:</strong> Adjust VM settings for
+              large datasets
+            </li>
+            <li>
+              <strong>Update tools regularly:</strong> Run sift-upgrade to stay
+              current
+            </li>
+            <li>
+              <strong>Use timelines effectively:</strong> Filter and sort for
+              relevant events
+            </li>
+            <li>
+              <strong>Combine tools:</strong> Leverage multiple tools for
+              comprehensive analysis
+            </li>
+            <li>
+              <strong>Document everything:</strong> Maintain detailed notes for
+              reporting
+            </li>
+          </ul>
+        </section>
+
+        <section id="legal-disclaimer">
+          <h2>Legal Disclaimer</h2>
+          <div class="command-block">
+            <p>
+              <strong>WARNING:</strong> SIFT Workstation should only be used
+              for:
+            </p>
+            <ul>
+              <li>
+                Authorized forensic investigations with proper legal authority
+              </li>
+              <li>Incident response with explicit permission</li>
+              <li>Educational purposes in controlled environments</li>
+              <li>Security research with institutional approval</li>
+              <li>Legal proceedings with proper documentation</li>
+            </ul>
+            <p>
+              Unauthorized use of SIFT Workstation for analyzing systems or data
+              without permission may violate privacy laws, computer crime laws,
+              or other regulations. Digital forensic investigations should only
+              be performed by qualified professionals with proper authorization
+              and legal agreements. Always ensure evidence is handled in
+              accordance with legal standards, maintaining chain of custody and
+              integrity. Forensic activities may be subject to legal scrutiny,
+              and improper handling can render evidence inadmissible in court.
+              Respect data privacy and confidentiality requirements. Maintain
+              detailed documentation of all forensic activities and findings.
+              Follow responsible disclosure practices for any vulnerabilities or
+              incidents discovered. Be aware that forensic tools may generate
+              significant system resource usage, potentially impacting
+              performance. Ensure compliance with all relevant laws and
+              regulations during investigations.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

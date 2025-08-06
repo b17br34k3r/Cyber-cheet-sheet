@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>traceroute Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>traceroute: Network Path Discovery Tool</h1>
+            <p>Master Network Routing and Latency Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is traceroute?</h2>
+                <p>traceroute is a computer network diagnostic tool for displaying the route (path) and measuring transit delays of packets across an Internet Protocol (IP) network. It traces the path that packets take from your computer to a destination host, showing each hop along the way and the time it takes to reach each intermediate router. This makes it invaluable for network troubleshooting, performance analysis, and understanding network topology.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Availability</h2>
+                <div class="command-block">
+                    <h3>Linux Systems</h3>
+                    <pre><code># Ubuntu/Debian (usually pre-installed)
+sudo apt update && sudo apt install traceroute
+
+# CentOS/RHEL
+sudo yum install traceroute
+
+# Arch Linux
+sudo pacman -S traceroute</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Systems</h3>
+                    <pre><code># Pre-installed on macOS
+traceroute --version
+
+# Alternative: traceroute6 for IPv6
+traceroute6 --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Systems</h3>
+                    <pre><code># Windows uses 'tracert' command
+tracert google.com
+
+# PowerShell alternative
+Test-NetConnection -ComputerName google.com -TraceRoute
+
+# WSL for Linux traceroute
+wsl sudo apt install traceroute</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+traceroute [options] hostname
+
+# Simple traceroute
+traceroute google.com
+
+# Traceroute to IP address
+traceroute 8.8.8.8
+
+# IPv6 traceroute
+traceroute6 google.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Options</h3>
+                    <pre><code># Maximum hops
+-m max_hops     # Set maximum number of hops (default: 30)
+
+# Packet size
+-s packet_size  # Set packet size in bytes
+
+# Wait time
+-w timeout      # Wait time for response (seconds)
+
+# Number of probes
+-q nqueries     # Number of probes per hop (default: 3)
+
+# Port specification
+-p port         # Destination port (UDP mode)
+
+# Protocol options
+-I              # Use ICMP ECHO instead of UDP
+-T              # Use TCP SYN instead of UDP
+-U              # Use UDP (default)</code></pre>
+                </div>
+            </section>
+
+            <section id="protocol-modes">
+                <h2>Protocol Modes</h2>
+                <div class="command-block">
+                    <h3>UDP Mode (Default)</h3>
+                    <pre><code># Standard UDP traceroute
+traceroute google.com
+
+# UDP with specific port
+traceroute -p 53 google.com
+
+# UDP with custom packet size
+traceroute -s 1400 google.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>ICMP Mode</h3>
+                    <pre><code># ICMP ECHO traceroute
+traceroute -I google.com
+
+# ICMP with custom timeout
+traceroute -I -w 5 google.com
+
+# ICMP with more probes per hop
+traceroute -I -q 5 google.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>TCP Mode</h3>
+                    <pre><code># TCP SYN traceroute
+traceroute -T google.com
+
+# TCP to specific port
+traceroute -T -p 80 google.com
+
+# TCP to HTTPS port
+traceroute -T -p 443 google.com</code></pre>
+                </div>
+            </section>
+
+            <section id="output-analysis">
+                <h2>Output Analysis & Interpretation</h2>
+                <div class="command-block">
+                    <h3>Understanding Output Format</h3>
+                    <pre><code># Example output:
+# traceroute to google.com (172.217.164.110), 30 hops max, 60 byte packets
+#  1  192.168.1.1 (192.168.1.1)  1.234 ms  1.567 ms  1.890 ms
+#  2  10.0.0.1 (10.0.0.1)  5.123 ms  5.456 ms  5.789 ms
+#  3  * * *
+#  4  172.217.164.110 (172.217.164.110)  15.123 ms  15.456 ms  15.789 ms
+
+# Components:
+# Hop number: Sequential router number
+# Hostname/IP: Router identification
+# RTT values: Round-trip times for each probe
+# * * *: Timeout or filtered responses</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Response Types</h3>
+                    <pre><code># Normal response
+1  router.local (192.168.1.1)  1.234 ms  1.567 ms  1.890 ms
+
+# Timeout (no response)
+2  * * *
+
+# Partial timeout
+3  10.0.0.1 (10.0.0.1)  5.123 ms  * 5.789 ms
+
+# Asymmetric routing
+4  different-return-path.com (10.1.1.1)  !A  10.123 ms  10.456 ms
+
+# Destination unreachable
+5  target.com (203.0.113.1)  !H  * *</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Configuration</h2>
+                <div class="command-block">
+                    <h3>Timing and Probing</h3>
+                    <pre><code># Custom timeout per probe
+traceroute -w 10 google.com
+
+# More probes per hop
+traceroute -q 5 google.com
+
+# Faster probing
+traceroute -w 1 -q 1 google.com
+
+# Maximum hops limit
+traceroute -m 15 google.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Source Configuration</h3>
+                    <pre><code># Specify source interface
+traceroute -i eth0 google.com
+
+# Source IP address
+traceroute -s 192.168.1.100 google.com
+
+# First TTL value
+traceroute -f 5 google.com
+
+# Don't resolve hostnames
+traceroute -n google.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Packet Customization</h3>
+                    <pre><code># Custom packet size
+traceroute -s 1400 google.com
+
+# Minimum packet size
+traceroute -s 28 google.com
+
+# Maximum packet size (jumbo frames)
+traceroute -s 9000 google.com
+
+# TOS (Type of Service) field
+traceroute -t 0x10 google.com</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting-scenarios">
+                <h2>Network Troubleshooting Scenarios</h2>
+                <div class="command-block">
+                    <h3>Connectivity Issues</h3>
+                    <pre><code># Basic connectivity test
+traceroute target.com
+
+# Check if routing loops exist
+traceroute -m 50 target.com
+
+# Test different protocols
+traceroute -I target.com    # ICMP
+traceroute -T target.com    # TCP
+traceroute -U target.com    # UDP</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Analysis</h3>
+                    <pre><code># Identify high latency hops
+traceroute -q 10 target.com
+
+# Compare different paths
+traceroute -s source1 target.com
+traceroute -s source2 target.com
+
+# Test with different packet sizes
+traceroute -s 64 target.com
+traceroute -s 1400 target.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Firewall Detection</h3>
+                    <pre><code># Test UDP filtering
+traceroute target.com
+
+# Test ICMP filtering
+traceroute -I target.com
+
+# Test TCP filtering
+traceroute -T -p 80 target.com
+traceroute -T -p 443 target.com</code></pre>
+                </div>
+            </section>
+
+            <section id="ipv6-traceroute">
+                <h2>IPv6 Traceroute</h2>
+                <div class="command-block">
+                    <h3>Basic IPv6 Tracing</h3>
+                    <pre><code># IPv6 traceroute
+traceroute6 google.com
+
+# IPv6 to specific address
+traceroute6 2001:4860:4860::8888
+
+# IPv6 with custom options
+traceroute6 -q 5 -w 3 google.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>IPv6-Specific Options</h3>
+                    <pre><code># ICMPv6 mode
+traceroute6 -I google.com
+
+# UDP mode for IPv6
+traceroute6 -U google.com
+
+# No hostname resolution
+traceroute6 -n google.com</code></pre>
+                </div>
+            </section>
+
+            <section id="scripting-automation">
+                <h2>Scripting & Automation</h2>
+                <div class="command-block">
+                    <h3>Batch Traceroute</h3>
+                    <pre><code>#!/bin/bash
+# Multiple destination traceroute
+destinations=("google.com" "github.com" "stackoverflow.com")
+
+for dest in "${destinations[@]}"; do
+    echo "=== Traceroute to $dest ==="
+    traceroute -q 1 -w 3 $dest
+    echo ""
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Continuous Monitoring</h3>
+                    <pre><code>#!/bin/bash
+# Continuous traceroute monitoring
+target=$1
+interval=${2:-300}  # Default 5 minutes
+
+while true; do
+    echo "$(date): Traceroute to $target"
+    traceroute -q 1 -w 2 $target
+    echo "---"
+    sleep $interval
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Path Change Detection</h3>
+                    <pre><code>#!/bin/bash
+# Detect routing changes
+target=$1
+baseline_file="baseline_${target}.txt"
+
+# Create baseline
+if [ ! -f "$baseline_file" ]; then
+    traceroute -n $target > $baseline_file
+    echo "Baseline created for $target"
+    exit 0
+fi
+
+# Compare current path with baseline
+current_path=$(traceroute -n $target)
+if ! diff -q <(echo "$current_path") $baseline_file > /dev/null; then
+    echo "$(date): Path change detected for $target"
+    echo "$current_path"
+fi</code></pre>
+                </div>
+            </section>
+
+            <section id="mtr-alternative">
+                <h2>MTR: Enhanced Traceroute</h2>
+                <div class="command-block">
+                    <h3>MTR Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt install mtr
+
+# CentOS/RHEL
+sudo yum install mtr
+
+# macOS
+brew install mtr</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>MTR Usage</h3>
+                    <pre><code># Interactive MTR
+mtr google.com
+
+# Report mode
+mtr --report --report-cycles 10 google.com
+
+# JSON output
+mtr --json google.com
+
+# No DNS resolution
+mtr --no-dns google.com</code></pre>
+                </div>
+            </section>
+
+            <section id="practical-examples">
+                <h2>Practical Examples</h2>
+                <div class="command-block">
+                    <h3>ISP Path Analysis</h3>
+                    <pre><code># Trace to major DNS servers
+traceroute 8.8.8.8          # Google DNS
+traceroute 1.1.1.1          # Cloudflare DNS
+traceroute 9.9.9.9          # Quad9 DNS
+
+# Compare paths to same destination
+traceroute -I google.com     # ICMP path
+traceroute -T -p 80 google.com  # TCP path</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CDN Analysis</h3>
+                    <pre><code># Trace to CDN endpoints
+traceroute www.cloudflare.com
+traceroute www.fastly.com
+traceroute d1.awsstatic.com
+
+# Check geographic routing
+traceroute -n www.example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Troubleshooting</h3>
+                    <pre><code># Identify packet loss location
+traceroute -q 10 problematic-site.com
+
+# Test MTU issues
+traceroute -s 1500 target.com
+traceroute -s 1400 target.com
+
+# Firewall testing
+traceroute -T -p 22 ssh-server.com
+traceroute -T -p 80 web-server.com</code></pre>
+                </div>
+            </section>
+
+            <section id="security-applications">
+                <h2>Security Applications</h2>
+                <div class="command-block">
+                    <h3>Network Reconnaissance</h3>
+                    <pre><code># Discover network topology
+traceroute target-network.com
+
+# Identify intermediate routers
+traceroute -n target.com
+
+# Map network infrastructure
+for i in {1..10}; do
+    traceroute 192.168.1.$i
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Firewall Detection</h3>
+                    <pre><code># Test different protocols
+traceroute target.com        # UDP
+traceroute -I target.com     # ICMP
+traceroute -T target.com     # TCP
+
+# Port-specific testing
+traceroute -T -p 80 target.com
+traceroute -T -p 443 target.com
+traceroute -T -p 22 target.com</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-analysis">
+                <h2>Performance Analysis</h2>
+                <div class="command-block">
+                    <h3>Latency Analysis</h3>
+                    <pre><code># Multiple probes for accuracy
+traceroute -q 10 target.com
+
+# Quick latency check
+traceroute -q 1 -w 1 target.com
+
+# Detailed timing analysis
+traceroute -q 5 -w 5 target.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Path Optimization</h3>
+                    <pre><code># Compare different source interfaces
+traceroute -i eth0 target.com
+traceroute -i wlan0 target.com
+
+# Test different packet sizes
+for size in 64 128 256 512 1024 1400; do
+    echo "Packet size: $size"
+    traceroute -s $size target.com
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use appropriate protocols:</strong> Try ICMP, TCP, and UDP for complete picture</li>
+                    <li><strong>Consider firewalls:</strong> Many routers filter traceroute packets</li>
+                    <li><strong>Multiple probes:</strong> Use -q option for more accurate measurements</li>
+                    <li><strong>Combine with ping:</strong> Verify end-to-end connectivity first</li>
+                    <li><strong>Document baselines:</strong> Keep records of normal network paths</li>
+                    <li><strong>Use MTR for continuous monitoring:</strong> Better for ongoing analysis</li>
+                    <li><strong>Consider IPv6:</strong> Test both IPv4 and IPv6 paths</li>
+                    <li><strong>Respect rate limits:</strong> Don't flood networks with traceroutes</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Common Issues & Solutions</h2>
+                <div class="command-block">
+                    <h3>No Response Issues</h3>
+                    <pre><code># Increase timeout
+traceroute -w 10 target.com
+
+# Try different protocols
+traceroute -I target.com
+traceroute -T target.com
+
+# Reduce packet size
+traceroute -s 28 target.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Permission Issues</h3>
+                    <pre><code># Use sudo for raw sockets
+sudo traceroute target.com
+
+# Use unprivileged mode
+traceroute -U target.com
+
+# Check capabilities
+sudo setcap cap_net_raw+ep /usr/bin/traceroute</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Incomplete Traces</h3>
+                    <pre><code># Increase maximum hops
+traceroute -m 50 target.com
+
+# Try different starting TTL
+traceroute -f 10 target.com
+
+# Use TCP mode for better results
+traceroute -T -p 80 target.com</code></pre>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>NOTE:</strong> traceroute should be used responsibly for:</p>
+                    <ul>
+                        <li>Legitimate network troubleshooting and administration</li>
+                        <li>Performance analysis and optimization</li>
+                        <li>Educational purposes and learning</li>
+                        <li>Authorized security testing and research</li>
+                    </ul>
+                    <p>While traceroute is a standard network diagnostic tool, excessive use or systematic network mapping may be considered reconnaissance activity. Some networks may block or rate-limit traceroute packets. Always respect network policies and use traceroute responsibly for legitimate purposes.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

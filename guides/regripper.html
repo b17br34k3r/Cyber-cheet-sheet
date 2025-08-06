@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RegRipper Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>RegRipper: Windows Registry Analysis Tool</h1>
+            <p>Master Windows Registry Forensics and Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is RegRipper?</h2>
+                <p>RegRipper is an open-source tool written in Perl for extracting and analyzing data from Windows Registry hive files. It's designed to help digital forensics investigators and incident responders quickly extract relevant information from Registry hives without needing to manually navigate through the Registry structure. RegRipper uses plugins to parse specific Registry keys and values, making it highly extensible and customizable for different investigation scenarios.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download RegRipper from:
+# https://github.com/keydet89/RegRipper3.0
+
+# Extract to desired location
+# Requires Perl to be installed
+
+# Install Strawberry Perl
+# Download from: http://strawberryperl.com/
+
+# Verify Perl installation
+perl --version
+
+# Test RegRipper
+perl rip.pl -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Install Perl (usually pre-installed)
+sudo apt update
+sudo apt install perl
+
+# Install required Perl modules
+sudo cpan Parse::Win32Registry
+
+# Download RegRipper
+git clone https://github.com/keydet89/RegRipper3.0.git
+cd RegRipper3.0
+
+# Make executable
+chmod +x rip.pl
+
+# Test installation
+perl rip.pl -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Plugin Setup</h3>
+                    <pre><code># RegRipper directory structure
+RegRipper/
+├── rip.pl          # Main executable
+├── plugins/        # Plugin directory
+├── config/         # Configuration files
+└── docs/          # Documentation
+
+# List available plugins
+perl rip.pl -l
+
+# Get plugin information
+perl rip.pl -p plugin_name</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Command Line Syntax</h3>
+                    <pre><code># Basic syntax
+perl rip.pl -r registry_hive -f profile
+
+# Common options:
+# -r : Registry hive file
+# -f : Profile (ntuser, system, software, etc.)
+# -p : Specific plugin
+# -l : List plugins
+# -h : Help</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Analyzing Registry Hives</h3>
+                    <pre><code># Analyze NTUSER.DAT (user profile)
+perl rip.pl -r NTUSER.DAT -f ntuser
+
+# Analyze SYSTEM hive
+perl rip.pl -r SYSTEM -f system
+
+# Analyze SOFTWARE hive
+perl rip.pl -r SOFTWARE -f software
+
+# Analyze SAM hive
+perl rip.pl -r SAM -f sam
+
+# Analyze SECURITY hive
+perl rip.pl -r SECURITY -f security</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Using Specific Plugins</h3>
+                    <pre><code># Run specific plugin
+perl rip.pl -r NTUSER.DAT -p recentdocs
+
+# Multiple plugins
+perl rip.pl -r SYSTEM -p compname,timezone,shutdown
+
+# List plugins for specific hive
+perl rip.pl -l | grep -i system</code></pre>
+                </div>
+            </section>
+
+            <section id="forensic-analysis">
+                <h2>Forensic Analysis</h2>
+                <div class="command-block">
+                    <h3>User Activity Analysis</h3>
+                    <pre><code># Recent documents
+perl rip.pl -r NTUSER.DAT -p recentdocs
+
+# Run/RunOnce entries
+perl rip.pl -r NTUSER.DAT -p run
+perl rip.pl -r SOFTWARE -p run
+
+# User Assist (program execution)
+perl rip.pl -r NTUSER.DAT -p userassist
+
+# Typed URLs (Internet Explorer)
+perl rip.pl -r NTUSER.DAT -p typedurls
+
+# Windows Search history
+perl rip.pl -r NTUSER.DAT -p wordwheelquery</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>System Information</h3>
+                    <pre><code># Computer name
+perl rip.pl -r SYSTEM -p compname
+
+# Time zone information
+perl rip.pl -r SYSTEM -p timezone
+
+# Last shutdown time
+perl rip.pl -r SYSTEM -p shutdown
+
+# Network interfaces
+perl rip.pl -r SYSTEM -p nic2
+
+# USB device history
+perl rip.pl -r SYSTEM -p usbstor</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Software Analysis</h3>
+                    <pre><code># Installed programs
+perl rip.pl -r SOFTWARE -p uninstall
+
+# Windows version
+perl rip.pl -r SOFTWARE -p winver
+
+# Installed updates
+perl rip.pl -r SOFTWARE -p updates
+
+# Services
+perl rip.pl -r SYSTEM -p services
+
+# Autostart locations
+perl rip.pl -r SOFTWARE -p run
+perl rip.pl -r SYSTEM -p run</code></pre>
+                </div>
+            </section>
+
+            <section id="incident-response">
+                <h2>Incident Response</h2>
+                <div class="command-block">
+                    <h3>Malware Persistence</h3>
+                    <pre><code># Check all autostart locations
+perl rip.pl -r SOFTWARE -p run
+perl rip.pl -r SYSTEM -p run
+perl rip.pl -r NTUSER.DAT -p run
+
+# Services (potential malware services)
+perl rip.pl -r SYSTEM -p services
+
+# Scheduled tasks
+perl rip.pl -r SOFTWARE -p tasks
+
+# Browser Helper Objects
+perl rip.pl -r SOFTWARE -p bho
+
+# Shell extensions
+perl rip.pl -r SOFTWARE -p shellext</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Activity</h3>
+                    <pre><code># Network interfaces
+perl rip.pl -r SYSTEM -p nic2
+
+# Network shares
+perl rip.pl -r SYSTEM -p shares
+
+# Remote desktop connections
+perl rip.pl -r NTUSER.DAT -p rdpport
+
+# VPN connections
+perl rip.pl -r NTUSER.DAT -p vpn</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>User Behavior</h3>
+                    <pre><code># Recently accessed files
+perl rip.pl -r NTUSER.DAT -p recentdocs
+
+# Search terms
+perl rip.pl -r NTUSER.DAT -p wordwheelquery
+
+# Typed paths in Windows Explorer
+perl rip.pl -r NTUSER.DAT -p typedpaths
+
+# MRU (Most Recently Used) lists
+perl rip.pl -r NTUSER.DAT -p comdlg32
+
+# Application-specific MRUs
+perl rip.pl -r NTUSER.DAT -p applets</code></pre>
+                </div>
+            </section>
+
+            <section id="timeline-analysis">
+                <h2>Timeline Analysis</h2>
+                <div class="command-block">
+                    <h3>Creating Timelines</h3>
+                    <pre><code># Generate timeline from all hives
+perl rip.pl -r SYSTEM -f system > system_timeline.txt
+perl rip.pl -r SOFTWARE -f software > software_timeline.txt
+perl rip.pl -r NTUSER.DAT -f ntuser > ntuser_timeline.txt
+
+# Combine timelines
+cat *_timeline.txt | sort > combined_timeline.txt
+
+# Timeline with specific plugins
+perl rip.pl -r NTUSER.DAT -p recentdocs,userassist,typedurls > user_activity_timeline.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Time-based Analysis</h3>
+                    <pre><code># Focus on specific time periods
+grep "2023-06-15" combined_timeline.txt
+
+# Last activity indicators
+perl rip.pl -r SYSTEM -p shutdown
+perl rip.pl -r NTUSER.DAT -p lastloggedon
+
+# Installation timestamps
+perl rip.pl -r SOFTWARE -p uninstall | grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2}"</code></pre>
+                </div>
+            </section>
+
+            <section id="custom-plugins">
+                <h2>Custom Plugins</h2>
+                <div class="command-block">
+                    <h3>Plugin Structure</h3>
+                    <pre><code># Basic plugin template (Perl)
+package custom_plugin;
+use strict;
+
+my %config = (
+    hive          => "NTUSER",
+    hasShortDescr => 1,
+    hasDescr      => 0,
+    hasRefs       => 0,
+    osmask        => 22,
+    version       => 20230101
+);
+
+sub getConfig{return %config}
+sub getShortDescr {
+    return "Custom plugin description";
+}
+
+sub pluginmain {
+    my $class = shift;
+    my $ntuser = shift;
+    
+    my $version = getVersion();
+    my $root_key = $ntuser->get_root_key;
+    
+    # Plugin logic here
+    eval {
+        my $key_path = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RecentDocs";
+        my $key = $root_key->get_subkey($key_path);
+        
+        if ($key) {
+            my @vals = $key->get_list_of_values();
+            foreach my $v (@vals) {
+                my $name = $v->get_name();
+                my $data = $v->get_data();
+                print $name.": ".$data."\n";
+            }
+        }
+    };
+    
+    if ($@) {
+        print "Error: ".$@."\n";
+    }
+}
+
+1;</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Installing Custom Plugins</h3>
+                    <pre><code># Save plugin to plugins directory
+cp custom_plugin.pl RegRipper/plugins/
+
+# Test custom plugin
+perl rip.pl -r NTUSER.DAT -p custom_plugin
+
+# List all plugins including custom
+perl rip.pl -l | grep custom</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Analysis Script</h3>
+                    <pre><code>#!/bin/bash
+# Comprehensive Registry analysis script
+
+HIVE_DIR="$1"
+OUTPUT_DIR="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <hive_directory> <output_directory>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Starting Registry analysis..."
+
+# Analyze SYSTEM hive
+if [ -f "$HIVE_DIR/SYSTEM" ]; then
+    echo "Analyzing SYSTEM hive..."
+    perl rip.pl -r "$HIVE_DIR/SYSTEM" -f system > "$OUTPUT_DIR/system_analysis.txt"
+fi
+
+# Analyze SOFTWARE hive
+if [ -f "$HIVE_DIR/SOFTWARE" ]; then
+    echo "Analyzing SOFTWARE hive..."
+    perl rip.pl -r "$HIVE_DIR/SOFTWARE" -f software > "$OUTPUT_DIR/software_analysis.txt"
+fi
+
+# Analyze NTUSER.DAT
+if [ -f "$HIVE_DIR/NTUSER.DAT" ]; then
+    echo "Analyzing NTUSER.DAT..."
+    perl rip.pl -r "$HIVE_DIR/NTUSER.DAT" -f ntuser > "$OUTPUT_DIR/ntuser_analysis.txt"
+fi
+
+# Analyze SAM hive
+if [ -f "$HIVE_DIR/SAM" ]; then
+    echo "Analyzing SAM hive..."
+    perl rip.pl -r "$HIVE_DIR/SAM" -f sam > "$OUTPUT_DIR/sam_analysis.txt"
+fi
+
+# Generate summary report
+echo "=== Registry Analysis Summary ===" > "$OUTPUT_DIR/summary.txt"
+echo "Analysis Date: $(date)" >> "$OUTPUT_DIR/summary.txt"
+echo "Hive Directory: $HIVE_DIR" >> "$OUTPUT_DIR/summary.txt"
+echo "" >> "$OUTPUT_DIR/summary.txt"
+
+# Count entries in each analysis
+for file in "$OUTPUT_DIR"/*_analysis.txt; do
+    if [ -f "$file" ]; then
+        filename=$(basename "$file")
+        lines=$(wc -l < "$file")
+        echo "$filename: $lines lines" >> "$OUTPUT_DIR/summary.txt"
+    fi
+done
+
+echo "Registry analysis completed. Results in $OUTPUT_DIR"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response Script</h3>
+                    <pre><code>#!/bin/bash
+# Incident response Registry analysis
+
+HIVE_DIR="$1"
+CASE_ID="$2"
+OUTPUT_DIR="$3"
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "=== Incident Response Registry Analysis ===" > "$OUTPUT_DIR/ir_report.txt"
+echo "Case ID: $CASE_ID" >> "$OUTPUT_DIR/ir_report.txt"
+echo "Analysis Date: $(date)" >> "$OUTPUT_DIR/ir_report.txt"
+echo "" >> "$OUTPUT_DIR/ir_report.txt"
+
+# Check for persistence mechanisms
+echo "=== Persistence Analysis ===" >> "$OUTPUT_DIR/ir_report.txt"
+perl rip.pl -r "$HIVE_DIR/SOFTWARE" -p run >> "$OUTPUT_DIR/ir_report.txt"
+perl rip.pl -r "$HIVE_DIR/SYSTEM" -p run >> "$OUTPUT_DIR/ir_report.txt"
+perl rip.pl -r "$HIVE_DIR/NTUSER.DAT" -p run >> "$OUTPUT_DIR/ir_report.txt"
+
+# Check services
+echo "=== Services Analysis ===" >> "$OUTPUT_DIR/ir_report.txt"
+perl rip.pl -r "$HIVE_DIR/SYSTEM" -p services >> "$OUTPUT_DIR/ir_report.txt"
+
+# Check user activity
+echo "=== User Activity Analysis ===" >> "$OUTPUT_DIR/ir_report.txt"
+perl rip.pl -r "$HIVE_DIR/NTUSER.DAT" -p recentdocs >> "$OUTPUT_DIR/ir_report.txt"
+perl rip.pl -r "$HIVE_DIR/NTUSER.DAT" -p userassist >> "$OUTPUT_DIR/ir_report.txt"
+
+# Check network activity
+echo "=== Network Activity Analysis ===" >> "$OUTPUT_DIR/ir_report.txt"
+perl rip.pl -r "$HIVE_DIR/SYSTEM" -p nic2 >> "$OUTPUT_DIR/ir_report.txt"
+
+echo "Incident response analysis completed."</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Volatility</h3>
+                    <pre><code># Extract Registry hives from memory dump
+vol -f memory.dmp --profile=Win7SP1x64 hivelist
+vol -f memory.dmp --profile=Win7SP1x64 dumpregistry --dump-dir=./
+
+# Analyze extracted hives with RegRipper
+perl rip.pl -r registry.0x12345678.SYSTEM.reg -f system</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Autopsy</h3>
+                    <pre><code># Export Registry hives from Autopsy
+# Use Autopsy's export feature to extract hives
+
+# Analyze with RegRipper
+perl rip.pl -r exported_SYSTEM -f system > autopsy_system_analysis.txt
+
+# Import results back into Autopsy as text files</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeline Integration</h3>
+                    <pre><code># Generate RegRipper timeline
+perl rip.pl -r NTUSER.DAT -f ntuser > regripper_timeline.txt
+
+# Convert to Sleuth Kit timeline format
+# Process RegRipper output for timeline tools
+awk -F: '{print $1 "|" $2 "|" $3}' regripper_timeline.txt > timeline.body</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Perl module missing
+cpan Parse::Win32Registry
+
+# Permission issues
+chmod +r registry_hive_file
+
+# Corrupted hive files
+# Use registry recovery tools first
+# Or try specific plugins that handle corruption
+
+# Plugin not found
+perl rip.pl -l | grep plugin_name
+
+# Encoding issues
+# Ensure proper character encoding for output
+perl rip.pl -r NTUSER.DAT -p plugin > output.txt 2>&1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Large hive files
+# Use specific plugins instead of full profiles
+perl rip.pl -r large_hive -p specific_plugin
+
+# Memory issues
+# Process hives individually
+# Use system with adequate RAM
+
+# Speed up analysis
+# Run multiple instances in parallel
+perl rip.pl -r SYSTEM -p plugin1 &
+perl rip.pl -r SOFTWARE -p plugin2 &
+wait</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>User activity reconstruction</li>
+                        <li>System configuration analysis</li>
+                        <li>Timeline creation and analysis</li>
+                        <li>Evidence correlation</li>
+                        <li>Deleted data recovery</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Malware persistence detection</li>
+                        <li>Compromise assessment</li>
+                        <li>Attack timeline reconstruction</li>
+                        <li>Lateral movement analysis</li>
+                        <li>Data exfiltration investigation</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Threat Hunting</h3>
+                    <ul>
+                        <li>Anomaly detection in Registry</li>
+                        <li>Persistence mechanism hunting</li>
+                        <li>Configuration baseline comparison</li>
+                        <li>Suspicious program identification</li>
+                        <li>Network artifact analysis</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use appropriate profiles:</strong> Match profiles to hive types for comprehensive analysis</li>
+                    <li><strong>Combine multiple plugins:</strong> Use various plugins to get complete picture</li>
+                    <li><strong>Create custom plugins:</strong> Develop specific plugins for unique investigation needs</li>
+                    <li><strong>Document findings:</strong> Keep detailed notes of Registry analysis results</li>
+                    <li><strong>Verify timestamps:</strong> Cross-reference Registry timestamps with other evidence</li>
+                    <li><strong>Handle encoding properly:</strong> Be aware of Unicode and encoding issues</li>
+                    <li><strong>Backup original hives:</strong> Always work with copies of Registry hives</li>
+                    <li><strong>Stay updated:</strong> Keep RegRipper and plugins current</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> RegRipper should only be used for:</p>
+                    <ul>
+                        <li>Analyzing Registry hives from your own systems</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Corporate incident response with appropriate authorization</li>
+                        <li>Academic research with proper permissions</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized Registry analysis may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority. Always ensure compliance with applicable laws, regulations, and organizational policies. Registry data may contain sensitive personal and system information that must be handled according to applicable privacy laws and data protection requirements. Maintain proper chain of custody documentation for any evidence that may be used in legal proceedings.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

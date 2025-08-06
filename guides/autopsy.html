@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autopsy Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Autopsy: Digital Forensics Platform</h1>
+            <p>Master Comprehensive Digital Investigation</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Autopsy?</h2>
+                <p>Autopsy is a digital forensics platform and graphical interface to The Sleuth Kit and other digital forensics tools. It is used by law enforcement, military, and corporate examiners to investigate what happened on a computer. You can even use it to recover photos from your camera's memory card. Autopsy provides a comprehensive suite of tools for analyzing disk images, file systems, and digital evidence, making it an essential tool for digital forensics professionals and incident response teams.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from official website
+# Visit: https://www.autopsy.com/download/
+
+# Download the Windows installer
+# Run the .msi installer as Administrator
+# Follow the installation wizard
+
+# System Requirements:
+# - Windows 7 or later (64-bit recommended)
+# - Java 8 or later
+# - Minimum 4GB RAM (8GB+ recommended)
+# - 1GB free disk space for installation</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian installation
+sudo apt update
+sudo apt install autopsy
+
+# Install dependencies
+sudo apt install sleuthkit testdisk
+
+# Alternative: Install from source
+wget https://github.com/sleuthkit/autopsy/releases/download/autopsy-4.20.0/autopsy-4.20.0.zip
+unzip autopsy-4.20.0.zip
+cd autopsy-4.20.0
+
+# Install Java and dependencies
+sudo apt install openjdk-8-jdk ant
+
+# Build Autopsy
+ant</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Install Java first
+brew install openjdk@8
+
+# Download Autopsy for macOS
+# Visit: https://www.autopsy.com/download/
+
+# Extract and run
+unzip autopsy-4.20.0.zip
+cd autopsy-4.20.0/bin
+./autopsy</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Verify installation (Linux)
+autopsy --version
+
+# Check Sleuth Kit installation
+tsk_version
+
+# Test basic functionality
+mmls --help
+fls --help</code></pre>
+                </div>
+            </section>
+
+            <section id="getting-started">
+                <h2>Getting Started</h2>
+                <div class="command-block">
+                    <h3>Starting Autopsy</h3>
+                    <pre><code># Windows: Use desktop shortcut or Start menu
+
+# Linux: Command line
+autopsy
+
+# macOS: From application folder or terminal
+./autopsy
+
+# Web interface (if using older versions)
+# Open browser to: http://localhost:9999/autopsy</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Creating a New Case</h3>
+                    <ol>
+                        <li>Launch Autopsy</li>
+                        <li>Click "New Case"</li>
+                        <li>Enter case information:
+                            <ul>
+                                <li>Case Name</li>
+                                <li>Case Number</li>
+                                <li>Examiner Name</li>
+                                <li>Case Directory</li>
+                            </ul>
+                        </li>
+                        <li>Click "Next" and "Finish"</li>
+                    </ol>
+                </div>
+                <div class="command-block">
+                    <h3>Adding Data Sources</h3>
+                    <ol>
+                        <li>Click "Add Data Source"</li>
+                        <li>Select data source type:
+                            <ul>
+                                <li>Disk Image or VM File</li>
+                                <li>Local Drive</li>
+                                <li>Logical Files</li>
+                                <li>Unallocated Space Image File</li>
+                            </ul>
+                        </li>
+                        <li>Browse and select your evidence</li>
+                        <li>Configure ingest modules</li>
+                        <li>Start analysis</li>
+                    </ol>
+                </div>
+            </section>
+
+            <section id="interface-overview">
+                <h2>Interface Overview</h2>
+                <div class="command-block">
+                    <h3>Main Interface Components</h3>
+                    <ul>
+                        <li><strong>Tree Viewer:</strong> Hierarchical view of data sources and results</li>
+                        <li><strong>Result Viewer:</strong> Displays analysis results and file listings</li>
+                        <li><strong>Content Viewer:</strong> Shows file content, metadata, and hex dumps</li>
+                        <li><strong>Keyword Search:</strong> Search functionality across all data</li>
+                        <li><strong>Timeline:</strong> Chronological view of file system events</li>
+                        <li><strong>Communications:</strong> Email, chat, and call logs</li>
+                        <li><strong>Images/Videos:</strong> Media file analysis and viewing</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Navigation Tips</h3>
+                    <ul>
+                        <li>Use the tree viewer to navigate file system structure</li>
+                        <li>Right-click for context menus and additional options</li>
+                        <li>Use tabs to keep multiple views open</li>
+                        <li>Bookmark important findings for easy reference</li>
+                        <li>Use filters to narrow down large result sets</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="ingest-modules">
+                <h2>Ingest Modules</h2>
+                <div class="command-block">
+                    <h3>Core Ingest Modules</h3>
+                    <ul>
+                        <li><strong>Recent Activity:</strong> Web browsing, downloads, searches</li>
+                        <li><strong>Hash Lookup:</strong> Compare files against known hash databases</li>
+                        <li><strong>File Type Identification:</strong> Identify files by content, not extension</li>
+                        <li><strong>Keyword Search:</strong> Search for specific terms across all data</li>
+                        <li><strong>Email Parser:</strong> Extract and analyze email messages</li>
+                        <li><strong>Embedded File Extractor:</strong> Extract files from compound documents</li>
+                        <li><strong>EXIF Parser:</strong> Extract metadata from images</li>
+                        <li><strong>Extension Mismatch Detector:</strong> Find files with suspicious extensions</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Modules</h3>
+                    <ul>
+                        <li><strong>Photorec Carver:</strong> Recover deleted files</li>
+                        <li><strong>Plaso:</strong> Timeline analysis</li>
+                        <li><strong>Volatility:</strong> Memory analysis (if memory dumps available)</li>
+                        <li><strong>Android Analyzer:</strong> Android device analysis</li>
+                        <li><strong>iOS Analyzer:</strong> iOS device analysis</li>
+                        <li><strong>VM Extractor:</strong> Extract files from virtual machines</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Configuring Ingest Modules</h3>
+                    <pre><code># When adding a data source:
+# 1. Select appropriate ingest modules
+# 2. Configure module settings
+# 3. Set hash databases (NSRL, custom)
+# 4. Configure keyword lists
+# 5. Set file type filters
+# 6. Enable/disable specific analyzers</code></pre>
+                </div>
+            </section>
+
+            <section id="analysis-techniques">
+                <h2>Analysis Techniques</h2>
+                <div class="command-block">
+                    <h3>File System Analysis</h3>
+                    <pre><code># Navigate file system structure
+# - Examine directory listings
+# - Check file timestamps (MAC times)
+# - Identify deleted files
+# - Analyze file slack space
+# - Review unallocated space
+
+# Key areas to examine:
+# - User profiles and home directories
+# - Recent documents and downloads
+# - Temporary files and caches
+# - System logs and event files
+# - Registry files (Windows)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeline Analysis</h3>
+                    <pre><code># Create timeline views
+# 1. Go to Tools > Timeline
+# 2. Select time range
+# 3. Choose event types
+# 4. Filter by file types or paths
+# 5. Export timeline data
+
+# Timeline benefits:
+# - Chronological view of events
+# - Identify patterns of activity
+# - Correlate multiple events
+# - Establish sequence of actions</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Keyword Searching</h3>
+                    <pre><code># Effective keyword searching:
+# 1. Create keyword lists
+# 2. Use regular expressions
+# 3. Search specific file types
+# 4. Include/exclude deleted files
+# 5. Search metadata and content
+
+# Common search terms:
+# - Email addresses
+# - Phone numbers
+# - Credit card numbers
+# - Social security numbers
+# - Specific file names or extensions</code></pre>
+                </div>
+            </section>
+
+            <section id="evidence-analysis">
+                <h2>Evidence Analysis</h2>
+                <div class="command-block">
+                    <h3>Web Browsing Analysis</h3>
+                    <ul>
+                        <li><strong>Browser History:</strong> Visited websites and timestamps</li>
+                        <li><strong>Downloads:</strong> Downloaded files and sources</li>
+                        <li><strong>Cookies:</strong> Website tracking and session data</li>
+                        <li><strong>Cache Files:</strong> Temporary internet files</li>
+                        <li><strong>Bookmarks:</strong> Saved website links</li>
+                        <li><strong>Search Terms:</strong> Search engine queries</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Email Analysis</h3>
+                    <ul>
+                        <li><strong>Email Messages:</strong> Content, headers, attachments</li>
+                        <li><strong>Contact Lists:</strong> Address books and contacts</li>
+                        <li><strong>Calendar Events:</strong> Appointments and meetings</li>
+                        <li><strong>Deleted Items:</strong> Recovered deleted emails</li>
+                        <li><strong>Email Accounts:</strong> Account configurations</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Media Analysis</h3>
+                    <ul>
+                        <li><strong>Image Files:</strong> Photos, graphics, screenshots</li>
+                        <li><strong>Video Files:</strong> Movies, recordings, clips</li>
+                        <li><strong>Audio Files:</strong> Music, recordings, voice memos</li>
+                        <li><strong>EXIF Data:</strong> Camera settings, GPS coordinates</li>
+                        <li><strong>Thumbnails:</strong> Cached image previews</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="reporting">
+                <h2>Reporting & Documentation</h2>
+                <div class="command-block">
+                    <h3>Creating Reports</h3>
+                    <pre><code># Generate comprehensive reports:
+# 1. Go to Tools > Generate Report
+# 2. Select report type:
+#    - HTML Report
+#    - Excel Report
+#    - Text Report
+#    - KML Report (for GPS data)
+# 3. Choose data to include
+# 4. Configure report settings
+# 5. Generate and save report</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Report Components</h3>
+                    <ul>
+                        <li><strong>Case Summary:</strong> Overview of investigation</li>
+                        <li><strong>Data Sources:</strong> Evidence processed</li>
+                        <li><strong>Analysis Results:</strong> Key findings</li>
+                        <li><strong>Timeline Events:</strong> Chronological activity</li>
+                        <li><strong>Keyword Hits:</strong> Search results</li>
+                        <li><strong>Hash Analysis:</strong> Known file matches</li>
+                        <li><strong>Extracted Content:</strong> Recovered data</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Bookmarking Evidence</h3>
+                    <pre><code># Bookmark important findings:
+# 1. Right-click on item
+# 2. Select "Add to Bookmarks"
+# 3. Add description/notes
+# 4. Organize in bookmark folders
+# 5. Include in final report
+
+# Best practices:
+# - Use descriptive bookmark names
+# - Add detailed notes
+# - Organize by evidence type
+# - Include relevance to case</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Multi-User Cases</h3>
+                    <pre><code># Collaborative investigations:
+# 1. Set up central case database
+# 2. Configure PostgreSQL backend
+# 3. Create user accounts
+# 4. Assign roles and permissions
+# 5. Enable case sharing
+
+# Benefits:
+# - Multiple examiners on same case
+# - Centralized evidence management
+# - Shared bookmarks and notes
+# - Coordinated analysis efforts</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Ingest Modules</h3>
+                    <pre><code># Develop custom modules:
+# 1. Use Autopsy Python API
+# 2. Create module template
+# 3. Implement analysis logic
+# 4. Test and debug
+# 5. Deploy to Autopsy
+
+# Module types:
+# - File ingest modules
+# - Data source ingest modules
+# - Report modules
+# - Content viewers</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Hash Database Management</h3>
+                    <pre><code># Manage hash databases:
+# 1. Go to Tools > Options > Hash Databases
+# 2. Add hash sets:
+#    - NSRL (National Software Reference Library)
+#    - Custom known files
+#    - Known bad files (malware)
+# 3. Configure hash calculation
+# 4. Import/export hash sets
+# 5. Update databases regularly</code></pre>
+                </div>
+            </section>
+
+            <section id="mobile-forensics">
+                <h2>Mobile Device Forensics</h2>
+                <div class="command-block">
+                    <h3>Android Analysis</h3>
+                    <ul>
+                        <li><strong>App Data:</strong> Application databases and files</li>
+                        <li><strong>Call Logs:</strong> Incoming, outgoing, missed calls</li>
+                        <li><strong>SMS/MMS:</strong> Text messages and multimedia</li>
+                        <li><strong>Contacts:</strong> Address book entries</li>
+                        <li><strong>Location Data:</strong> GPS coordinates and maps</li>
+                        <li><strong>Web Browsing:</strong> Mobile browser activity</li>
+                        <li><strong>Social Media:</strong> App-specific data</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>iOS Analysis</h3>
+                    <ul>
+                        <li><strong>iTunes Backups:</strong> Device backup analysis</li>
+                        <li><strong>Property Lists:</strong> Configuration files</li>
+                        <li><strong>SQLite Databases:</strong> App data storage</li>
+                        <li><strong>Keychain:</strong> Stored passwords and certificates</li>
+                        <li><strong>Photos:</strong> Camera roll and albums</li>
+                        <li><strong>Messages:</strong> iMessage and SMS</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Mobile Evidence Extraction</h3>
+                    <pre><code># Prepare mobile evidence:
+# 1. Create physical or logical image
+# 2. Use appropriate extraction tools
+# 3. Import image into Autopsy
+# 4. Run mobile-specific ingest modules
+# 5. Analyze extracted data
+
+# Common mobile artifacts:
+# - Application databases
+# - Communication logs
+# - Location history
+# - Media files
+# - User activity patterns</code></pre>
+                </div>
+            </section>
+
+            <section id="best-practices">
+                <h2>Best Practices</h2>
+                <div class="command-block">
+                    <h3>Evidence Handling</h3>
+                    <ul>
+                        <li><strong>Chain of Custody:</strong> Document all evidence handling</li>
+                        <li><strong>Write Protection:</strong> Use hardware write blockers</li>
+                        <li><strong>Hash Verification:</strong> Verify evidence integrity</li>
+                        <li><strong>Backup Copies:</strong> Create working copies of evidence</li>
+                        <li><strong>Documentation:</strong> Record all analysis steps</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Analysis Methodology</h3>
+                    <ul>
+                        <li><strong>Systematic Approach:</strong> Follow consistent procedures</li>
+                        <li><strong>Multiple Perspectives:</strong> Use various analysis techniques</li>
+                        <li><strong>Correlation:</strong> Cross-reference findings</li>
+                        <li><strong>Timeline Reconstruction:</strong> Establish sequence of events</li>
+                        <li><strong>Hypothesis Testing:</strong> Validate theories with evidence</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Quality Assurance</h3>
+                    <ul>
+                        <li><strong>Peer Review:</strong> Have findings reviewed by colleagues</li>
+                        <li><strong>Tool Validation:</strong> Verify tool accuracy and reliability</li>
+                        <li><strong>Reproducibility:</strong> Ensure analysis can be repeated</li>
+                        <li><strong>Error Checking:</strong> Validate results and calculations</li>
+                        <li><strong>Continuous Learning:</strong> Stay updated with new techniques</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Java memory issues
+# Increase heap size in autopsy.conf:
+# default_options="--jdkhome $netbeans_jdkhome -J-Xms512m -J-Xmx4g"
+
+# Database connection issues
+# Check PostgreSQL service status
+# Verify database credentials
+# Test network connectivity
+
+# Slow performance
+# Allocate more RAM
+# Use SSD storage
+# Disable unnecessary ingest modules
+# Process smaller data sets</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Analysis</h3>
+                    <pre><code># Check Autopsy logs
+# Windows: %USERPROFILE%\.autopsy\var\log\
+# Linux: ~/.autopsy/var/log/
+# Look for error messages and warnings
+
+# Common log files:
+# - messages.log (general messages)
+# - ide.log (IDE-specific issues)
+# - autopsy.log (application logs)</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Law Enforcement</h3>
+                    <ul>
+                        <li>Criminal investigations</li>
+                        <li>Evidence analysis and presentation</li>
+                        <li>Digital crime scene reconstruction</li>
+                        <li>Suspect device examination</li>
+                        <li>Court testimony preparation</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Corporate Security</h3>
+                    <ul>
+                        <li>Incident response investigations</li>
+                        <li>Employee misconduct cases</li>
+                        <li>Data breach analysis</li>
+                        <li>Intellectual property theft</li>
+                        <li>Compliance investigations</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Personal Use</h3>
+                    <ul>
+                        <li>Data recovery from damaged drives</li>
+                        <li>Photo recovery from memory cards</li>
+                        <li>Personal device analysis</li>
+                        <li>Family safety investigations</li>
+                        <li>Academic research projects</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Plan your analysis:</strong> Define objectives before starting</li>
+                    <li><strong>Use multiple tools:</strong> Validate findings with different tools</li>
+                    <li><strong>Document everything:</strong> Keep detailed notes and screenshots</li>
+                    <li><strong>Preserve original evidence:</strong> Always work with copies</li>
+                    <li><strong>Stay organized:</strong> Use consistent naming and folder structures</li>
+                    <li><strong>Learn continuously:</strong> Keep up with new features and techniques</li>
+                    <li><strong>Practice regularly:</strong> Maintain and improve your skills</li>
+                    <li><strong>Network with peers:</strong> Join forensics communities and forums</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Autopsy should only be used for:</p>
+                    <ul>
+                        <li>Analyzing your own devices and data</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Corporate investigations with appropriate authorization</li>
+                        <li>Academic research with proper permissions</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized access to computer systems or data may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper chain of custody and documentation for any evidence that may be used in legal proceedings. Be aware of privacy rights and data protection requirements in your jurisdiction.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

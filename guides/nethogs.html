@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetHogs Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>NetHogs: Per-Process Network Monitor</h1>
+            <p>Master Process-Level Network Usage Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is NetHogs?</h2>
+                <p>NetHogs is a small 'net top' tool that shows the bandwidth usage of individual processes instead of breaking the traffic down per protocol or per subnet like most tools do. It groups bandwidth by process and shows which processes are using the most network bandwidth. NetHogs is particularly useful for identifying which applications or processes are consuming network resources, making it an essential tool for system administrators and security professionals.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install NetHogs
+sudo apt update
+sudo apt install nethogs
+
+# Install dependencies
+sudo apt install libpcap-dev libncurses5-dev</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+
+# Install NetHogs
+sudo yum install nethogs
+
+# Or on newer versions
+sudo dnf install nethogs</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Arch Linux Installation</h3>
+                    <pre><code># Install NetHogs
+sudo pacman -S nethogs</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install nethogs
+
+# Note: May require additional setup for packet capture</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Clone repository
+git clone https://github.com/raboof/nethogs.git
+cd nethogs
+
+# Install build dependencies
+sudo apt install build-essential libpcap-dev libncurses5-dev
+
+# Compile and install
+make
+sudo make install</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Starting NetHogs</h3>
+                    <pre><code># Basic usage (requires root privileges)
+sudo nethogs
+
+# Monitor specific interface
+sudo nethogs eth0
+sudo nethogs wlan0
+
+# Monitor multiple interfaces
+sudo nethogs eth0 wlan0
+
+# Monitor all interfaces
+sudo nethogs -a</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Interface options
+-a              # Monitor all devices
+-d delay        # Delay between updates (seconds)
+-v mode         # View mode (0=KB/s, 1=total KB, 2=total B, 3=total MB)
+-c count        # Number of updates then exit
+-t              # Trace mode (show bughunting info)
+-p              # Sniff in promiscuous mode
+-s              # Sort output by sent column
+-V              # Print version information
+
+# Example usage
+sudo nethogs -d 1 eth0          # Update every 1 second
+sudo nethogs -v 1 -d 2          # Show total KB, update every 2 seconds
+sudo nethogs -c 10 eth0         # Run for 10 updates then exit</code></pre>
+                </div>
+            </section>
+
+            <section id="interface-navigation">
+                <h2>Interface Navigation</h2>
+                <div class="command-block">
+                    <h3>Interactive Commands</h3>
+                    <pre><code># Display controls
+q               # Quit NetHogs
+s               # Sort by SENT column
+r               # Sort by RECEIVED column
+m               # Change view mode (KB/s, total KB, total B, total MB)
+
+# Navigation
+Up/Down arrows  # Navigate through process list
+Page Up/Down    # Navigate faster through list</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Display Modes</h3>
+                    <ul>
+                        <li><strong>Mode 0 (default):</strong> KB/s - Shows current rate</li>
+                        <li><strong>Mode 1:</strong> Total KB - Shows cumulative kilobytes</li>
+                        <li><strong>Mode 2:</strong> Total B - Shows cumulative bytes</li>
+                        <li><strong>Mode 3:</strong> Total MB - Shows cumulative megabytes</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="output-analysis">
+                <h2>Output Analysis</h2>
+                <div class="command-block">
+                    <h3>Understanding the Display</h3>
+                    <pre><code># NetHogs output format:
+# PID/Program                    SENT     RECEIVED
+# 1234/firefox                   15.2 KB/s  45.8 KB/s
+# 5678/ssh                       2.1 KB/s   1.8 KB/s
+# 9012/chrome                    8.7 KB/s   25.3 KB/s
+# ?                              0.5 KB/s   0.2 KB/s
+
+# Columns explanation:
+# PID/Program: Process ID and program name
+# SENT: Data sent by the process
+# RECEIVED: Data received by the process
+# ?: Unknown processes (usually kernel traffic)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Process Identification</h3>
+                    <ul>
+                        <li><strong>Known processes:</strong> Shows PID/program name</li>
+                        <li><strong>Unknown processes (?):</strong> Kernel or unidentified traffic</li>
+                        <li><strong>System processes:</strong> May show as kernel modules</li>
+                        <li><strong>Network services:</strong> Shows daemon names</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="monitoring-scenarios">
+                <h2>Monitoring Scenarios</h2>
+                <div class="command-block">
+                    <h3>Bandwidth Troubleshooting</h3>
+                    <pre><code># Identify bandwidth-hungry processes
+sudo nethogs -d 1
+
+# Monitor during high usage periods
+sudo nethogs -v 3 -d 5  # Show MB totals, update every 5 seconds
+
+# Track specific interface usage
+sudo nethogs eth0 -d 2
+
+# Long-term monitoring
+sudo nethogs -c 3600 > bandwidth_log.txt  # Monitor for 1 hour</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <pre><code># Monitor for suspicious network activity
+sudo nethogs -d 1 | tee security_monitor.log
+
+# Check for unexpected processes using network
+sudo nethogs -a  # Monitor all interfaces
+
+# Identify processes with high upload rates (potential data exfiltration)
+sudo nethogs -s  # Sort by sent traffic
+
+# Monitor system during incident response
+sudo nethogs -t  # Trace mode for debugging</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Analysis</h3>
+                    <pre><code># Monitor application network performance
+sudo nethogs -d 1 eth0
+
+# Track database connection usage
+# Look for database processes (mysql, postgres, etc.)
+
+# Monitor web server performance
+# Look for apache2, nginx, httpd processes
+
+# Check backup process impact
+# Monitor rsync, tar, backup scripts</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Monitoring Script</h3>
+                    <pre><code>#!/bin/bash
+# NetHogs monitoring and alerting script
+
+INTERFACE="eth0"
+LOG_DIR="/var/log/nethogs"
+THRESHOLD_KB=1000  # 1MB/s threshold
+CHECK_INTERVAL=60
+ALERT_EMAIL="admin@company.com"
+
+# Create log directory
+mkdir -p $LOG_DIR
+
+# Function to monitor and alert
+monitor_processes() {
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    local logfile="$LOG_DIR/nethogs_$timestamp.log"
+    
+    # Run nethogs for specified duration
+    timeout $CHECK_INTERVAL sudo nethogs -c $CHECK_INTERVAL $INTERFACE > $logfile
+    
+    # Parse for high usage processes
+    high_usage=$(grep -v "PID\|TOTAL\|?" $logfile | \
+                 awk '{if($2+$3 > '$THRESHOLD_KB') print $0}')
+    
+    if [ ! -z "$high_usage" ]; then
+        echo "High bandwidth usage detected at $(date)" | \
+        mail -s "NetHogs Alert - High Bandwidth Usage" $ALERT_EMAIL
+        
+        echo "Processes exceeding ${THRESHOLD_KB}KB/s:" | \
+        mail -s "NetHogs Alert Details" $ALERT_EMAIL
+        
+        echo "$high_usage" | \
+        mail -s "NetHogs Alert Details" $ALERT_EMAIL
+    fi
+    
+    echo "Monitoring completed: $logfile"
+}
+
+# Main monitoring loop
+while true; do
+    monitor_processes
+    sleep $CHECK_INTERVAL
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Process Network Usage Report</h3>
+                    <pre><code>#!/bin/bash
+# Generate process network usage report
+
+INTERFACE="eth0"
+DURATION=300  # 5 minutes
+REPORT_FILE="/tmp/process_network_report_$(date +%Y%m%d_%H%M%S).txt"
+
+echo "Process Network Usage Report" > $REPORT_FILE
+echo "Generated: $(date)" >> $REPORT_FILE
+echo "Interface: $INTERFACE" >> $REPORT_FILE
+echo "Duration: ${DURATION}s" >> $REPORT_FILE
+echo "=================================" >> $REPORT_FILE
+
+# Capture nethogs data
+sudo nethogs -c $DURATION $INTERFACE >> $REPORT_FILE 2>&1
+
+# Parse and create summary
+echo "" >> $REPORT_FILE
+echo "Top Network Consumers:" >> $REPORT_FILE
+echo "---------------------" >> $REPORT_FILE
+
+# Extract top processes (excluding headers and totals)
+grep -v "PID\|TOTAL\|Refreshing\|NetHogs" $REPORT_FILE | \
+grep -v "^$" | \
+sort -k2 -nr | \
+head -10 | \
+awk '{print "Process: " $1 " | Sent: " $2 " | Received: " $3}' >> $REPORT_FILE
+
+echo "Report saved: $REPORT_FILE"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Real-time Process Monitoring</h3>
+                    <pre><code>#!/bin/bash
+# Real-time process network monitoring with alerts
+
+INTERFACE="eth0"
+ALERT_THRESHOLD=500  # KB/s
+LOG_FILE="/var/log/nethogs_realtime.log"
+
+# Function to parse nethogs output
+parse_nethogs() {
+    while IFS= read -r line; do
+        # Skip headers and empty lines
+        if [[ $line =~ ^[0-9]+/ ]]; then
+            pid_program=$(echo $line | awk '{print $1}')
+            sent=$(echo $line | awk '{print $2}')
+            received=$(echo $line | awk '{print $3}')
+            
+            # Remove KB/s suffix and convert to number
+            sent_num=$(echo $sent | sed 's/[^0-9.]//g')
+            received_num=$(echo $received | sed 's/[^0-9.]//g')
+            
+            # Check if usage exceeds threshold
+            total_usage=$(echo "$sent_num + $received_num" | bc -l)
+            
+            if (( $(echo "$total_usage > $ALERT_THRESHOLD" | bc -l) )); then
+                timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+                echo "[$timestamp] HIGH USAGE: $pid_program - Sent: $sent, Received: $received" | \
+                tee -a $LOG_FILE
+                
+                # Optional: Send immediate alert
+                # echo "High network usage: $pid_program" | \
+                # mail -s "NetHogs Alert" admin@company.com
+            fi
+        fi
+    done
+}
+
+# Start monitoring
+echo "Starting real-time NetHogs monitoring on $INTERFACE"
+echo "Alert threshold: ${ALERT_THRESHOLD}KB/s"
+echo "Log file: $LOG_FILE"
+
+sudo nethogs -d 1 $INTERFACE | parse_nethogs</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>System Monitoring Integration</h3>
+                    <pre><code># Combine with htop for complete system view
+# Terminal 1: System processes
+htop
+
+# Terminal 2: Network processes
+sudo nethogs
+
+# Combine with iotop for I/O monitoring
+# Terminal 3: Disk I/O
+sudo iotop</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Analysis Integration</h3>
+                    <pre><code># Export nethogs data for analysis
+sudo nethogs -c 60 eth0 > /var/log/nethogs/$(date +%Y%m%d_%H%M).log
+
+# Parse with awk for specific processes
+sudo nethogs -c 30 eth0 | awk '/firefox/ {print $0}' > firefox_usage.log
+
+# Integration with ELK stack
+sudo nethogs -c 60 eth0 | \
+while IFS= read -r line; do
+    if [[ $line =~ ^[0-9]+/ ]]; then
+        timestamp=$(date -Iseconds)
+        echo "{\"timestamp\":\"$timestamp\",\"process\":\"$line\"}" | \
+        curl -X POST "localhost:9200/nethogs/_doc" -H "Content-Type: application/json" -d @-
+    fi
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Security Tool Integration</h3>
+                    <pre><code># Combine with netstat for complete network view
+# Get process network usage
+sudo nethogs -c 10 eth0 > /tmp/nethogs.out &
+
+# Get network connections
+netstat -tulpn > /tmp/netstat.out
+
+# Correlate data
+join -t' ' -1 1 -2 7 \
+<(grep -v "PID\|TOTAL" /tmp/nethogs.out | sort) \
+<(grep -v "Active\|Proto" /tmp/netstat.out | sort -k7) > network_correlation.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Permission denied
+sudo nethogs eth0  # Run with sudo
+
+# Interface not found
+ip link show       # List available interfaces
+sudo nethogs -a    # Monitor all interfaces
+
+# No processes shown
+sudo nethogs -p eth0  # Enable promiscuous mode
+sudo nethogs -t eth0  # Enable trace mode for debugging</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># High CPU usage
+sudo nethogs -d 5 eth0  # Increase update interval
+
+# Memory issues
+ulimit -v 100000  # Limit virtual memory
+sudo nethogs -c 60 eth0  # Limit runtime
+
+# Display issues
+export TERM=xterm-256color
+resize</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Debugging</h3>
+                    <pre><code># Enable trace mode
+sudo nethogs -t eth0
+
+# Check if interface has traffic
+sudo tcpdump -i eth0 -c 10
+
+# Verify nethogs is capturing
+sudo lsof -p $(pgrep nethogs)
+
+# Check system resources
+ps aux | grep nethogs
+top -p $(pgrep nethogs)</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>System Administration</h3>
+                    <ul>
+                        <li>Identifying bandwidth-heavy applications</li>
+                        <li>Monitoring server process network usage</li>
+                        <li>Troubleshooting network performance issues</li>
+                        <li>Capacity planning and resource allocation</li>
+                        <li>Application performance monitoring</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <ul>
+                        <li>Detecting malware network activity</li>
+                        <li>Identifying data exfiltration attempts</li>
+                        <li>Monitoring for suspicious process behavior</li>
+                        <li>Incident response and forensics</li>
+                        <li>Compliance monitoring and auditing</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Development and Testing</h3>
+                    <ul>
+                        <li>Application network usage profiling</li>
+                        <li>Performance testing and optimization</li>
+                        <li>API usage monitoring</li>
+                        <li>Database connection analysis</li>
+                        <li>Microservices communication monitoring</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="comparison">
+                <h2>Comparison with Similar Tools</h2>
+                <div class="command-block">
+                    <h3>NetHogs vs Other Tools</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin: 1em 0;">
+                        <tr style="background-color: #f0f0f0;">
+                            <th style="border: 1px solid #ddd; padding: 8px;">Tool</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Focus</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Granularity</th>
+                            <th style="border: 1px solid #ddd; padding: 8px;">Best For</th>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>NetHogs</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Per-process</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Process level</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Identifying which processes use bandwidth</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>iftop</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Per-connection</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Host-to-host</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Seeing traffic between hosts</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>nload</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Per-interface</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Interface level</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Overall interface utilization</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 8px;"><strong>vnstat</strong></td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Historical data</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Interface level</td>
+                            <td style="border: 1px solid #ddd; padding: 8px;">Long-term usage statistics</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use NetHogs</h3>
+                    <ul>
+                        <li>Need to identify which specific processes are using bandwidth</li>
+                        <li>Troubleshooting application network usage</li>
+                        <li>Security monitoring for process-level activity</li>
+                        <li>Performance analysis of specific applications</li>
+                        <li>Resource allocation and capacity planning</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Run with sudo:</strong> Required for packet capture and process identification</li>
+                    <li><strong>Monitor regularly:</strong> Establish baseline process network usage patterns</li>
+                    <li><strong>Use appropriate intervals:</strong> Balance between real-time monitoring and system load</li>
+                    <li><strong>Combine with other tools:</strong> Use alongside htop, iotop for complete system view</li>
+                    <li><strong>Save logs:</strong> Use -c option to capture data for later analysis</li>
+                    <li><strong>Monitor during incidents:</strong> Essential tool for security incident response</li>
+                    <li><strong>Automate alerts:</strong> Set up scripts for high usage threshold monitoring</li>
+                    <li><strong>Document findings:</strong> Keep records of unusual process network behavior</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> NetHogs should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own systems and processes</li>
+                        <li>Authorized system administration and troubleshooting</li>
+                        <li>Security monitoring with proper authorization</li>
+                        <li>Performance analysis of owned infrastructure</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized process monitoring may violate privacy laws, computer crime statutes, and organizational policies. Process network monitoring can reveal sensitive information about applications and user activities. Always obtain proper authorization before monitoring system processes, ensure compliance with applicable laws and regulations, and implement appropriate data protection measures. Be aware that packet capture and process monitoring may be restricted or logged by security systems.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

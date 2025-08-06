@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hashcat Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Hashcat: The World's Fastest Password Recovery Tool</h1>
+            <p>Master GPU-Accelerated Password Cracking</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Hashcat?</h2>
+                <p>Hashcat is the world's fastest and most advanced password recovery utility, supporting five unique modes of attack for over 300 highly-optimized hashing algorithms. It utilizes GPU acceleration to achieve incredible cracking speeds, making it the go-to tool for password security testing and recovery.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install hashcat
+
+# From source (latest version)
+git clone https://github.com/hashcat/hashcat.git
+cd hashcat
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from https://hashcat.net/hashcat/
+# Extract to desired location
+# Add to PATH environment variable
+# Install GPU drivers (NVIDIA/AMD)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>GPU Setup</h3>
+                    <pre><code># Check GPU compatibility
+hashcat -I
+
+# Benchmark your system
+hashcat -b
+
+# Test with specific hash type
+hashcat -b -m 1000</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+hashcat [options] [hash_file] [wordlist]
+
+# With hash mode
+hashcat -m [hash_type] [hash_file] [wordlist]
+
+# Example: Crack MD5 hash
+hashcat -m 0 hash.txt rockyou.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Hash Types</h3>
+                    <pre><code># MD5
+-m 0
+
+# SHA1
+-m 100
+
+# SHA256
+-m 1400
+
+# NTLM (Windows)
+-m 1000
+
+# bcrypt
+-m 3200
+
+# WPA/WPA2
+-m 2500
+
+# List all supported hash types
+hashcat --help | grep -E "^\s+[0-9]+"</code></pre>
+                </div>
+            </section>
+
+            <section id="attack-modes">
+                <h2>Attack Modes</h2>
+                <div class="command-block">
+                    <h3>Dictionary Attack (-a 0)</h3>
+                    <pre><code># Basic dictionary attack
+hashcat -m 0 -a 0 hash.txt wordlist.txt
+
+# Multiple wordlists
+hashcat -m 0 -a 0 hash.txt wordlist1.txt wordlist2.txt
+
+# With rules
+hashcat -m 0 -a 0 hash.txt wordlist.txt -r rules/best64.rule</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Combination Attack (-a 1)</h3>
+                    <pre><code># Combine two wordlists
+hashcat -m 0 -a 1 hash.txt wordlist1.txt wordlist2.txt
+
+# Example: Combine names with numbers
+hashcat -m 0 -a 1 hash.txt names.txt numbers.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Brute Force Attack (-a 3)</h3>
+                    <pre><code># Brute force with mask
+hashcat -m 0 -a 3 hash.txt ?d?d?d?d?d?d
+
+# Custom character sets
+hashcat -m 0 -a 3 hash.txt -1 ?l?u?d ?1?1?1?1?1?1?1?1
+
+# Mask attack with increment
+hashcat -m 0 -a 3 hash.txt --increment --increment-min=4 --increment-max=8 ?a?a?a?a?a?a?a?a</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Hybrid Attacks (-a 6, -a 7)</h3>
+                    <pre><code># Hybrid wordlist + mask
+hashcat -m 0 -a 6 hash.txt wordlist.txt ?d?d?d?d
+
+# Hybrid mask + wordlist
+hashcat -m 0 -a 7 hash.txt ?d?d?d?d wordlist.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="masks-charsets">
+                <h2>Masks & Character Sets</h2>
+                <div class="command-block">
+                    <h3>Built-in Character Sets</h3>
+                    <pre><code># ?l = lowercase letters (a-z)
+# ?u = uppercase letters (A-Z)
+# ?d = digits (0-9)
+# ?h = hex digits (0-9, a-f)
+# ?H = hex digits (0-9, A-F)
+# ?s = special characters
+# ?a = all printable ASCII characters
+
+# Examples
+?l?l?l?l?l?l?l?l    # 8 lowercase letters
+?u?l?l?l?l?l?d?d    # Uppercase + 5 lowercase + 2 digits
+?a?a?a?a?a?a        # 6 any printable characters</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Character Sets</h3>
+                    <pre><code># Define custom charset
+hashcat -m 0 -a 3 hash.txt -1 ?l?u -2 ?d?s ?1?1?1?1?2?2
+
+# Multiple custom charsets
+hashcat -m 0 -a 3 hash.txt -1 abcdef -2 123456 -3 !@#$ ?1?2?3?1?2?3
+
+# From file
+hashcat -m 0 -a 3 hash.txt -1 charset.txt ?1?1?1?1?1?1</code></pre>
+                </div>
+            </section>
+
+            <section id="rules">
+                <h2>Rules Engine</h2>
+                <div class="command-block">
+                    <h3>Using Rules</h3>
+                    <pre><code># Apply rules to wordlist
+hashcat -m 0 -a 0 hash.txt wordlist.txt -r rules/best64.rule
+
+# Multiple rule files
+hashcat -m 0 -a 0 hash.txt wordlist.txt -r rules/best64.rule -r rules/toggles1.rule
+
+# Generate rules on the fly
+hashcat -m 0 -a 0 hash.txt wordlist.txt -j '$1' -k '$2'</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Rule Functions</h3>
+                    <pre><code># : = do nothing
+# l = lowercase all
+# u = uppercase all
+# c = capitalize first letter
+# C = lowercase first, uppercase rest
+# t = toggle case
+# r = reverse
+# d = duplicate
+# $ = append character
+# ^ = prepend character
+# [ = delete first character
+# ] = delete last character
+
+# Examples
+# $1 = append "1"
+# ^@ = prepend "@"
+# c $1 $2 $3 = capitalize and append "123"</code></pre>
+                </div>
+            </section>
+
+            <section id="optimization">
+                <h2>Performance Optimization</h2>
+                <div class="command-block">
+                    <h3>GPU Optimization</h3>
+                    <pre><code># Force specific OpenCL device
+hashcat -m 0 -a 0 hash.txt wordlist.txt -d 1
+
+# Workload tuning (1-4, higher = more GPU usage)
+hashcat -m 0 -a 0 hash.txt wordlist.txt -w 3
+
+# Optimize for specific GPU
+hashcat -m 0 -a 0 hash.txt wordlist.txt -O
+
+# Show performance info
+hashcat -m 0 -a 0 hash.txt wordlist.txt --status --status-timer=10</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Session Management</h3>
+                    <pre><code># Create session
+hashcat -m 0 -a 0 hash.txt wordlist.txt --session=mysession
+
+# Restore session
+hashcat --restore --session=mysession
+
+# Remove session
+hashcat --session=mysession --remove</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Techniques</h2>
+                <div class="command-block">
+                    <h3>Potfile Management</h3>
+                    <pre><code># Show cracked passwords
+hashcat -m 0 hash.txt --show
+
+# Custom potfile location
+hashcat -m 0 -a 0 hash.txt wordlist.txt --potfile-path=custom.potfile
+
+# Disable potfile
+hashcat -m 0 -a 0 hash.txt wordlist.txt --potfile-disable</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Distributed Cracking</h3>
+                    <pre><code># Skip to specific position
+hashcat -m 0 -a 0 hash.txt wordlist.txt -s 1000000
+
+# Limit number of candidates
+hashcat -m 0 -a 0 hash.txt wordlist.txt -l 500000
+
+# Keyspace calculation
+hashcat -m 0 -a 3 --keyspace ?a?a?a?a?a?a</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Options</h3>
+                    <pre><code># Output to file
+hashcat -m 0 -a 0 hash.txt wordlist.txt -o cracked.txt
+
+# Output format
+hashcat -m 0 -a 0 hash.txt wordlist.txt -o cracked.txt --outfile-format=2
+
+# Show progress
+hashcat -m 0 -a 0 hash.txt wordlist.txt --status --status-timer=5</code></pre>
+                </div>
+            </section>
+
+            <section id="specific-attacks">
+                <h2>Specific Attack Examples</h2>
+                <div class="command-block">
+                    <h3>Windows NTLM Hashes</h3>
+                    <pre><code># Basic NTLM crack
+hashcat -m 1000 -a 0 ntlm_hashes.txt rockyou.txt
+
+# With rules
+hashcat -m 1000 -a 0 ntlm_hashes.txt rockyou.txt -r rules/best64.rule
+
+# Brute force 8 chars
+hashcat -m 1000 -a 3 ntlm_hashes.txt ?a?a?a?a?a?a?a?a</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>WPA/WPA2 Handshakes</h3>
+                    <pre><code># Convert cap to hccapx first
+cap2hccapx capture.cap handshake.hccapx
+
+# Crack WPA2
+hashcat -m 2500 -a 0 handshake.hccapx rockyou.txt
+
+# With mask for known pattern
+hashcat -m 2500 -a 3 handshake.hccapx ?d?d?d?d?d?d?d?d</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Shadow Hashes</h3>
+                    <pre><code># SHA512crypt (most common)
+hashcat -m 1800 -a 0 shadow_hashes.txt rockyou.txt
+
+# MD5crypt
+hashcat -m 500 -a 0 shadow_hashes.txt rockyou.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with dictionary attacks:</strong> They're fastest and catch common passwords</li>
+                    <li><strong>Use good wordlists:</strong> rockyou.txt, SecLists, or custom lists based on target</li>
+                    <li><strong>Apply rules strategically:</strong> best64.rule is a good starting point</li>
+                    <li><strong>Monitor temperature:</strong> GPU cracking generates significant heat</li>
+                    <li><strong>Use sessions:</strong> For long-running attacks that might be interrupted</li>
+                    <li><strong>Optimize workload:</strong> Adjust -w parameter based on your system</li>
+                    <li><strong>Check potfile regularly:</strong> See what's been cracked already</li>
+                    <li><strong>Combine attack modes:</strong> Start with dictionary, then hybrid, then brute force</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Hashcat should only be used for:</p>
+                    <ul>
+                        <li>Testing your own passwords and systems</li>
+                        <li>Authorized penetration testing</li>
+                        <li>Security research and education</li>
+                        <li>Password recovery for your own accounts</li>
+                    </ul>
+                    <p>Using Hashcat to crack passwords you don't own or without proper authorization is illegal. Always ensure you have explicit permission before testing.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

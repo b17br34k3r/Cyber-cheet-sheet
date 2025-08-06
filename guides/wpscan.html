@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPScan Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>WPScan: WordPress Security Scanner</h1>
+            <p>Master WordPress Vulnerability Assessment and Security Testing</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is WPScan?</h2>
+                <p>WPScan is a free, for non-commercial use, black box WordPress security scanner written for security professionals and blog maintainers to test the security of their WordPress websites. It can enumerate users, plugins, themes, and detect various security vulnerabilities in WordPress installations. WPScan is widely used by penetration testers, security researchers, and WordPress administrators to identify potential security issues and maintain secure WordPress environments.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install wpscan
+
+# From RubyGems
+gem install wpscan
+
+# From source
+git clone https://github.com/wpscanteam/wpscan.git
+cd wpscan
+bundle install
+
+# Verify installation
+wpscan --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install wpscan
+
+# Using RubyGems
+gem install wpscan
+
+# Verify installation
+wpscan --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Install Ruby first from rubyinstaller.org
+# Then install WPScan via gem
+gem install wpscan
+
+# Or use WSL
+wsl --install
+# Then follow Linux installation steps
+
+# Verify installation
+wpscan --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull WPScan Docker image
+docker pull wpscanteam/wpscan
+
+# Run basic scan
+docker run --rm wpscanteam/wpscan --url https://example.com
+
+# Run with API token
+docker run --rm wpscanteam/wpscan --url https://example.com --api-token YOUR_TOKEN</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Simple WordPress Scan</h3>
+                    <pre><code># Basic WordPress scan
+wpscan --url https://example.com
+
+# Scan with verbose output
+wpscan --url https://example.com --verbose
+
+# Scan with random user agent
+wpscan --url https://example.com --random-user-agent
+
+# Force scan (ignore robots.txt)
+wpscan --url https://example.com --force</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Enumeration Options</h3>
+                    <pre><code># Enumerate vulnerable plugins
+wpscan --url https://example.com --enumerate vp
+
+# Enumerate all plugins
+wpscan --url https://example.com --enumerate ap
+
+# Enumerate vulnerable themes
+wpscan --url https://example.com --enumerate vt
+
+# Enumerate all themes
+wpscan --url https://example.com --enumerate at
+
+# Enumerate users
+wpscan --url https://example.com --enumerate u</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Comprehensive Enumeration</h3>
+                    <pre><code># Enumerate everything
+wpscan --url https://example.com --enumerate vp,vt,tt,cb,dbe,u,m
+
+# Enumeration options:
+# vp = Vulnerable plugins
+# ap = All plugins
+# p  = Popular plugins
+# vt = Vulnerable themes
+# at = All themes
+# t  = Popular themes
+# tt = Timthumbs
+# cb = Config backups
+# dbe = Db exports
+# u  = Users
+# m  = Media IDs</code></pre>
+                </div>
+            </section>
+
+            <section id="authentication">
+                <h2>Authentication Testing</h2>
+                <div class="command-block">
+                    <h3>Password Attacks</h3>
+                    <pre><code># Brute force single user
+wpscan --url https://example.com --usernames admin --passwords passwords.txt
+
+# Brute force multiple users
+wpscan --url https://example.com --usernames admin,user,test --passwords passwords.txt
+
+# Use custom wordlists
+wpscan --url https://example.com --usernames userlist.txt --passwords passlist.txt
+
+# Limit login attempts
+wpscan --url https://example.com --usernames admin --passwords passwords.txt --max-threads 1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>User Enumeration</h3>
+                    <pre><code># Enumerate users with different methods
+wpscan --url https://example.com --enumerate u
+
+# Enumerate users with ID range
+wpscan --url https://example.com --enumerate u1-100
+
+# Enumerate users aggressively
+wpscan --url https://example.com --enumerate u --detection-mode aggressive
+
+# Custom user enumeration
+wpscan --url https://example.com --enumerate u --wp-content-dir custom-content</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Scanning Options</h2>
+                <div class="command-block">
+                    <h3>Detection Modes</h3>
+                    <pre><code># Passive detection (default)
+wpscan --url https://example.com --detection-mode passive
+
+# Mixed detection
+wpscan --url https://example.com --detection-mode mixed
+
+# Aggressive detection
+wpscan --url https://example.com --detection-mode aggressive</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Tuning</h3>
+                    <pre><code># Increase threads for faster scanning
+wpscan --url https://example.com --max-threads 10
+
+# Set request timeout
+wpscan --url https://example.com --request-timeout 60
+
+# Set connection timeout
+wpscan --url https://example.com --connect-timeout 30
+
+# Add delays between requests
+wpscan --url https://example.com --throttle 1000</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Proxy and Headers</h3>
+                    <pre><code># Use proxy
+wpscan --url https://example.com --proxy http://127.0.0.1:8080
+
+# Custom headers
+wpscan --url https://example.com --headers "Authorization: Bearer token123"
+
+# Custom user agent
+wpscan --url https://example.com --user-agent "Custom WPScan Agent"
+
+# Custom cookies
+wpscan --url https://example.com --cookie "sessionid=abc123; token=xyz789"</code></pre>
+                </div>
+            </section>
+
+            <section id="api-integration">
+                <h2>WPScan API Integration</h2>
+                <div class="command-block">
+                    <h3>API Token Setup</h3>
+                    <pre><code># Register for API token at https://wpscan.com/api
+# Set API token
+export WPSCAN_API_TOKEN="your_api_token_here"
+
+# Use API token in scan
+wpscan --url https://example.com --api-token $WPSCAN_API_TOKEN
+
+# Save API token in config
+echo "api_token: your_api_token_here" > ~/.wpscan/scan.yml</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Enhanced Vulnerability Detection</h3>
+                    <pre><code># Scan with API for latest vulnerability data
+wpscan --url https://example.com --api-token $WPSCAN_API_TOKEN --enumerate vp,vt
+
+# Check for specific vulnerabilities
+wpscan --url https://example.com --api-token $WPSCAN_API_TOKEN --plugins-detection aggressive
+
+# Get detailed vulnerability information
+wpscan --url https://example.com --api-token $WPSCAN_API_TOKEN --format json</code></pre>
+                </div>
+            </section>
+
+            <section id="output-formats">
+                <h2>Output and Reporting</h2>
+                <div class="command-block">
+                    <h3>Output Formats</h3>
+                    <pre><code># JSON output
+wpscan --url https://example.com --format json --output results.json
+
+# CLI output (default)
+wpscan --url https://example.com --format cli --output results.txt
+
+# Save to file
+wpscan --url https://example.com --output scan_results.txt
+
+# Append to existing file
+wpscan --url https://example.com --output scan_results.txt --append</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verbose and Debug Output</h3>
+                    <pre><code># Verbose output
+wpscan --url https://example.com --verbose
+
+# Debug output
+wpscan --url https://example.com --debug
+
+# Log HTTP requests/responses
+wpscan --url https://example.com --log http_log.txt
+
+# No banner
+wpscan --url https://example.com --no-banner</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Scanning</h3>
+                    <pre><code># Multi-site scanning script
+#!/bin/bash
+sites=("https://site1.com" "https://site2.com" "https://site3.com")
+output_dir="wpscan_results"
+mkdir -p "$output_dir"
+
+for site in "${sites[@]}"; do
+    echo "Scanning $site"
+    domain=$(echo "$site" | sed 's|https\?://||' | sed 's|/.*||')
+    wpscan --url "$site" --enumerate vp,vt,u --api-token $WPSCAN_API_TOKEN \
+           --format json --output "$output_dir/${domain}_scan.json"
+    sleep 10
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Parse JSON results with jq
+jq '.vulnerabilities[] | {title: .title, severity: .severity}' results.json
+
+# Extract vulnerable plugins
+jq '.plugins | to_entries[] | select(.value.vulnerabilities) | .key' results.json
+
+# Python script for processing results
+import json
+
+with open('results.json', 'r') as f:
+    data = json.load(f)
+
+# Extract high severity vulnerabilities
+high_vulns = []
+for plugin, details in data.get('plugins', {}).items():
+    for vuln in details.get('vulnerabilities', []):
+        if vuln.get('severity', 0) >= 7:
+            high_vulns.append({
+                'plugin': plugin,
+                'title': vuln.get('title'),
+                'severity': vuln.get('severity')
+            })
+
+print(f"Found {len(high_vulns)} high severity vulnerabilities")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CI/CD Integration</h3>
+                    <pre><code># Jenkins pipeline example
+pipeline {
+    agent any
+    stages {
+        stage('WordPress Security Scan') {
+            steps {
+                script {
+                    sh '''
+                        wpscan --url ${WORDPRESS_URL} \
+                               --api-token ${WPSCAN_API_TOKEN} \
+                               --enumerate vp,vt \
+                               --format json \
+                               --output wpscan_results.json
+                    '''
+                    
+                    // Process results and fail build if critical vulnerabilities found
+                    def results = readJSON file: 'wpscan_results.json'
+                    def criticalVulns = results.vulnerabilities.findAll { it.severity >= 9 }
+                    
+                    if (criticalVulns.size() > 0) {
+                        error("Critical vulnerabilities found: ${criticalVulns.size()}")
+                    }
+                }
+            }
+        }
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="specialized-scans">
+                <h2>Specialized Scanning Techniques</h2>
+                <div class="command-block">
+                    <h3>Plugin-Specific Scans</h3>
+                    <pre><code># Scan specific plugins
+wpscan --url https://example.com --enumerate p --plugins-detection aggressive
+
+# Check for outdated plugins
+wpscan --url https://example.com --enumerate ap --plugins-version-detection aggressive
+
+# Scan for backup files
+wpscan --url https://example.com --enumerate cb
+
+# Check for database exports
+wpscan --url https://example.com --enumerate dbe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Theme Analysis</h3>
+                    <pre><code># Enumerate all themes
+wpscan --url https://example.com --enumerate at
+
+# Check for vulnerable themes
+wpscan --url https://example.com --enumerate vt
+
+# Aggressive theme detection
+wpscan --url https://example.com --enumerate t --themes-detection aggressive</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Configuration Analysis</h3>
+                    <pre><code># Check WordPress version
+wpscan --url https://example.com --enumerate vp
+
+# Scan for configuration issues
+wpscan --url https://example.com --enumerate cb,dbe
+
+# Check for directory listings
+wpscan --url https://example.com --enumerate tt
+
+# Custom wp-content directory
+wpscan --url https://example.com --wp-content-dir custom-content</code></pre>
+                </div>
+            </section>
+
+            <section id="evasion-techniques">
+                <h2>Evasion and Stealth</h2>
+                <div class="command-block">
+                    <h3>Stealth Scanning</h3>
+                    <pre><code># Slow and stealthy scan
+wpscan --url https://example.com --max-threads 1 --throttle 5000
+
+# Random user agents
+wpscan --url https://example.com --random-user-agent
+
+# Custom user agent rotation
+agents=("Mozilla/5.0..." "Chrome/..." "Safari/...")
+for agent in "${agents[@]}"; do
+    wpscan --url https://example.com --user-agent "$agent" --enumerate u1-10
+    sleep 30
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Request Randomization</h3>
+                    <pre><code># Add random delays
+wpscan --url https://example.com --throttle 1000-5000
+
+# Use different detection modes
+wpscan --url https://example.com --detection-mode passive
+
+# Limit enumeration scope
+wpscan --url https://example.com --enumerate u1-5,p1-10</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Debug connection issues
+wpscan --url https://example.com --debug
+
+# Test basic connectivity
+curl -I https://example.com
+
+# Check SSL issues
+wpscan --url https://example.com --disable-tls-checks
+
+# Verify WordPress installation
+curl https://example.com/wp-admin/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Reduce threads
+wpscan --url https://example.com --max-threads 1
+
+# Increase timeouts
+wpscan --url https://example.com --request-timeout 120 --connect-timeout 60
+
+# Monitor system resources
+top -p $(pgrep wpscan)
+
+# Check network latency
+ping example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>API Issues</h3>
+                    <pre><code># Check API token validity
+wpscan --url https://example.com --api-token $WPSCAN_API_TOKEN --verbose
+
+# API rate limiting
+wpscan --url https://example.com --api-token $WPSCAN_API_TOKEN --throttle 2000
+
+# Fallback without API
+wpscan --url https://example.com --no-update</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Security Assessment</h3>
+                    <ul>
+                        <li>WordPress vulnerability assessment</li>
+                        <li>Plugin and theme security evaluation</li>
+                        <li>Configuration security review</li>
+                        <li>User enumeration and authentication testing</li>
+                        <li>Compliance and security auditing</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Penetration Testing</h3>
+                    <ul>
+                        <li>WordPress-specific vulnerability discovery</li>
+                        <li>Authentication bypass testing</li>
+                        <li>Information disclosure identification</li>
+                        <li>Attack surface enumeration</li>
+                        <li>Security control validation</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use API token:</strong> Get latest vulnerability data with WPScan API</li>
+                    <li><strong>Regular scanning:</strong> Implement automated regular WordPress scans</li>
+                    <li><strong>Comprehensive enumeration:</strong> Use multiple enumeration options for complete coverage</li>
+                    <li><strong>Validate findings:</strong> Manually verify discovered vulnerabilities</li>
+                    <li><strong>Respect rate limits:</strong> Use appropriate delays to avoid overwhelming targets</li>
+                    <li><strong>Update regularly:</strong> Keep WPScan and vulnerability database current</li>
+                    <li><strong>Combine with other tools:</strong> Use alongside general web scanners</li>
+                    <li><strong>Document findings:</strong> Maintain detailed records of vulnerabilities</li>
+                    <li><strong>Test authentication:</strong> Include password testing in assessments</li>
+                    <li><strong>Monitor for changes:</strong> Set up continuous monitoring for WordPress sites</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> WPScan should only be used for:</p>
+                    <ul>
+                        <li>Testing WordPress sites you own or have explicit permission to test</li>
+                        <li>Authorized penetration testing with proper legal agreements</li>
+                        <li>Security assessments with documented scope and approval</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Compliance testing with appropriate authorization</li>
+                    </ul>
+                    <p>Unauthorized WordPress scanning may violate computer crime laws, terms of service, and other regulations. WordPress security testing should only be performed by qualified professionals with proper authorization and legal agreements. WPScan can generate significant traffic and may impact website performance or trigger security controls. Always ensure you have explicit written permission before scanning any WordPress website. Some scan techniques may be considered intrusive and could potentially cause service disruption. Maintain proper documentation of testing activities and findings. Follow responsible disclosure practices for any vulnerabilities discovered. Be aware that scanning activities may be logged and monitored by target systems. Respect rate limits and implement appropriate delays to minimize impact on target websites. WordPress sites may have security plugins that detect and block scanning activities.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

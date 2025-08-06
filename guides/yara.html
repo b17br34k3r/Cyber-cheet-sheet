@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YARA Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>YARA: Pattern Matching Engine</h1>
+            <p>Master Malware Detection and Pattern Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is YARA?</h2>
+                <p>YARA is a tool aimed at helping malware researchers identify and classify malware samples. With YARA you can create descriptions of malware families based on textual or binary patterns. Each description consists of a set of strings and a boolean expression which determine its logic. YARA is widely used in malware analysis, incident response, and threat hunting to detect known malware patterns, identify malware families, and create custom detection rules.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install yara
+
+# CentOS/RHEL/Fedora
+sudo yum install yara
+# or
+sudo dnf install yara
+
+# From source
+git clone https://github.com/VirusTotal/yara.git
+cd yara
+./bootstrap.sh
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download Windows binaries from:
+# https://github.com/VirusTotal/yara/releases
+
+# Extract to desired location
+# Add to PATH environment variable
+
+# Python bindings
+pip install yara-python</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install yara
+
+# Python bindings
+pip install yara-python</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check installation
+yara --version
+
+# Test with simple rule
+echo 'rule test { strings: $a = "hello" condition: $a }' > test.yar
+echo "hello world" > test.txt
+yara test.yar test.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Simple Rule Structure</h3>
+                    <pre><code># Basic YARA rule syntax
+rule RuleName {
+    meta:
+        description = "Rule description"
+        author = "Your name"
+        date = "2023-01-01"
+    
+    strings:
+        $string1 = "malicious text"
+        $string2 = { 4D 5A 90 00 }  // hex pattern
+        $regex = /malware[0-9]+/
+    
+    condition:
+        $string1 or $string2 or $regex
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Running YARA</h3>
+                    <pre><code># Scan single file
+yara rules.yar target_file.exe
+
+# Scan directory recursively
+yara -r rules.yar /path/to/directory/
+
+# Scan with multiple rule files
+yara rule1.yar rule2.yar target_file.exe
+
+# Show matching strings
+yara -s rules.yar target_file.exe
+
+# Show rule tags
+yara -g rules.yar target_file.exe</code></pre>
+                </div>
+            </section>
+
+            <section id="rule-writing">
+                <h2>Writing YARA Rules</h2>
+                <div class="command-block">
+                    <h3>String Patterns</h3>
+                    <pre><code>rule StringExamples {
+    strings:
+        // Text strings
+        $text1 = "malware"
+        $text2 = "backdoor" nocase
+        $text3 = "virus" wide
+        $text4 = "trojan" ascii wide
+        
+        // Hex patterns
+        $hex1 = { 4D 5A }  // PE header
+        $hex2 = { 50 4B 03 04 }  // ZIP header
+        $hex3 = { FF D8 FF E? }  // JPEG with wildcard
+        
+        // Regular expressions
+        $regex1 = /http:\/\/[a-zA-Z0-9.]+/
+        $regex2 = /[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/
+    
+    condition:
+        any of them
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Conditions</h3>
+                    <pre><code>rule AdvancedConditions {
+    strings:
+        $mz = { 4D 5A }
+        $string1 = "malware"
+        $string2 = "backdoor"
+        $string3 = "keylogger"
+    
+    condition:
+        // File size conditions
+        filesize < 1MB and filesize > 10KB and
+        
+        // String count conditions
+        #string1 > 5 and  // appears more than 5 times
+        
+        // Position conditions
+        $mz at 0 and  // MZ header at beginning
+        
+        // Combination conditions
+        ($string1 or $string2) and $string3 and
+        
+        // Percentage conditions
+        80% of ($string*)  // 80% of strings starting with "string"
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="malware-detection">
+                <h2>Malware Detection Rules</h2>
+                <div class="command-block">
+                    <h3>Generic Malware Detection</h3>
+                    <pre><code>rule Generic_Malware {
+    meta:
+        description = "Generic malware indicators"
+        author = "Security Team"
+        
+    strings:
+        $api1 = "CreateRemoteThread"
+        $api2 = "WriteProcessMemory"
+        $api3 = "VirtualAllocEx"
+        $api4 = "SetWindowsHookEx"
+        $reg1 = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+        $reg2 = "SYSTEM\\CurrentControlSet\\Services"
+        
+    condition:
+        2 of ($api*) and 1 of ($reg*)
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Ransomware Detection</h3>
+                    <pre><code>rule Ransomware_Indicators {
+    meta:
+        description = "Common ransomware patterns"
+        
+    strings:
+        $encrypt1 = "encrypt" nocase
+        $encrypt2 = "decrypt" nocase
+        $ransom1 = "ransom" nocase
+        $ransom2 = "bitcoin" nocase
+        $ransom3 = "payment" nocase
+        $file_ext1 = ".locked"
+        $file_ext2 = ".encrypted"
+        $file_ext3 = ".crypto"
+        
+    condition:
+        ($encrypt1 and $encrypt2) and 
+        2 of ($ransom*) and 
+        1 of ($file_ext*)
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Trojan Detection</h3>
+                    <pre><code>rule Trojan_Backdoor {
+    meta:
+        description = "Backdoor trojan indicators"
+        
+    strings:
+        $net1 = "socket"
+        $net2 = "connect"
+        $net3 = "send"
+        $net4 = "recv"
+        $cmd1 = "cmd.exe"
+        $cmd2 = "powershell"
+        $cmd3 = "system"
+        
+    condition:
+        3 of ($net*) and 1 of ($cmd*)
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Modules and Functions</h3>
+                    <pre><code>import "pe"
+import "math"
+import "hash"
+
+rule PE_Analysis {
+    condition:
+        pe.is_pe and
+        pe.number_of_sections > 3 and
+        pe.entry_point < 0x10000 and
+        math.entropy(0, filesize) > 7.0 and
+        hash.md5(0, filesize) == "d41d8cd98f00b204e9800998ecf8427e"
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Rule Tags and Metadata</h3>
+                    <pre><code>rule Tagged_Rule : malware trojan family_zeus {
+    meta:
+        description = "Zeus banking trojan"
+        family = "Zeus"
+        version = "2.1"
+        author = "Malware Analyst"
+        date = "2023-01-01"
+        hash = "d41d8cd98f00b204e9800998ecf8427e"
+        reference = "https://example.com/analysis"
+        
+    strings:
+        $zeus_string = "zeus_config"
+        
+    condition:
+        $zeus_string
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation & Integration</h2>
+                <div class="command-block">
+                    <h3>Python Integration</h3>
+                    <pre><code>#!/usr/bin/env python3
+import yara
+import os
+
+# Compile rules
+rules = yara.compile(filepath='malware_rules.yar')
+
+# Scan file
+matches = rules.match('/path/to/suspicious/file.exe')
+
+for match in matches:
+    print(f"Rule: {match.rule}")
+    print(f"Tags: {match.tags}")
+    print(f"Meta: {match.meta}")
+    for string in match.strings:
+        print(f"String: {string.identifier} at {string.instances[0].offset}")
+
+# Scan directory
+def scan_directory(path, rules):
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            filepath = os.path.join(root, file)
+            try:
+                matches = rules.match(filepath)
+                if matches:
+                    print(f"MATCH: {filepath}")
+                    for match in matches:
+                        print(f"  Rule: {match.rule}")
+            except Exception as e:
+                print(f"Error scanning {filepath}: {e}")
+
+scan_directory('/path/to/scan', rules)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Batch Scanning Script</h3>
+                    <pre><code>#!/bin/bash
+# Batch YARA scanning script
+
+RULES_DIR="$1"
+SCAN_DIR="$2"
+OUTPUT_FILE="$3"
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <rules_directory> <scan_directory> <output_file>"
+    exit 1
+fi
+
+echo "=== YARA Scan Report ===" > "$OUTPUT_FILE"
+echo "Scan Date: $(date)" >> "$OUTPUT_FILE"
+echo "Rules: $RULES_DIR" >> "$OUTPUT_FILE"
+echo "Target: $SCAN_DIR" >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+
+# Combine all rules
+cat "$RULES_DIR"/*.yar > combined_rules.yar
+
+# Scan with YARA
+echo "=== Scan Results ===" >> "$OUTPUT_FILE"
+yara -r -s combined_rules.yar "$SCAN_DIR" >> "$OUTPUT_FILE" 2>&1
+
+# Cleanup
+rm combined_rules.yar
+
+echo "Scan completed. Results saved to $OUTPUT_FILE"</code></pre>
+                </div>
+            </section>
+
+            <section id="rule-management">
+                <h2>Rule Management</h2>
+                <div class="command-block">
+                    <h3>Rule Organization</h3>
+                    <pre><code># Directory structure
+yara_rules/
+├── malware/
+│   ├── trojans.yar
+│   ├── ransomware.yar
+│   └── backdoors.yar
+├── apt/
+│   ├── apt1.yar
+│   └── apt29.yar
+├── generic/
+│   ├── packers.yar
+│   └── suspicious.yar
+└── custom/
+    └── organization_specific.yar</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Rule Testing</h3>
+                    <pre><code>#!/bin/bash
+# Test YARA rules
+
+RULE_FILE="$1"
+
+# Syntax check
+echo "Testing rule syntax..."
+yara -w "$RULE_FILE" /dev/null
+
+if [ $? -eq 0 ]; then
+    echo "Syntax OK"
+else
+    echo "Syntax ERROR"
+    exit 1
+fi
+
+# Test against known samples
+echo "Testing against samples..."
+for sample in test_samples/*; do
+    echo "Testing $sample"
+    yara -s "$RULE_FILE" "$sample"
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="performance">
+                <h2>Performance Optimization</h2>
+                <div class="command-block">
+                    <h3>Efficient Rules</h3>
+                    <pre><code>rule Efficient_Rule {
+    strings:
+        // Use specific patterns first
+        $specific = { 4D 5A 90 00 03 00 00 00 04 00 00 00 FF FF }
+        
+        // Avoid overly broad patterns
+        $broad = "the" // Too common, avoid
+        
+        // Use anchored strings when possible
+        $header = { 4D 5A } at 0
+        
+    condition:
+        // Put most specific conditions first
+        $header and $specific and filesize < 10MB
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scanning Options</h3>
+                    <pre><code># Fast scanning options
+yara --fast-scan rules.yar target/
+
+# Limit scan time
+timeout 60 yara rules.yar large_file.bin
+
+# Parallel scanning
+find /scan/path -type f | xargs -P 4 -I {} yara rules.yar {}</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Malware Analysis</h3>
+                    <ul>
+                        <li>Malware family classification</li>
+                        <li>Variant detection and tracking</li>
+                        <li>Behavioral pattern identification</li>
+                        <li>Code similarity analysis</li>
+                        <li>Threat attribution</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>IOC-based hunting</li>
+                        <li>System compromise detection</li>
+                        <li>Lateral movement identification</li>
+                        <li>Persistence mechanism detection</li>
+                        <li>Data exfiltration patterns</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Threat Hunting</h3>
+                    <ul>
+                        <li>Proactive threat detection</li>
+                        <li>APT campaign identification</li>
+                        <li>Zero-day exploit detection</li>
+                        <li>Living-off-the-land techniques</li>
+                        <li>Supply chain compromise detection</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start specific:</strong> Begin with unique patterns before adding generic ones</li>
+                    <li><strong>Test thoroughly:</strong> Validate rules against known samples and false positives</li>
+                    <li><strong>Use metadata:</strong> Document rules with author, date, and references</li>
+                    <li><strong>Optimize performance:</strong> Place specific conditions first in boolean logic</li>
+                    <li><strong>Version control:</strong> Track rule changes and maintain rule history</li>
+                    <li><strong>Share intelligence:</strong> Contribute to community rule repositories</li>
+                    <li><strong>Regular updates:</strong> Keep rules current with evolving threats</li>
+                    <li><strong>False positive management:</strong> Monitor and refine rules to reduce noise</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> YARA should only be used for:</p>
+                    <ul>
+                        <li>Analyzing files you own or have permission to scan</li>
+                        <li>Authorized security research and malware analysis</li>
+                        <li>Corporate security operations with proper authorization</li>
+                        <li>Incident response activities within your organization</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized scanning or analysis may violate computer crime laws, privacy statutes, and other regulations. Always ensure you have proper authorization before scanning systems or files that don't belong to you. YARA rules may contain sensitive threat intelligence that should be handled according to appropriate sharing and disclosure policies. Respect intellectual property rights and comply with applicable laws and organizational policies when using YARA for security purposes.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>John the Ripper Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>John the Ripper: The Password Cracker</h1>
+            <p>A Beginner's Guide to Cracking Hashes</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is John the Ripper (JtR)?</h2>
+                <p>John the Ripper is a free, open-source, and highly popular password cracking tool. Its primary purpose is to perform offline attacks by taking password hashes and attempting to determine the original plaintext password. It can detect hundreds of hash and cipher types and can be run on a wide variety of platforms. It's an essential tool for penetration testers and system administrators to audit password strength.</p>
+            </section>
+
+            <section id="cracking-modes">
+                <h2>Understanding Cracking Modes</h2>
+                <p>JtR operates in several modes. Understanding them is key to using the tool effectively.</p>
+                <div class="command-block">
+                    <h3>1. Wordlist Mode</h3>
+                    <p>This is the most common mode. JtR uses a provided list of potential passwords (a wordlist or dictionary) and hashes each one to see if it matches the target hash.</p>
+                    <pre><code># Basic wordlist attack
+john --wordlist=/path/to/wordlist.txt /path/to/hashes.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>2. Single Crack Mode</h3>
+                    <p>This mode uses information from the username (e.g., 'root', 'admin') and GECOS fields to generate password guesses. It's fast and effective against simple, username-derived passwords.</p>
+                     <pre><code># JtR's default first mode
+john /path/to/hashes.txt</code></pre>
+                </div>
+                 <div class="command-block">
+                    <h3>3. Incremental Mode (Brute-Force)</h3>
+                    <p>This is the 'brute-force' mode. JtR tries all possible character combinations up to a certain length. It's the most comprehensive but also the slowest mode.</p>
+                    <pre><code># Specify the incremental mode (e.g., Alnum for alphanumeric)
+john --incremental=Alnum /path/to/hashes.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="common-commands">
+                <h2>Common Commands & Usage</h2>
+                <p>Here’s how to use JtR in a typical workflow.</p>
+
+                <div class="command-block">
+                    <h3>Step 1: Prepare the Hashes</h3>
+                    <p>First, you need a file containing the password hashes you want to crack. For Linux systems, you might use <code>unshadow</code> to combine <code>/etc/passwd</code> and <code>/etc/shadow</code>.</p>
+                    <pre><code>unshadow /etc/passwd /etc/shadow > hashes.txt</code></pre>
+                </div>
+
+                <div class="command-block">
+                    <h3>Step 2: Run John</h3>
+                    <p>Simply point John at your hash file. It will automatically detect the hash type and cycle through its modes (Single, Wordlist, Incremental).</p>
+                    <pre><code>john hashes.txt</code></pre>
+                </div>
+
+                <div class="command-block">
+                    <h3>Step 3: Specify a Wordlist</h3>
+                    <p>For a more targeted attack, provide a wordlist. The RockYou wordlist is a popular choice.</p>
+                    <pre><code># Using the popular rockyou.txt wordlist
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt</code></pre>
+                </div>
+
+                <div class="command-block">
+                    <h3>Step 4: Show Cracked Passwords</h3>
+                    <p>To see the passwords that JtR has successfully cracked, use the <code>--show</code> flag.</p>
+                    <pre><code>john --show hashes.txt</code></pre>
+                </div>
+                 <div class="command-block">
+                    <h3>Step 5: Specify a Hash Format</h3>
+                    <p>Sometimes JtR may misidentify a hash type. You can specify it manually with the <code>--format</code> flag.</p>
+                    <pre><code># Example for raw MD5 hashes
+john --format=raw-md5 --wordlist=wordlist.txt hashes.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Tips for Beginners</h2>
+                <ul>
+                    <li><strong>Let It Run:</strong> Password cracking can take a long time. JtR automatically saves its session, so you can stop it (Ctrl+C) and resume later by running the same command.</li>
+                    <li><strong>Use Good Wordlists:</strong> The success of a wordlist attack depends entirely on the quality of the wordlist.</li>
+                    <li><strong>Use Mangling Rules:</strong> JtR can apply rules to wordlist entries (like adding numbers or symbols) to create more password variations. This is on by default.</li>
+                    <li><strong>Check the Formats:</strong> Run <code>john --list=formats</code> to see all the hash types your build of JtR supports.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

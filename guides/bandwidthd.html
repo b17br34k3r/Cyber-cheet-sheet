@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BandwidthD Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>BandwidthD: Network Bandwidth Monitor</h1>
+            <p>Master Network Usage Tracking and Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is BandwidthD?</h2>
+                <p>BandwidthD is a network bandwidth monitoring tool that tracks usage of TCP/IP network subnets and builds HTML files with graphs to display utilization. It uses libpcap to read network traffic and creates detailed reports showing bandwidth usage over time. BandwidthD is particularly useful for network administrators who need to monitor bandwidth consumption, identify heavy users, and analyze network usage patterns for capacity planning and billing purposes.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install from repositories
+sudo apt update
+sudo apt install bandwidthd
+
+# Install dependencies
+sudo apt install libpcap-dev libgd-dev libpng-dev
+
+# Install web server (optional)
+sudo apt install apache2</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+
+# Install BandwidthD
+sudo yum install bandwidthd
+
+# Install dependencies
+sudo yum install libpcap-devel gd-devel libpng-devel
+
+# Install web server (optional)
+sudo yum install httpd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Download source
+wget http://www.bandwidthd.com/download/bandwidthd-2.0.1.tgz
+tar -xzf bandwidthd-2.0.1.tgz
+cd bandwidthd-2.0.1
+
+# Install build dependencies
+sudo apt install build-essential libpcap-dev libgd-dev libpng-dev
+
+# Configure and compile
+./configure --sysconfdir=/etc
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install bandwidthd
+
+# Using MacPorts
+sudo port install bandwidthd</code></pre>
+                </div>
+            </section>
+
+            <section id="configuration">
+                <h2>Configuration</h2>
+                <div class="command-block">
+                    <h3>Main Configuration File</h3>
+                    <pre><code># Edit configuration file
+sudo nano /etc/bandwidthd.conf
+
+# Basic configuration example
+####################################################
+# Bandwidthd.conf
+####################################################
+
+# Subnets to monitor (required)
+subnet 192.168.1.0/24
+subnet 10.0.0.0/8
+
+# Device to monitor (required)
+dev eth0
+
+# Skip DNS resolution for speed
+skip_intervals 0
+
+# Database directory
+datadir /var/lib/bandwidthd
+
+# Log directory  
+logdir /var/log/bandwidthd
+
+# Web interface settings
+htdocs_dir /var/www/html/bandwidthd
+graph yes
+filter yes
+
+# Promiscuous mode
+promiscuous yes
+
+# Output meta refresh time
+meta_refresh 150
+
+# Sensor ID for multiple sensors
+sensor_id "sensor1"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Configuration Options</h3>
+                    <pre><code># PostgreSQL database support
+pgsql_connect_string "user = postgres dbname = bandwidthd host = localhost"
+
+# MySQL database support  
+mysql_host localhost
+mysql_database bandwidthd
+mysql_username bandwidthd
+mysql_password password
+
+# SNMP support
+snmp_community public
+
+# Recovery options
+recover_cdf yes
+
+# Graph settings
+graph_cutoff 1024
+output_cdf yes
+
+# Logging options
+log_unknown_packets no
+log_ip_locally no</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Starting BandwidthD</h3>
+                    <pre><code># Start as daemon
+sudo bandwidthd
+
+# Start with specific config file
+sudo bandwidthd -c /path/to/bandwidthd.conf
+
+# Start in foreground (for debugging)
+sudo bandwidthd -f
+
+# Start with specific interface
+sudo bandwidthd -d eth0</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Configuration options
+-c config_file    # Specify configuration file
+-d device        # Network device to monitor
+-f               # Run in foreground
+-h               # Show help
+-v               # Verbose output
+
+# Database options
+-r               # Recover from database
+-D               # Daemonize process
+
+# Example usage
+sudo bandwidthd -c /etc/bandwidthd.conf -d eth0 -f</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Service Management</h3>
+                    <pre><code># SystemD service
+sudo systemctl start bandwidthd
+sudo systemctl enable bandwidthd
+sudo systemctl status bandwidthd
+
+# Traditional init
+sudo service bandwidthd start
+sudo service bandwidthd stop
+sudo service bandwidthd restart
+
+# Check if running
+ps aux | grep bandwidthd
+sudo netstat -tulpn | grep bandwidthd</code></pre>
+                </div>
+            </section>
+
+            <section id="web-interface">
+                <h2>Web Interface</h2>
+                <div class="command-block">
+                    <h3>Setting Up Web Interface</h3>
+                    <pre><code># Configure Apache
+sudo nano /etc/apache2/sites-available/bandwidthd.conf
+
+<VirtualHost *:80>
+    DocumentRoot /var/www/html/bandwidthd
+    ServerName bandwidthd.local
+    
+    <Directory /var/www/html/bandwidthd>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+# Enable site
+sudo a2ensite bandwidthd
+sudo systemctl reload apache2
+
+# Set permissions
+sudo chown -R www-data:www-data /var/www/html/bandwidthd
+sudo chmod -R 755 /var/www/html/bandwidthd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Accessing Reports</h3>
+                    <pre><code># Web interface URLs
+http://localhost/bandwidthd/
+http://your-server-ip/bandwidthd/
+
+# Available reports:
+# - Current usage graphs
+# - Historical data
+# - Top talkers
+# - Protocol breakdown
+# - Subnet analysis</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Graph Types</h3>
+                    <ul>
+                        <li><strong>Daily Graphs:</strong> 24-hour bandwidth usage</li>
+                        <li><strong>Weekly Graphs:</strong> 7-day bandwidth trends</li>
+                        <li><strong>Monthly Graphs:</strong> 30-day usage patterns</li>
+                        <li><strong>Yearly Graphs:</strong> Annual bandwidth consumption</li>
+                        <li><strong>Protocol Graphs:</strong> Usage by protocol type</li>
+                        <li><strong>Subnet Graphs:</strong> Usage by network segment</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="monitoring-analysis">
+                <h2>Monitoring & Analysis</h2>
+                <div class="command-block">
+                    <h3>Bandwidth Tracking</h3>
+                    <ul>
+                        <li><strong>Real-time monitoring:</strong> Current bandwidth usage</li>
+                        <li><strong>Historical data:</strong> Long-term usage trends</li>
+                        <li><strong>Peak usage:</strong> Identify peak traffic periods</li>
+                        <li><strong>Average usage:</strong> Calculate average consumption</li>
+                        <li><strong>Growth trends:</strong> Monitor usage growth over time</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>User Analysis</h3>
+                    <ul>
+                        <li><strong>Top users:</strong> Identify highest bandwidth consumers</li>
+                        <li><strong>User patterns:</strong> Analyze individual usage patterns</li>
+                        <li><strong>Department usage:</strong> Track usage by department/subnet</li>
+                        <li><strong>Application usage:</strong> Monitor application-specific traffic</li>
+                        <li><strong>Anomaly detection:</strong> Identify unusual usage patterns</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Protocol Analysis</h3>
+                    <pre><code># Protocol breakdown shows:
+# - HTTP/HTTPS traffic
+# - FTP transfers
+# - Email protocols (SMTP, POP3, IMAP)
+# - P2P traffic
+# - VoIP traffic
+# - Other protocols
+
+# View protocol statistics in web interface
+# Navigate to Protocol section for detailed breakdown</code></pre>
+                </div>
+            </section>
+
+            <section id="database-integration">
+                <h2>Database Integration</h2>
+                <div class="command-block">
+                    <h3>PostgreSQL Setup</h3>
+                    <pre><code># Install PostgreSQL
+sudo apt install postgresql postgresql-contrib
+
+# Create database and user
+sudo -u postgres psql
+CREATE DATABASE bandwidthd;
+CREATE USER bandwidthd WITH PASSWORD 'password';
+GRANT ALL PRIVILEGES ON DATABASE bandwidthd TO bandwidthd;
+\q
+
+# Configure BandwidthD for PostgreSQL
+pgsql_connect_string "user=bandwidthd password=password dbname=bandwidthd host=localhost"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>MySQL Setup</h3>
+                    <pre><code># Install MySQL
+sudo apt install mysql-server
+
+# Create database and user
+sudo mysql
+CREATE DATABASE bandwidthd;
+CREATE USER 'bandwidthd'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON bandwidthd.* TO 'bandwidthd'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+# Configure BandwidthD for MySQL
+mysql_host localhost
+mysql_database bandwidthd
+mysql_username bandwidthd
+mysql_password password</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Queries</h3>
+                    <pre><code># Example SQL queries for analysis
+# Top bandwidth users
+SELECT ip, SUM(total_bytes) as total_usage 
+FROM bd_rx_log 
+GROUP BY ip 
+ORDER BY total_usage DESC 
+LIMIT 10;
+
+# Daily usage by subnet
+SELECT subnet, DATE(timestamp) as date, SUM(total_bytes) as daily_usage
+FROM bd_rx_log 
+GROUP BY subnet, DATE(timestamp)
+ORDER BY date DESC;
+
+# Protocol usage statistics
+SELECT protocol, SUM(total_bytes) as protocol_usage
+FROM bd_rx_log
+GROUP BY protocol
+ORDER BY protocol_usage DESC;</code></pre>
+                </div>
+            </section>
+
+            <section id="reporting-automation">
+                <h2>Reporting & Automation</h2>
+                <div class="command-block">
+                    <h3>Automated Reports</h3>
+                    <pre><code>#!/bin/bash
+# Automated bandwidth report generation
+
+REPORT_DIR="/var/reports/bandwidth"
+DATE=$(date +%Y-%m-%d)
+HTDOCS="/var/www/html/bandwidthd"
+
+# Create report directory
+mkdir -p $REPORT_DIR
+
+# Generate daily report
+echo "Bandwidth Report for $DATE" > $REPORT_DIR/daily_report_$DATE.txt
+echo "=================================" >> $REPORT_DIR/daily_report_$DATE.txt
+
+# Copy current graphs
+cp $HTDOCS/*.png $REPORT_DIR/
+
+# Email report (if mail is configured)
+if command -v mail &> /dev/null; then
+    mail -s "Daily Bandwidth Report - $DATE" admin@company.com < $REPORT_DIR/daily_report_$DATE.txt
+fi
+
+echo "Report generated: $REPORT_DIR/daily_report_$DATE.txt"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Usage Alerts</h3>
+                    <pre><code>#!/bin/bash
+# Bandwidth usage alert script
+
+THRESHOLD=1000000000  # 1GB in bytes
+LOG_FILE="/var/log/bandwidthd/bd_log"
+ALERT_EMAIL="admin@company.com"
+
+# Check recent usage
+recent_usage=$(tail -100 $LOG_FILE | awk '{sum+=$3} END {print sum}')
+
+if [ "$recent_usage" -gt "$THRESHOLD" ]; then
+    echo "High bandwidth usage detected: $recent_usage bytes" | \
+    mail -s "Bandwidth Alert" $ALERT_EMAIL
+fi
+
+# Check for unusual patterns
+unusual_ips=$(tail -1000 $LOG_FILE | awk '{print $1}' | sort | uniq -c | sort -nr | head -5)
+echo "Top 5 IPs by connection count:" | mail -s "Bandwidth Analysis" $ALERT_EMAIL
+echo "$unusual_ips" | mail -s "Bandwidth Analysis" $ALERT_EMAIL</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-optimization">
+                <h2>Performance Optimization</h2>
+                <div class="command-block">
+                    <h3>High Traffic Networks</h3>
+                    <pre><code># Optimize for high traffic
+# In bandwidthd.conf:
+
+# Reduce DNS lookups
+skip_intervals 5
+
+# Increase buffer sizes
+pcap_buffer_size 2048
+
+# Use database for better performance
+pgsql_connect_string "user=bandwidthd dbname=bandwidthd host=localhost"
+
+# Reduce graph generation frequency
+meta_refresh 300
+
+# Disable unnecessary features
+log_unknown_packets no
+promiscuous no</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>System Optimization</h3>
+                    <pre><code># Increase system limits
+echo "net.core.rmem_max = 134217728" >> /etc/sysctl.conf
+echo "net.core.rmem_default = 134217728" >> /etc/sysctl.conf
+sysctl -p
+
+# Optimize disk I/O
+# Use SSD for database storage
+# Regular database maintenance
+# Implement log rotation</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Memory Management</h3>
+                    <pre><code># Monitor memory usage
+ps aux | grep bandwidthd
+top -p $(pgrep bandwidthd)
+
+# Optimize memory usage
+# Limit subnet ranges
+# Use sampling for very high traffic
+# Regular database cleanup
+
+# Database maintenance script
+#!/bin/bash
+# Clean old data (keep 1 year)
+psql -d bandwidthd -c "DELETE FROM bd_rx_log WHERE timestamp < NOW() - INTERVAL '1 year';"
+psql -d bandwidthd -c "VACUUM ANALYZE;"</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Permission issues
+sudo chown bandwidthd:bandwidthd /var/lib/bandwidthd
+sudo chmod 755 /var/lib/bandwidthd
+
+# Interface issues
+ip link show  # List available interfaces
+sudo tcpdump -i eth0 -c 10  # Test interface
+
+# Database connection issues
+psql -h localhost -U bandwidthd -d bandwidthd  # Test PostgreSQL
+mysql -h localhost -u bandwidthd -p bandwidthd  # Test MySQL</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Analysis</h3>
+                    <pre><code># Check BandwidthD logs
+tail -f /var/log/bandwidthd/bd_log
+tail -f /var/log/syslog | grep bandwidthd
+
+# Debug mode
+sudo bandwidthd -f -v
+
+# Check configuration
+sudo bandwidthd -t  # Test configuration</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Web Interface Issues</h3>
+                    <pre><code># Check Apache configuration
+sudo apache2ctl configtest
+sudo systemctl status apache2
+
+# Check file permissions
+ls -la /var/www/html/bandwidthd/
+sudo chown -R www-data:www-data /var/www/html/bandwidthd/
+
+# Check graph generation
+ls -la /var/www/html/bandwidthd/*.png
+sudo -u bandwidthd bandwidthd -g  # Generate graphs manually</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>SNMP Integration</h3>
+                    <pre><code># Configure SNMP monitoring
+# In bandwidthd.conf:
+snmp_community public
+
+# Query SNMP data
+snmpwalk -v2c -c public localhost 1.3.6.1.2.1.2.2.1.10  # Interface bytes in
+snmpwalk -v2c -c public localhost 1.3.6.1.2.1.2.2.1.16  # Interface bytes out
+
+# Combine with other SNMP tools
+# - Cacti for graphing
+# - Nagios for monitoring
+# - Zabbix for alerting</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Analysis Tools</h3>
+                    <pre><code># Export data for analysis
+# BandwidthD data can be exported to:
+# - Splunk for log analysis
+# - ELK stack for visualization
+# - Grafana for dashboards
+# - Custom analysis tools
+
+# Example data export
+psql -d bandwidthd -c "COPY bd_rx_log TO '/tmp/bandwidth_data.csv' CSV HEADER;"</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>ISP and Service Providers</h3>
+                    <ul>
+                        <li>Customer bandwidth monitoring</li>
+                        <li>Billing and usage tracking</li>
+                        <li>Capacity planning</li>
+                        <li>SLA monitoring</li>
+                        <li>Abuse detection</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Enterprise Networks</h3>
+                    <ul>
+                        <li>Department usage tracking</li>
+                        <li>Application monitoring</li>
+                        <li>Policy enforcement</li>
+                        <li>Cost allocation</li>
+                        <li>Performance optimization</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Educational Institutions</h3>
+                    <ul>
+                        <li>Student usage monitoring</li>
+                        <li>Fair usage policies</li>
+                        <li>Network planning</li>
+                        <li>Abuse prevention</li>
+                        <li>Resource allocation</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Regular maintenance:</strong> Clean old data and optimize databases</li>
+                    <li><strong>Backup data:</strong> Regular backups of configuration and historical data</li>
+                    <li><strong>Monitor resources:</strong> Keep an eye on CPU and memory usage</li>
+                    <li><strong>Use databases:</strong> Enable database support for better performance</li>
+                    <li><strong>Automate reports:</strong> Set up automated reporting and alerting</li>
+                    <li><strong>Secure access:</strong> Protect web interface with authentication</li>
+                    <li><strong>Plan capacity:</strong> Use data for network capacity planning</li>
+                    <li><strong>Document setup:</strong> Maintain documentation of configuration</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> BandwidthD should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own networks and systems</li>
+                        <li>Authorized network administration and monitoring</li>
+                        <li>Compliance with organizational policies and regulations</li>
+                        <li>Legitimate business purposes with proper authorization</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized network monitoring may violate privacy laws, computer crime statutes, and organizational policies. Network traffic monitoring can reveal sensitive information about users and their activities. Always obtain proper authorization before deploying bandwidth monitoring tools, ensure compliance with applicable privacy laws and regulations, and implement appropriate data protection measures. Be aware of data retention requirements and user privacy rights in your jurisdiction.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

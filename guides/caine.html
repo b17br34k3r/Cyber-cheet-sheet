@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAINE Guide - Digital Forensics Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>CAINE: Computer Aided INvestigative Environment</h1>
+            <p>Master Digital Forensics Investigation with Live Linux Distribution</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is CAINE?</h2>
+                <p>CAINE (Computer Aided INvestigative Environment) is an Italian Linux distribution for digital forensics investigations. It's designed as a complete forensic environment that integrates software tools existing as free software and other created ad-hoc. CAINE offers a user-friendly graphical interface and semi-automatic procedures that guide the digital forensic specialist through the four phases of investigation: preservation, collection, examination, and analysis.</p>
+            </section>
+
+            <section id="features">
+                <h2>Key Features</h2>
+                <div class="command-block">
+                    <h3>Core Capabilities</h3>
+                    <ul>
+                        <li><strong>Live Boot Environment:</strong> Run directly from USB/DVD without installation</li>
+                        <li><strong>Write-Blocking:</strong> Automatic protection against evidence contamination</li>
+                        <li><strong>Comprehensive Toolset:</strong> Pre-installed forensic tools and utilities</li>
+                        <li><strong>User-Friendly Interface:</strong> Semi-automatic procedures for investigations</li>
+                        <li><strong>Multi-Language Support:</strong> Available in multiple languages</li>
+                        <li><strong>Regular Updates:</strong> Continuously updated with latest forensic tools</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Download & Create Live Media</h3>
+                    <pre><code># Download CAINE ISO from official website
+wget https://www.caine-live.net/downloads/caine12.iso
+
+# Verify checksum
+sha256sum caine12.iso
+
+# Create bootable USB (Linux)
+sudo dd if=caine12.iso of=/dev/sdX bs=4M status=progress && sync
+
+# Create bootable USB (Windows - use Rufus or similar)
+# Select ISO, choose USB device, and create bootable media</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Boot Options</h3>
+                    <ul>
+                        <li><strong>Live Mode:</strong> Boot without installation, preserves evidence integrity</li>
+                        <li><strong>Persistent Mode:</strong> Save changes and configurations between sessions</li>
+                        <li><strong>Installation:</strong> Install to hard drive for permanent workstation setup</li>
+                        <li><strong>Forensic Mode:</strong> Enhanced write-blocking and evidence protection</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="initial-setup">
+                <h2>Initial Configuration</h2>
+                <div class="command-block">
+                    <h3>First Boot Setup</h3>
+                    <pre><code># Check system information
+uname -a
+lsb_release -a
+
+# Verify forensic mode is active
+mount | grep -E "(ro|noatime)"
+
+# Check available tools
+ls /usr/bin | grep -E "(autopsy|sleuthkit|volatility)"
+
+# Update package database (if needed)
+sudo apt update</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Hardware Detection</h3>
+                    <pre><code># List connected storage devices
+lsblk -f
+
+# Check USB devices
+lsusb
+
+# Monitor system logs for new devices
+tail -f /var/log/syslog
+
+# Verify write-blocking status
+blockdev --getro /dev/sdX</code></pre>
+                </div>
+            </section>
+
+            <section id="evidence-handling">
+                <h2>Evidence Acquisition & Preservation</h2>
+                <div class="command-block">
+                    <h3>Disk Imaging with dd</h3>
+                    <pre><code># Create forensic image of entire disk
+sudo dd if=/dev/sdX of=/mnt/evidence/disk_image.dd bs=4M status=progress
+
+# Create compressed image
+sudo dd if=/dev/sdX bs=4M status=progress | gzip > /mnt/evidence/disk_image.dd.gz
+
+# Create image with error handling
+sudo ddrescue /dev/sdX /mnt/evidence/disk_image.dd /mnt/evidence/recovery.log
+
+# Verify image integrity
+md5sum /dev/sdX > /mnt/evidence/original.md5
+md5sum /mnt/evidence/disk_image.dd > /mnt/evidence/image.md5</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Imaging with dc3dd</h3>
+                    <pre><code># Enhanced forensic imaging
+sudo dc3dd if=/dev/sdX of=/mnt/evidence/disk_image.dd hash=md5 hash=sha1 log=/mnt/evidence/acquisition.log
+
+# Split large images
+sudo dc3dd if=/dev/sdX ofs=/mnt/evidence/image.dd ofsz=4G hash=md5 log=/mnt/evidence/split.log
+
+# Wipe verification
+sudo dc3dd if=/dev/sdX of=/mnt/evidence/disk_image.dd verifymd5=on verifysz=on</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Memory Acquisition</h3>
+                    <pre><code># Dump physical memory with LiME
+sudo insmod /usr/src/lime/lime.ko "path=/mnt/evidence/memory.dump format=lime"
+
+# Alternative memory dump
+sudo dd if=/dev/mem of=/mnt/evidence/memory.raw
+
+# Check available memory
+cat /proc/meminfo
+free -h</code></pre>
+                </div>
+            </section>
+
+            <section id="filesystem-analysis">
+                <h2>Filesystem Analysis</h2>
+                <div class="command-block">
+                    <h3>The Sleuth Kit (TSK) Commands</h3>
+                    <pre><code># Display partition table
+mmls disk_image.dd
+
+# Show filesystem information
+fsstat -o 2048 disk_image.dd
+
+# List files and directories
+fls -r -o 2048 disk_image.dd
+
+# Extract specific file by inode
+icat -o 2048 disk_image.dd 1234 > extracted_file.txt
+
+# Timeline analysis
+fls -r -m / -o 2048 disk_image.dd > bodyfile.txt
+mactime -b bodyfile.txt -d > timeline.csv</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Recovery</h3>
+                    <pre><code># Recover deleted files
+tsk_recover -e -o 2048 disk_image.dd /mnt/recovered/
+
+# Search for deleted files
+fls -d -r -o 2048 disk_image.dd
+
+# Carve files from unallocated space
+foremost -i disk_image.dd -o /mnt/carved/
+
+# Advanced carving with Scalpel
+scalpel -c /etc/scalpel/scalpel.conf -o /mnt/carved/ disk_image.dd</code></pre>
+                </div>
+            </section>
+
+            <section id="autopsy-gui">
+                <h2>Autopsy Digital Forensics Platform</h2>
+                <div class="command-block">
+                    <h3>Starting Autopsy</h3>
+                    <pre><code># Launch Autopsy web interface
+autopsy
+
+# Default access URL
+# http://localhost:9999/autopsy
+
+# Create new case
+# Follow web interface wizard</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Autopsy Case Management</h3>
+                    <ul>
+                        <li><strong>Case Creation:</strong> Set up investigation parameters and metadata</li>
+                        <li><strong>Evidence Addition:</strong> Import disk images, memory dumps, files</li>
+                        <li><strong>Automated Analysis:</strong> Hash calculation, keyword searching, timeline</li>
+                        <li><strong>Manual Examination:</strong> Browse filesystem, view files, extract data</li>
+                        <li><strong>Reporting:</strong> Generate comprehensive investigation reports</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="network-analysis">
+                <h2>Network Forensics</h2>
+                <div class="command-block">
+                    <h3>Wireshark Analysis</h3>
+                    <pre><code># Launch Wireshark
+wireshark
+
+# Command-line packet analysis with tshark
+tshark -r capture.pcap
+
+# Extract HTTP objects
+tshark -r capture.pcap --export-objects http,/tmp/http_objects/
+
+# Filter specific protocols
+tshark -r capture.pcap -Y "http or dns or ftp"
+
+# Generate statistics
+tshark -r capture.pcap -z conv,ip</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>NetworkMiner Analysis</h3>
+                    <pre><code># Launch NetworkMiner (GUI)
+networkminer
+
+# Features include:
+# - Automatic host discovery
+# - File extraction from network traffic
+# # Protocol analysis and reconstruction
+# - Credential harvesting
+# - Timeline generation</code></pre>
+                </div>
+            </section>
+
+            <section id="memory-analysis">
+                <h2>Memory Forensics</h2>
+                <div class="command-block">
+                    <h3>Volatility Framework</h3>
+                    <pre><code># Determine memory profile
+volatility -f memory.dump imageinfo
+
+# List running processes
+volatility -f memory.dump --profile=Win7SP1x64 pslist
+
+# Process tree view
+volatility -f memory.dump --profile=Win7SP1x64 pstree
+
+# Network connections
+volatility -f memory.dump --profile=Win7SP1x64 netscan
+
+# Extract process executable
+volatility -f memory.dump --profile=Win7SP1x64 procdump -p 1234 -D /tmp/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Memory Analysis</h3>
+                    <pre><code># Registry hives analysis
+volatility -f memory.dump --profile=Win7SP1x64 hivelist
+volatility -f memory.dump --profile=Win7SP1x64 printkey -K "Software\Microsoft\Windows\CurrentVersion\Run"
+
+# Malware detection
+volatility -f memory.dump --profile=Win7SP1x64 malfind
+volatility -f memory.dump --profile=Win7SP1x64 apihooks
+
+# Command history
+volatility -f memory.dump --profile=Win7SP1x64 cmdscan
+volatility -f memory.dump --profile=Win7SP1x64 consoles</code></pre>
+                </div>
+            </section>
+
+            <section id="log-analysis">
+                <h2>Log Analysis</h2>
+                <div class="command-block">
+                    <h3>System Log Analysis</h3>
+                    <pre><code># Windows Event Logs (with log2timeline)
+log2timeline.py --parsers winevtx timeline.plaso /mnt/evidence/System.evtx
+
+# Linux system logs
+grep -r "failed" /var/log/
+journalctl --since "2024-01-01" --until "2024-01-02"
+
+# Apache access logs
+awk '{print $1}' /var/log/apache2/access.log | sort | uniq -c | sort -nr
+
+# Failed login attempts
+grep "Failed password" /var/log/auth.log</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeline Analysis</h3>
+                    <pre><code># Create super timeline with Plaso
+log2timeline.py --storage-file timeline.plaso /mnt/evidence/
+
+# Query timeline
+psort.py -o l2tcsv timeline.plaso > timeline.csv
+
+# Filter timeline
+psort.py timeline.plaso "date > '2024-01-01 00:00:00' AND date < '2024-01-02 00:00:00'"</code></pre>
+                </div>
+            </section>
+
+            <section id="database-analysis">
+                <h2>Database & Application Analysis</h2>
+                <div class="command-block">
+                    <h3>SQLite Analysis</h3>
+                    <pre><code># Open SQLite database
+sqlite3 database.db
+
+# List tables
+.tables
+
+# Show table schema
+.schema table_name
+
+# Export data
+.mode csv
+.output results.csv
+SELECT * FROM table_name;
+
+# Browser artifacts (Chrome history)
+sqlite3 ~/.config/google-chrome/Default/History "SELECT url, title, visit_count FROM urls ORDER BY visit_count DESC;"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Registry Analysis</h3>
+                    <pre><code># Parse Windows Registry with regripper
+rip.pl -r NTUSER.DAT -f ntuser
+
+# Extract specific registry key
+rip.pl -r SOFTWARE -p soft_run
+
+# Analyze system hive
+rip.pl -r SYSTEM -p services</code></pre>
+                </div>
+            </section>
+
+            <section id="mobile-forensics">
+                <h2>Mobile Device Forensics</h2>
+                <div class="command-block">
+                    <h3>Android Analysis</h3>
+                    <pre><code># ADB commands for Android
+adb devices
+adb shell dumpsys
+adb pull /data/data/com.android.providers.contacts/databases/contacts2.db
+
+# Analyze Android SQLite databases
+sqlite3 contacts2.db ".dump"
+
+# Extract APK files
+adb shell pm list packages
+adb pull /data/app/package_name.apk</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>iOS Analysis (requires jailbreak)</h3>
+                    <pre><code># SSH into iOS device
+ssh mobile@device_ip
+
+# Common artifact locations
+/private/var/mobile/Library/SMS/sms.db
+/private/var/mobile/Library/CallHistoryDB/CallHistory.storedata
+/private/var/mobile/Media/DCIM/</code></pre>
+                </div>
+            </section>
+
+            <section id="reporting-tools">
+                <h2>Documentation & Reporting</h2>
+                <div class="command-block">
+                    <h3>Case Documentation</h3>
+                    <pre><code># Generate MD5/SHA hashes for evidence
+find /mnt/evidence -type f -exec md5sum {} \; > evidence_hashes.md5
+find /mnt/evidence -type f -exec sha256sum {} \; > evidence_hashes.sha256
+
+# Create case notes template
+echo "Case: $(date +%Y%m%d_%H%M%S)
+Investigator: 
+Evidence Items:
+Analysis Summary:
+Findings:
+" > case_notes.txt
+
+# Screenshot documentation
+import-im6.q16 screenshot.png</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CAINE Reporting Tools</h3>
+                    <ul>
+                        <li><strong>CaineReports:</strong> Automated report generation</li>
+                        <li><strong>Timeline Analysis:</strong> Chronological event reconstruction</li>
+                        <li><strong>Evidence Catalog:</strong> Comprehensive artifact inventory</li>
+                        <li><strong>Hash Verification:</strong> Integrity validation reports</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Forensic Techniques</h2>
+                <div class="command-block">
+                    <h3>Steganography Detection</h3>
+                    <pre><code># Detect hidden data in images
+steghide --info image.jpg
+outguess -r image.jpg output.txt
+
+# Analyze file entropy
+binwalk -E image.jpg
+
+# Strings analysis
+strings -a suspicious_file.exe | grep -E "(http|ftp|\.exe|\.dll)"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Encryption & Password Recovery</h3>
+                    <pre><code># John the Ripper password cracking
+john --wordlist=/usr/share/wordlists/rockyou.txt hashes.txt
+john --show hashes.txt
+
+# Hashcat GPU acceleration
+hashcat -m 0 -a 0 hashes.txt /usr/share/wordlists/rockyou.txt
+
+# ZIP password recovery
+fcrackzip -v -D -u -p /usr/share/wordlists/rockyou.txt archive.zip</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation Scripts</h2>
+                <div class="command-block">
+                    <h3>Automated Evidence Processing</h3>
+                    <pre><code>#!/bin/bash
+# CAINE Automated Evidence Processing Script
+
+EVIDENCE_DIR="/mnt/evidence"
+CASE_NAME="$1"
+DEVICE="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <case_name> <device>"
+    echo "Example: $0 case_2024_001 /dev/sdb"
+    exit 1
+fi
+
+echo "[+] Starting automated evidence processing for $CASE_NAME"
+mkdir -p "$EVIDENCE_DIR/$CASE_NAME"
+
+echo "[+] Creating forensic image..."
+sudo dc3dd if="$DEVICE" of="$EVIDENCE_DIR/$CASE_NAME/image.dd" hash=md5 hash=sha1 log="$EVIDENCE_DIR/$CASE_NAME/acquisition.log"
+
+echo "[+] Generating file system timeline..."
+fls -r -m / "$EVIDENCE_DIR/$CASE_NAME/image.dd" > "$EVIDENCE_DIR/$CASE_NAME/bodyfile.txt"
+mactime -b "$EVIDENCE_DIR/$CASE_NAME/bodyfile.txt" -d > "$EVIDENCE_DIR/$CASE_NAME/timeline.csv"
+
+echo "[+] Recovering deleted files..."
+mkdir -p "$EVIDENCE_DIR/$CASE_NAME/recovered"
+tsk_recover -e "$EVIDENCE_DIR/$CASE_NAME/image.dd" "$EVIDENCE_DIR/$CASE_NAME/recovered/"
+
+echo "[+] File carving..."
+mkdir -p "$EVIDENCE_DIR/$CASE_NAME/carved"
+foremost -i "$EVIDENCE_DIR/$CASE_NAME/image.dd" -o "$EVIDENCE_DIR/$CASE_NAME/carved/"
+
+echo "[+] Processing complete. Results saved to $EVIDENCE_DIR/$CASE_NAME"</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <ul>
+                        <li><strong>Write-blocking not working:</strong> Check hardware write-blockers or use software protection</li>
+                        <li><strong>Mount issues:</strong> Ensure devices are mounted read-only with <code>mount -o ro</code></li>
+                        <li><strong>Autopsy won't start:</strong> Check Java installation and port availability (9999)</li>
+                        <li><strong>Memory analysis fails:</strong> Verify correct Volatility profile selection</li>
+                        <li><strong>USB devices not recognized:</strong> Check USB drivers and hardware compatibility</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Verification Commands</h3>
+                    <pre><code># Check read-only status
+mount | grep ro
+
+# Verify tool versions
+volatility --version
+autopsy -version
+tsk_version
+
+# Test hash integrity
+md5sum -c evidence_hashes.md5</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Always use write-blockers:</strong> Hardware preferred, software as fallback</li>
+                    <li><strong>Document everything:</strong> Maintain detailed logs and screenshots</li>
+                    <li><strong>Verify image integrity:</strong> Always calculate and verify hash values</li>
+                    <li><strong>Work with copies:</strong> Never analyze original evidence directly</li>
+                    <li><strong>Maintain chain of custody:</strong> Document who, what, when, where, why</li>
+                    <li><strong>Use persistent storage:</strong> Save configurations and tools updates</li>
+                    <li><strong>Regular backups:</strong> Keep multiple copies of critical evidence</li>
+                    <li><strong>Stay updated:</strong> Regularly update CAINE and forensic tools</li>
+                    <li><strong>Network isolation:</strong> Analyze malware in isolated environments</li>
+                    <li><strong>Time synchronization:</strong> Ensure accurate timestamps across systems</li>
+                </ul>
+            </section>
+
+            <section id="resources">
+                <h2>Additional Resources</h2>
+                <div class="command-block">
+                    <h3>Official Documentation</h3>
+                    <ul>
+                        <li><strong>CAINE Official Website:</strong> https://www.caine-live.net/</li>
+                        <li><strong>User Manual:</strong> Comprehensive guide included with distribution</li>
+                        <li><strong>Tool Documentation:</strong> Individual tool manuals and help files</li>
+                        <li><strong>Community Forums:</strong> User support and discussion groups</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Training & Certification</h3>
+                    <ul>
+                        <li>Digital Forensics certification programs</li>
+                        <li>SANS forensic training courses</li>
+                        <li>Academic digital forensics programs</li>
+                        <li>Professional development workshops</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal & Ethical Guidelines</h2>
+                <div class="command-block">
+                    <p><strong>IMPORTANT:</strong> CAINE should only be used for:</p>
+                    <ul>
+                        <li>Authorized digital forensics investigations</li>
+                        <li>Law enforcement with proper legal authority</li>
+                        <li>Corporate investigations with written authorization</li>
+                        <li>Academic research and education</li>
+                        <li>Personal device analysis (own devices only)</li>
+                        <li>Incident response and cybersecurity analysis</li>
+                    </ul>
+                    <p><strong>Requirements:</strong></p>
+                    <ul>
+                        <li>Obtain proper legal authorization before analysis</li>
+                        <li>Maintain strict chain of custody procedures</li>
+                        <li>Follow industry-standard forensic practices</li>
+                        <li>Respect privacy laws and regulations</li>
+                        <li>Document all procedures and findings</li>
+                    </ul>
+                    <p>Unauthorized access to computer systems and data is illegal. Always ensure you have explicit permission and legal authority before conducting any forensic analysis.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

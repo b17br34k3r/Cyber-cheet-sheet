@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ntopng Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>ntopng: Web-based Network Traffic Monitor</h1>
+            <p>Master High-Performance Network Monitoring and Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is ntopng?</h2>
+                <p>ntopng is a web-based network traffic monitoring application released under GPLv3. It is the next generation version of the original ntop that anyone can use to monitor their network traffic. ntopng is based on libpcap and it has been written in a portable way in order to virtually run on every Unix platform, MacOSX and on Windows as well. It provides a web interface for real-time network traffic monitoring with detailed statistics, flow analysis, and historical data visualization.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Add ntopng repository
+wget http://packages.ntop.org
+sudo dpkg -i apt-ntop-stable.deb
+
+# Update package list
+sudo apt update
+
+# Install ntopng
+sudo apt install ntopng
+
+# Install dependencies
+sudo apt install redis-server</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Add EPEL repository
+sudo yum install epel-release
+
+# Add ntopng repository
+sudo yum install http://packages.ntop.org/centos-stable/ntop.repo
+
+# Install ntopng
+sudo yum install ntopng redis
+
+# Start Redis service
+sudo systemctl start redis
+sudo systemctl enable redis</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Install dependencies
+sudo apt install build-essential git autoconf automake libtool pkg-config
+sudo apt install libpcap-dev libglib2.0-dev libgeoip-dev libsqlite3-dev
+sudo apt install zlib1g-dev libcurl4-openssl-dev libpci-dev redis-server
+
+# Clone and build
+git clone https://github.com/ntop/ntopng.git
+cd ntopng
+./autogen.sh
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull ntopng Docker image
+docker pull ntop/ntopng:stable
+
+# Run with Docker
+docker run -it -p 3000:3000 --net=host ntop/ntopng:stable -i eth0</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-configuration">
+                <h2>Basic Configuration</h2>
+                <div class="command-block">
+                    <h3>Configuration File</h3>
+                    <pre><code># Create configuration file
+sudo nano /etc/ntopng/ntopng.conf
+
+# Basic configuration
+-i=eth0
+-P=/var/lib/ntopng/ntopng.pid
+-d=/var/lib/ntopng
+-w=3000
+-r=127.0.0.1:6379
+--community</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Basic startup
+sudo ntopng -i eth0
+
+# Specify web port
+sudo ntopng -i eth0 -w 8080
+
+# Multiple interfaces
+sudo ntopng -i eth0,wlan0
+
+# With Redis backend
+sudo ntopng -i eth0 -r 127.0.0.1:6379
+
+# Enable community features
+sudo ntopng -i eth0 --community</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Service Configuration</h3>
+                    <pre><code># Create systemd service
+sudo nano /etc/systemd/system/ntopng.service
+
+[Unit]
+Description=ntopng
+After=network.target
+
+[Service]
+Type=forking
+User=ntopng
+Group=ntopng
+ExecStart=/usr/bin/ntopng /etc/ntopng/ntopng.conf
+PIDFile=/var/lib/ntopng/ntopng.pid
+
+[Install]
+WantedBy=multi-user.target
+
+# Enable and start service
+sudo systemctl daemon-reload
+sudo systemctl enable ntopng
+sudo systemctl start ntopng</code></pre>
+                </div>
+            </section>
+
+            <section id="web-interface">
+                <h2>Web Interface Overview</h2>
+                <div class="command-block">
+                    <h3>Accessing the Interface</h3>
+                    <pre><code># Default access
+http://localhost:3000
+
+# Custom port
+http://localhost:8080
+
+# Remote access
+http://your-server-ip:3000
+
+# Default credentials
+Username: admin
+Password: admin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Main Dashboard Sections</h3>
+                    <ul>
+                        <li><strong>Dashboard:</strong> Real-time network overview</li>
+                        <li><strong>Flows:</strong> Active and historical flow data</li>
+                        <li><strong>Hosts:</strong> Host statistics and details</li>
+                        <li><strong>Interfaces:</strong> Network interface statistics</li>
+                        <li><strong>Protocols:</strong> Protocol distribution and analysis</li>
+                        <li><strong>Historical:</strong> Time-series data and trends</li>
+                        <li><strong>Settings:</strong> Configuration and preferences</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="monitoring-features">
+                <h2>Monitoring Features</h2>
+                <div class="command-block">
+                    <h3>Real-time Traffic Analysis</h3>
+                    <ul>
+                        <li><strong>Live Traffic:</strong> Real-time bandwidth utilization</li>
+                        <li><strong>Top Talkers:</strong> Most active hosts and applications</li>
+                        <li><strong>Protocol Distribution:</strong> Traffic breakdown by protocol</li>
+                        <li><strong>Flow Analysis:</strong> Active network flows and connections</li>
+                        <li><strong>Geolocation:</strong> Geographic mapping of traffic sources</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Host Analysis</h3>
+                    <ul>
+                        <li><strong>Host Details:</strong> Individual host statistics</li>
+                        <li><strong>Traffic Patterns:</strong> Host communication patterns</li>
+                        <li><strong>Application Usage:</strong> Applications used by each host</li>
+                        <li><strong>Anomaly Detection:</strong> Unusual host behavior</li>
+                        <li><strong>Host Categorization:</strong> Automatic host classification</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Flow Monitoring</h3>
+                    <ul>
+                        <li><strong>Active Flows:</strong> Current network connections</li>
+                        <li><strong>Flow History:</strong> Historical flow data</li>
+                        <li><strong>Flow Export:</strong> Export flows to external systems</li>
+                        <li><strong>Flow Filtering:</strong> Advanced flow search and filtering</li>
+                        <li><strong>Flow Alerts:</strong> Automated flow-based alerting</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Deep Packet Inspection (DPI)</h3>
+                    <pre><code># Enable DPI in configuration
+--enable-dpi
+
+# DPI provides:
+# - Application identification
+# - Protocol detection
+# - Content analysis
+# - Metadata extraction</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>NetFlow/sFlow Support</h3>
+                    <pre><code># NetFlow collector
+sudo ntopng -i none -P /tmp/ntopng.pid -w 3000 --zmq tcp://*:5556
+
+# sFlow collector
+sudo ntopng -i none -P /tmp/ntopng.pid -w 3000 --sflow-port 6343
+
+# IPFIX support
+sudo ntopng -i none -P /tmp/ntopng.pid -w 3000 --ipfix-port 2055</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Historical Data Analysis</h3>
+                    <ul>
+                        <li><strong>Time Series:</strong> Long-term traffic trends</li>
+                        <li><strong>RRD Integration:</strong> Round-robin database storage</li>
+                        <li><strong>Data Export:</strong> Export historical data</li>
+                        <li><strong>Reporting:</strong> Automated report generation</li>
+                        <li><strong>Alerting:</strong> Threshold-based alerts</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="security-monitoring">
+                <h2>Security Monitoring</h2>
+                <div class="command-block">
+                    <h3>Threat Detection</h3>
+                    <ul>
+                        <li><strong>Malware Detection:</strong> Identify malicious traffic</li>
+                        <li><strong>Botnet Detection:</strong> Detect botnet communications</li>
+                        <li><strong>DDoS Detection:</strong> Identify DDoS attacks</li>
+                        <li><strong>Port Scanning:</strong> Detect scanning activities</li>
+                        <li><strong>Anomaly Detection:</strong> Unusual traffic patterns</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Alerts</h3>
+                    <pre><code># Configure alerts in web interface
+# Settings -> Alerts
+
+# Alert types:
+# - Flow alerts
+# - Host alerts
+# - Interface alerts
+# - Threshold alerts
+# - Security alerts</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Security Tools</h3>
+                    <ul>
+                        <li><strong>SIEM Integration:</strong> Export data to SIEM systems</li>
+                        <li><strong>Threat Intelligence:</strong> Integration with threat feeds</li>
+                        <li><strong>IDS/IPS:</strong> Complement intrusion detection systems</li>
+                        <li><strong>Log Analysis:</strong> Correlation with log data</li>
+                        <li><strong>Incident Response:</strong> Support forensic investigations</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="api-integration">
+                <h2>API & Integration</h2>
+                <div class="command-block">
+                    <h3>REST API</h3>
+                    <pre><code># API endpoints
+http://localhost:3000/lua/rest/v1/get/interface/data.lua
+http://localhost:3000/lua/rest/v1/get/host/data.lua
+http://localhost:3000/lua/rest/v1/get/flow/data.lua
+
+# Example API calls
+curl -u admin:admin "http://localhost:3000/lua/rest/v1/get/interface/data.lua?ifid=0"
+
+# Get host information
+curl -u admin:admin "http://localhost:3000/lua/rest/v1/get/host/data.lua?host=192.168.1.100"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Data Export</h3>
+                    <pre><code># Export flows to JSON
+curl -u admin:admin "http://localhost:3000/lua/get_flows_data.lua" > flows.json
+
+# Export host data
+curl -u admin:admin "http://localhost:3000/lua/get_hosts_data.lua" > hosts.json
+
+# Automated data collection script
+#!/bin/bash
+timestamp=$(date +%Y%m%d_%H%M%S)
+curl -u admin:admin "http://localhost:3000/lua/rest/v1/get/interface/data.lua?ifid=0" > interface_data_$timestamp.json</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-tuning">
+                <h2>Performance Tuning</h2>
+                <div class="command-block">
+                    <h3>Configuration Optimization</h3>
+                    <pre><code># Optimize for high-traffic networks
+-i eth0
+--max-num-flows 1000000
+--max-num-hosts 100000
+--dump-flows-on-db
+--enable-taps
+--zmq tcp://*:5556</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Memory and CPU Optimization</h3>
+                    <ul>
+                        <li><strong>Flow Limits:</strong> Set appropriate flow limits</li>
+                        <li><strong>Host Limits:</strong> Limit maximum tracked hosts</li>
+                        <li><strong>Sampling:</strong> Use packet sampling for high traffic</li>
+                        <li><strong>Database:</strong> Optimize database configuration</li>
+                        <li><strong>Aggregation:</strong> Use flow aggregation</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>High Availability Setup</h3>
+                    <pre><code># Cluster configuration
+# Primary node
+sudo ntopng -i eth0 -r redis-primary:6379 --cluster-mode
+
+# Secondary node
+sudo ntopng -i eth0 -r redis-secondary:6379 --cluster-mode
+
+# Load balancer configuration
+# Use nginx or haproxy to distribute load</code></pre>
+                </div>
+            </section>
+
+            <section id="scripting-automation">
+                <h2>Scripting & Automation</h2>
+                <div class="command-block">
+                    <h3>Lua Scripts</h3>
+                    <pre><code># Custom Lua scripts for ntopng
+# Location: /usr/share/ntopng/scripts/
+
+-- Example alert script
+function checkHostTraffic(host)
+    if host.bytes_sent > threshold then
+        triggerAlert("High traffic from " .. host.ip)
+    end
+end
+
+-- Custom flow processing
+function processFlow(flow)
+    if flow.protocol == "HTTP" then
+        logHTTPFlow(flow)
+    end
+end</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Monitoring Scripts</h3>
+                    <pre><code>#!/bin/bash
+# ntopng monitoring script
+
+NTOPNG_URL="http://localhost:3000"
+USERNAME="admin"
+PASSWORD="admin"
+
+# Check ntopng status
+check_ntopng_status() {
+    response=$(curl -s -u $USERNAME:$PASSWORD "$NTOPNG_URL/lua/rest/v1/get/interface/data.lua?ifid=0")
+    if [[ $? -eq 0 ]]; then
+        echo "ntopng is running"
+        return 0
+    else
+        echo "ntopng is not responding"
+        return 1
+    fi
+}
+
+# Get top talkers
+get_top_talkers() {
+    curl -s -u $USERNAME:$PASSWORD "$NTOPNG_URL/lua/get_hosts_data.lua" | \
+    jq '.data[] | {ip: .column_ip, traffic: .column_traffic}' | \
+    head -10
+}
+
+# Main execution
+if check_ntopng_status; then
+    echo "Top Talkers:"
+    get_top_talkers
+fi</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Permission issues
+sudo chown -R ntopng:ntopng /var/lib/ntopng
+sudo chmod 755 /var/lib/ntopng
+
+# Redis connection issues
+sudo systemctl status redis
+sudo systemctl restart redis
+
+# Interface issues
+sudo ntopng -i any  # Monitor all interfaces
+ip link show  # List available interfaces</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Analysis</h3>
+                    <pre><code># Check ntopng logs
+sudo journalctl -u ntopng -f
+
+# Debug mode
+sudo ntopng -i eth0 -v 6  # Verbose level 6
+
+# Check configuration
+sudo ntopng -i eth0 --test-config</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <ul>
+                        <li><strong>High CPU:</strong> Reduce flow limits, enable sampling</li>
+                        <li><strong>Memory usage:</strong> Adjust host and flow limits</li>
+                        <li><strong>Disk I/O:</strong> Optimize database settings</li>
+                        <li><strong>Network load:</strong> Use packet sampling</li>
+                        <li><strong>Web interface slow:</strong> Increase web server threads</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Operations</h3>
+                    <ul>
+                        <li>Bandwidth monitoring and capacity planning</li>
+                        <li>Application performance monitoring</li>
+                        <li>Network troubleshooting and diagnostics</li>
+                        <li>Quality of Service (QoS) monitoring</li>
+                        <li>Service level agreement (SLA) monitoring</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Operations</h3>
+                    <ul>
+                        <li>Network security monitoring</li>
+                        <li>Threat detection and analysis</li>
+                        <li>Incident response and forensics</li>
+                        <li>Compliance monitoring and reporting</li>
+                        <li>Anomaly detection and alerting</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Business Intelligence</h3>
+                    <ul>
+                        <li>Network usage analytics</li>
+                        <li>Cost optimization and planning</li>
+                        <li>User behavior analysis</li>
+                        <li>Application usage statistics</li>
+                        <li>Performance benchmarking</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start small:</strong> Begin with basic monitoring before advanced features</li>
+                    <li><strong>Use Redis:</strong> Enable Redis for better performance and persistence</li>
+                    <li><strong>Regular backups:</strong> Backup configuration and historical data</li>
+                    <li><strong>Monitor resources:</strong> Keep an eye on CPU and memory usage</li>
+                    <li><strong>Customize alerts:</strong> Set up relevant alerts for your environment</li>
+                    <li><strong>Use API:</strong> Integrate with other tools via REST API</li>
+                    <li><strong>Regular updates:</strong> Keep ntopng updated for latest features</li>
+                    <li><strong>Document setup:</strong> Maintain documentation of your configuration</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> ntopng should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own networks and systems</li>
+                        <li>Authorized network administration and monitoring</li>
+                        <li>Compliance with organizational policies and regulations</li>
+                        <li>Security monitoring with proper authorization</li>
+                        <li>Network troubleshooting and performance analysis</li>
+                    </ul>
+                    <p>Unauthorized network monitoring may violate privacy laws, computer crime statutes, and organizational policies. Network traffic monitoring can reveal sensitive information about users and applications. Always obtain proper authorization before deploying network monitoring tools, ensure compliance with applicable laws and regulations, and implement appropriate data protection measures. Be aware of privacy implications and data retention requirements in your jurisdiction.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

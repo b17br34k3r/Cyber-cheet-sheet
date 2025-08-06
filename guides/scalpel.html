@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scalpel Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Scalpel: High-Performance File Carver</h1>
+            <p>Recover Files from Raw Disk Images Using a Fast, Cross-Platform CLI Tool</p>
+            <a href="../index.html" class="back-link">← Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Scalpel?</h2>
+                <p>Scalpel is an open-source, cross-platform command-line file carving tool designed for digital forensics and data recovery. A rewrite of Foremost 0.69, Scalpel improves performance through multithreading, asynchronous I/O, and optional GPU acceleration (Linux only with NVIDIA CUDA). It extracts files from raw disk images or devices by matching headers and footers defined in a configuration file, independent of the filesystem (e.g., FAT16, FAT32, exFAT, NTFS, Ext2/3/4, JFS, XFS, ReiserFS, raw partitions). Scalpel is included in forensic distributions like Kali Linux but is not actively maintained. It supports recovery of various file types (e.g., JPG, PDF, DOC) and is optimized for speed and minimal resource usage.</p>[](https://www.kali.org/tools/scalpel/)[](https://forensics.wiki/scalpel/)[](https://github.com/machn1k/Scalpel-2.0)
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install Scalpel
+sudo apt update
+sudo apt install scalpel
+
+# Verify installation
+scalpel -V
+
+# Edit configuration file
+sudo nano /etc/scalpel/scalpel.conf
+# Uncomment desired file types (e.g., jpg, pdf)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Kali Linux Installation</h3>
+                    <pre><code># Pre-installed in Kali Linux
+sudo apt update
+sudo apt install scalpel
+
+# Verify installation
+scalpel -V
+
+# Edit configuration file
+sudo nano /etc/scalpel/scalpel.conf
+# Uncomment desired file types</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+sudo yum install scalpel
+
+# Verify installation
+scalpel -V
+
+# Edit configuration file
+sudo nano /etc/scalpel/scalpel.conf
+# Uncomment desired file types</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download precompiled binary
+# Visit: https://github.com/sleuthkit/scalpel/releases
+# Download scalpel-x.x.x-win32.zip
+
+# Extract to desired folder
+# Copy scalpel.exe, pthreads.dll, tre.dll to same directory
+# Add directory to PATH
+
+# Verify installation
+scalpel.exe -V
+
+# Copy and edit configuration file
+copy scalpel.conf my-scalpel.conf
+notepad my-scalpel.conf
+# Uncomment desired file types</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Build from Source (Linux)</h3>
+                    <pre><code># Install dependencies
+sudo apt install build-essential libtre-dev libpthreads-dev
+
+# Clone repository
+git clone https://github.com/sleuthkit/scalpel.git
+cd scalpel
+
+# Compile
+./configure
+make
+sudo make install
+
+# Verify installation
+scalpel -V
+
+# Edit configuration file
+sudo nano /etc/scalpel/scalpel.conf</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>GPU-Accelerated Build (Linux, NVIDIA CUDA)</h3>
+                    <pre><code># Install CUDA SDK
+sudo apt install nvidia-cuda-toolkit
+
+# Clone repository
+git clone https://github.com/sleuthkit/scalpel.git
+cd scalpel
+
+# Modify scalpel.h to enable GPU mode
+nano src/scalpel.h
+# Uncomment: #define GPU_THREADS
+
+# Compile with CUDA
+./configure --with-cuda
+make
+sudo make install
+
+# Verify installation
+scalpel -V</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Carve Files from Disk Image</h3>
+                    <pre><code># Create output directory
+mkdir /path/to/output
+
+# Run Scalpel
+scalpel -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img
+
+# View results
+ls /path/to/output</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Carve from Device</h3>
+                    <pre><code># Identify device
+lsblk
+
+# Run Scalpel on device
+scalpel -c /etc/scalpel/scalpel.conf -o /path/to/output /dev/sdc
+
+# Output: Carved files in /path/to/output/[filetype]/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Preview Carving</h3>
+                    <pre><code># Run preview mode (no files carved)
+scalpel -p -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img
+
+# Check audit log
+cat /path/to/output/audit.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Carving Techniques</h2>
+                <div class="command-block">
+                    <h3>Custom Configuration</h3>
+                    <pre><code># Copy default config
+cp /etc/scalpel/scalpel.conf my-scalpel.conf
+
+# Edit to add custom file type
+nano my-scalpel.conf
+# Example: Add PNG header/footer
+# png  y  5000000  \x89PNG\x0d\x0a\x1a\x0a  \x00\x00\x00\x0dIHDR
+
+# Run with custom config
+scalpel -c my-scalpel.conf -o /path/to/output /path/to/disk.img</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Cluster-Aligned Carving</h3>
+                    <pre><code># Carve only cluster-aligned headers
+scalpel -q 4096 -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img
+
+# Use with FAT32 cluster size (e.g., 4096 bytes)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Generate Coverage Blockmap</h3>
+                    <pre><code># Create blockmap (experimental)
+scalpel -m 4096 -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img
+
+# Use blockmap for selective carving
+scalpel -u -t /path/to/output/blockmap -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img</code></pre>
+                </div>
+            </section>
+
+            <section id="filtering">
+                <h2>Data Filtering</h2>
+                <div class="command-block">
+                    <h3>File Type Filtering</h3>
+                    <pre><code># Edit scalpel.conf to uncomment specific file types
+nano /etc/scalpel/scalpel.conf
+# Example: Uncomment jpg, pdf lines
+
+# Run Scalpel
+scalpel -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Size-Based Filtering</h3>
+                    <pre><code># Modify scalpel.conf to set min/max sizes
+nano /etc/scalpel/scalpel.conf
+# Example: jpg  y  10000  5000000  \xFF\xD8  \xFF\xD9
+
+# Run Scalpel
+scalpel -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Header/Footer Database</h3>
+                    <pre><code># Generate header/footer database
+scalpel -d -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img
+
+# View database
+ls /path/to/output/*.db</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output and Reporting</h2>
+                <div class="command-block">
+                    <h3>Output Directory Structure</h3>
+                    <pre><code># Carved files organized by type
+ls /path/to/output
+# Example: jpg-0-0/, pdf-0-0/
+
+# Disable type organization
+scalpel -O -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Audit Log</h3>
+                    <pre><code># View carving summary
+cat /path/to/output/audit.txt
+
+# Grep specific file types
+grep "jpg" /path/to/output/audit.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Naming</h3>
+                    <pre><code># Disable automatic extensions
+scalpel -n -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img
+
+# Files named without extensions (e.g., 00000001 instead of 00000001.jpg)</code></pre>
+                </div>
+            </section>
+
+            <section id="tools">
+                <h2>Key Features of Scalpel</h2>
+                <div class="command-block">
+                    <h3>Multithreading</h3>
+                    <pre><code># Automatically uses multiple CPU cores
+scalpel -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>GPU Acceleration (Linux)</h3>
+                    <pre><code># Enable GPU mode (requires CUDA)
+scalpel -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img
+# Note: Regular expressions not supported in GPU mode</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Asynchronous I/O</h3>
+                    <pre><code># Overlaps disk reads with pattern matching
+scalpel -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Bash Automation</h3>
+                    <pre><code>#!/bin/bash
+images=("/path/to/disk1.img" "/path/to/disk2.img")
+for img in "${images[@]}"; do
+    echo "Carving $img"
+    scalpel -c /etc/scalpel/scalpel.conf -o "/path/to/output/$(basename $img .img)" "$img"
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Process Multiple Images</h3>
+                    <pre><code># Create file list
+echo -e "/path/to/disk1.img\n/path/to/disk2.img" > images.txt
+
+# Carve from file list
+scalpel -i images.txt -c /etc/scalpel/scalpel.conf -o /path/to/output</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Post-Processing Results</h3>
+                    <pre><code># Find carved JPGs
+find /path/to/output -name "*.jpg" > carved_jpgs.txt
+
+# Python script to verify file integrity
+import hashlib
+with open('/path/to/output/jpg-0-0/00000001.jpg', 'rb') as f:
+    print(hashlib.md5(f.read()).hexdigest())</code></pre>
+                </div>
+            </section>
+
+            <section id="specialized-techniques">
+                <h2>Specialized Carving Techniques</h2>
+                <div class="command-block">
+                    <h3>Carve Fragmented Files</h3>
+                    <pre><code># Use -b for files without footers
+scalpel -b -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img
+
+# Adjust max carve size in scalpel.conf
+nano /etc/scalpel/scalpel.conf
+# Example: jpg  y  10000  10000000  \xFF\xD8  \xFF\xD9</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Handle Overlapping Headers</h3>
+                    <pre><code># Carve only first header/footer pair
+scalpel -r -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>In-Place Carving</h3>
+                    <pre><code># Generate metadata database only
+scalpel -d -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img
+
+# Review database before carving
+cat /path/to/output/*.db</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Check disk image integrity
+md5sum /path/to/disk.img
+
+# Verify configuration file
+cat /etc/scalpel/scalpel.conf | grep -v "^#"
+
+# Debug Scalpel
+scalpel -v -c /etc/scalpel/scalpel.conf -o /path/to/output /path/to/disk.img > debug.log</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Monitor system resources
+top
+
+# Limit CPU usage
+cpulimit -p $(pgrep scalpel) -l 50
+
+# Reduce file types in scalpel.conf
+nano /etc/scalpel/scalpel.conf
+# Comment out unused file types</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>False Positives</h3>
+                    <pre><code># Check audit log for anomalies
+grep "ERROR" /path/to/output/audit.txt
+
+# Adjust max carve size in scalpel.conf
+nano /etc/scalpel/scalpel.conf
+# Example: Reduce jpg max size to 1000000</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Recover deleted images (JPG, PNG)</li>
+                        <li>Extract documents (PDF, DOC) from corrupted drives</li>
+                        <li>Carve evidence from unallocated space</li>
+                        <li>Analyze raw memory dumps</li>
+                        <li>Generate metadata for forensic reports</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Data Recovery</h3>
+                    <ul>
+                        <li>Restore files from formatted drives</li>
+                        <li>Recover files from damaged partitions</li>
+                        <li>Extract media from USB drives</li>
+                        <li>Salvage files without filesystem metadata</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Edit scalpel.conf carefully:</strong> Uncomment only necessary file types to reduce false positives and speed up carving.</li>[](https://www.redhat.com/en/blog/find-lost-files-scalpel)
+                    <li><strong>Use write-blockers:</strong> Prevent accidental writes to source devices during carving.</li>
+                    <li><strong>Validate carved files:</strong> Check hashes to ensure file integrity.</li>[](https://medium.com/%40th3machin3/dfir-series-data-carving-w-scalpel-introduction-298dee1b7b3b)
+                    <li><strong>Preview mode:</strong> Use -p to audit potential results before carving.</li>
+                    <li><strong>Adjust carve sizes:</strong> Set appropriate min/max sizes in scalpel.conf to avoid incomplete or oversized files.</li>[](https://www.redhat.com/en/blog/find-lost-files-scalpel)
+                    <li><strong>Combine with other tools:</strong> Use Autopsy or FTK Imager for pre/post-processing.</li>[](https://www.reddit.com/r/computerforensics/comments/16yijb5/open_source_software_for_file_carving/)
+                    <li><strong>Backup images:</strong> Work with copies of disk images to preserve evidence.</li>
+                    <li><strong>Use cluster alignment:</strong> Enable -q for filesystems like FAT32 to improve accuracy.</li>
+                    <li><strong>Monitor resources:</strong> Large images require significant RAM and CPU.</li>
+                    <li><strong>Check audit log:</strong> Review /path/to/output/audit.txt for carving details.</li>[](https://www.howtoforge.com/recover-deleted-files-with-scalpel)
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Scalpel should only be used for:</p>
+                    <ul>
+                        <li>Analyzing systems or data you own or have explicit permission to investigate</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Educational purposes in controlled environments</li>
+                        <li>Security research with institutional approval</li>
+                        <li>Incident response with documented consent</li>
+                    </ul>
+                    <p>Unauthorized use of Scalpel to analyze systems or data without permission may violate privacy laws, computer crime laws, or other regulations. Forensic investigations should only be performed by qualified professionals with proper authorization. Always ensure data integrity and chain of custody during analysis. Improper handling of evidence can render it inadmissible in court. Maintain detailed documentation of all analysis activities. Follow responsible disclosure practices for any vulnerabilities or incidents discovered. Respect data privacy and confidentiality requirements. Ensure compliance with all relevant laws and regulations during forensic activities.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hping3 Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>hping3: Advanced Packet Crafting Tool</h1>
+            <p>Master Network Testing and Security Assessment</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is hping3?</h2>
+                <p>hping3 is a command-line oriented TCP/IP packet assembler/analyzer. It's inspired by the ping Unix command, but hping3 isn't only able to send ICMP echo requests. It supports TCP, UDP, ICMP and RAW-IP protocols, has a traceroute mode, the ability to send files between a covered channel, and many other features. It's an excellent tool for network testing, firewall testing, port scanning, and network discovery.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install hping3
+
+# CentOS/RHEL
+sudo yum install hping3
+
+# Arch Linux
+sudo pacman -S hping</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install hping
+
+# From source
+git clone https://github.com/antirez/hping
+cd hping
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Use Windows Subsystem for Linux
+wsl sudo apt install hping3
+
+# Or use alternative tools like Nping (part of Nmap)</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+sudo hping3 [options] hostname
+
+# ICMP ping (default)
+sudo hping3 example.com
+
+# TCP ping
+sudo hping3 -S example.com -p 80
+
+# UDP ping
+sudo hping3 --udp example.com -p 53</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Options</h3>
+                    <pre><code># Protocol selection
+-0, --rawip     # RAW IP mode
+-1, --icmp      # ICMP mode (default)
+-2, --udp       # UDP mode
+-8, --scan      # Scan mode
+-9, --listen    # Listen mode
+
+# TCP flags
+-S, --syn       # Set SYN flag
+-A, --ack       # Set ACK flag
+-R, --rst       # Set RST flag
+-F, --fin       # Set FIN flag
+-P, --push      # Set PUSH flag
+-U, --urg       # Set URG flag
+
+# Port and timing
+-p, --destport  # Destination port
+-i, --interval  # Packet interval
+-c, --count     # Number of packets</code></pre>
+                </div>
+            </section>
+
+            <section id="icmp-testing">
+                <h2>ICMP Testing</h2>
+                <div class="command-block">
+                    <h3>Basic ICMP Ping</h3>
+                    <pre><code># Standard ICMP ping
+sudo hping3 -1 example.com
+
+# ICMP with custom interval
+sudo hping3 -1 -i u100000 example.com  # 100ms interval
+
+# ICMP with packet count
+sudo hping3 -1 -c 10 example.com
+
+# ICMP with custom packet size
+sudo hping3 -1 -d 1000 example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>ICMP Types</h3>
+                    <pre><code># ICMP Echo Request (default)
+sudo hping3 -1 example.com
+
+# ICMP Timestamp
+sudo hping3 -1 --icmptype 13 example.com
+
+# ICMP Address Mask
+sudo hping3 -1 --icmptype 17 example.com
+
+# Custom ICMP type and code
+sudo hping3 -1 --icmptype 8 --icmpcode 0 example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="tcp-testing">
+                <h2>TCP Testing</h2>
+                <div class="command-block">
+                    <h3>TCP SYN Ping</h3>
+                    <pre><code># TCP SYN to port 80
+sudo hping3 -S example.com -p 80
+
+# TCP SYN to multiple ports
+sudo hping3 -S example.com -p ++80
+
+# TCP SYN with custom source port
+sudo hping3 -S example.com -p 80 -s 12345</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>TCP Flag Combinations</h3>
+                    <pre><code># SYN+ACK
+sudo hping3 -SA example.com -p 80
+
+# FIN scan
+sudo hping3 -F example.com -p 80
+
+# NULL scan (no flags)
+sudo hping3 example.com -p 80
+
+# XMAS scan (FIN+PSH+URG)
+sudo hping3 -FPU example.com -p 80</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>TCP Options</h3>
+                    <pre><code># Custom TCP window size
+sudo hping3 -S example.com -p 80 -w 65535
+
+# Custom sequence number
+sudo hping3 -S example.com -p 80 -M 12345
+
+# Custom acknowledgment number
+sudo hping3 -S example.com -p 80 -L 67890</code></pre>
+                </div>
+            </section>
+
+            <section id="udp-testing">
+                <h2>UDP Testing</h2>
+                <div class="command-block">
+                    <h3>UDP Ping</h3>
+                    <pre><code># UDP ping to DNS port
+sudo hping3 --udp example.com -p 53
+
+# UDP ping with payload
+sudo hping3 --udp example.com -p 161 -d 100
+
+# UDP scan multiple ports
+sudo hping3 --udp example.com -p ++53</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>UDP Service Testing</h3>
+                    <pre><code># Test DNS server
+sudo hping3 --udp 8.8.8.8 -p 53
+
+# Test SNMP
+sudo hping3 --udp target -p 161
+
+# Test NTP
+sudo hping3 --udp pool.ntp.org -p 123</code></pre>
+                </div>
+            </section>
+
+            <section id="port-scanning">
+                <h2>Port Scanning</h2>
+                <div class="command-block">
+                    <h3>TCP Port Scanning</h3>
+                    <pre><code># Scan single port
+sudo hping3 -S example.com -p 80
+
+# Scan port range
+sudo hping3 -S example.com -p ++80 -c 100
+
+# Fast port scan
+sudo hping3 -S example.com -p ++1 -i u10000
+
+# Stealth scan with random source ports
+sudo hping3 -S example.com -p 80 --rand-source</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scan Modes</h3>
+                    <pre><code># SYN scan
+sudo hping3 -S target -p ++1 -c 1000
+
+# FIN scan (stealth)
+sudo hping3 -F target -p ++1 -c 1000
+
+# ACK scan (firewall testing)
+sudo hping3 -A target -p ++1 -c 1000
+
+# NULL scan
+sudo hping3 target -p ++1 -c 1000</code></pre>
+                </div>
+            </section>
+
+            <section id="firewall-testing">
+                <h2>Firewall Testing</h2>
+                <div class="command-block">
+                    <h3>Firewall Rule Testing</h3>
+                    <pre><code># Test if port is filtered
+sudo hping3 -S target -p 80 -c 3
+
+# Test with different TCP flags
+sudo hping3 -A target -p 80 -c 3
+sudo hping3 -F target -p 80 -c 3
+
+# Test with fragmented packets
+sudo hping3 -S target -p 80 -f</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Evasion Techniques</h3>
+                    <pre><code># Random source IP
+sudo hping3 -S target -p 80 --rand-source
+
+# Spoof source IP
+sudo hping3 -S target -p 80 -a 192.168.1.100
+
+# Fragment packets
+sudo hping3 -S target -p 80 -f
+
+# Custom TTL
+sudo hping3 -S target -p 80 -t 128</code></pre>
+                </div>
+            </section>
+
+            <section id="traceroute">
+                <h2>Traceroute Functionality</h2>
+                <div class="command-block">
+                    <h3>TCP Traceroute</h3>
+                    <pre><code># TCP traceroute to port 80
+sudo hping3 -S example.com -p 80 -T
+
+# TCP traceroute with TTL increment
+sudo hping3 -S example.com -p 80 --tr-keep-ttl
+
+# Traceroute with custom starting TTL
+sudo hping3 -S example.com -p 80 -t 1 -T</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>ICMP Traceroute</h3>
+                    <pre><code># ICMP traceroute
+sudo hping3 -1 example.com -T
+
+# Traceroute with packet count per hop
+sudo hping3 -1 example.com -T -c 3</code></pre>
+                </div>
+            </section>
+
+            <section id="dos-testing">
+                <h2>DoS Testing & Load Testing</h2>
+                <div class="command-block">
+                    <h3>Flood Testing</h3>
+                    <pre><code># SYN flood test
+sudo hping3 -S target -p 80 --flood
+
+# UDP flood test
+sudo hping3 --udp target -p 53 --flood
+
+# ICMP flood test
+sudo hping3 -1 target --flood</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Controlled Load Testing</h3>
+                    <pre><code># High-rate SYN packets
+sudo hping3 -S target -p 80 -i u1000
+
+# Bandwidth test
+sudo hping3 -S target -p 80 -d 1400 -i u100
+
+# Connection exhaustion test
+sudo hping3 -S target -p 80 --rand-source -i u1000</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>File Transfer</h3>
+                    <pre><code># Send file (sender)
+sudo hping3 target -p 80 --file /path/to/file --sign signature
+
+# Receive file (receiver)
+sudo hping3 --listen signature --safe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Payloads</h3>
+                    <pre><code># Send custom data
+sudo hping3 -S target -p 80 -d 100 -E /path/to/payload
+
+# Send string data
+sudo hping3 -S target -p 80 --data 1400</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scripting Mode</h3>
+                    <pre><code># Use hping3 in script mode
+sudo hping3 --script script.hping target
+
+# Interactive mode
+sudo hping3 --interactive</code></pre>
+                </div>
+            </section>
+
+            <section id="practical-examples">
+                <h2>Practical Examples</h2>
+                <div class="command-block">
+                    <h3>Network Discovery</h3>
+                    <pre><code># Discover live hosts
+for i in {1..254}; do
+    sudo hping3 -1 -c 1 -W 1 192.168.1.$i 2>/dev/null | grep "bytes from" &
+done
+wait</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Service Detection</h3>
+                    <pre><code># Check if web server is running
+sudo hping3 -S target -p 80 -c 1
+
+# Test multiple common ports
+for port in 21 22 23 25 53 80 110 143 443 993 995; do
+    sudo hping3 -S target -p $port -c 1 -W 1
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Firewall Analysis</h3>
+                    <pre><code># Test firewall rules
+sudo hping3 -S target -p 80 -c 3    # Should get SYN-ACK if open
+sudo hping3 -A target -p 80 -c 3    # Should get RST if filtered
+sudo hping3 -F target -p 80 -c 3    # Stealth scan</code></pre>
+                </div>
+            </section>
+
+            <section id="output-analysis">
+                <h2>Output Analysis</h2>
+                <div class="command-block">
+                    <h3>Understanding Output</h3>
+                    <pre><code># Example output:
+# HPING target (eth0 192.168.1.100): S set, 40 headers + 0 data bytes
+# len=46 ip=192.168.1.100 ttl=64 DF id=0 sport=80 flags=SA seq=0 win=65535 rtt=1.2 ms
+
+# Components:
+# len: packet length
+# ip: source IP
+# ttl: time to live
+# id: IP identification
+# sport: source port
+# flags: TCP flags (SA = SYN+ACK)
+# seq: sequence number
+# win: window size
+# rtt: round trip time</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Response Analysis</h3>
+                    <pre><code># Open port: flags=SA (SYN+ACK)
+# Closed port: flags=RA (RST+ACK)
+# Filtered port: no response or ICMP unreachable
+# Stealth: different responses to different flag combinations</code></pre>
+                </div>
+            </section>
+
+            <section id="scripting">
+                <h2>Scripting & Automation</h2>
+                <div class="command-block">
+                    <h3>Bash Integration</h3>
+                    <pre><code>#!/bin/bash
+# Port scanner script
+target=$1
+for port in {1..1000}; do
+    if sudo hping3 -S $target -p $port -c 1 -W 1 2>/dev/null | grep -q "flags=SA"; then
+        echo "Port $port is open"
+    fi
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Monitoring</h3>
+                    <pre><code>#!/bin/bash
+# Monitor host availability
+while true; do
+    if sudo hping3 -1 -c 1 -W 2 $1 >/dev/null 2>&1; then
+        echo "$(date): $1 is up"
+    else
+        echo "$(date): $1 is down"
+    fi
+    sleep 60
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use sudo:</strong> Raw socket operations require root privileges</li>
+                    <li><strong>Start with small intervals:</strong> Avoid overwhelming target systems</li>
+                    <li><strong>Combine with other tools:</strong> Use with Wireshark for packet analysis</li>
+                    <li><strong>Test firewall rules:</strong> Use different flag combinations</li>
+                    <li><strong>Monitor responses:</strong> Analyze TTL, window size, and other fields</li>
+                    <li><strong>Use appropriate timing:</strong> Adjust intervals based on network conditions</li>
+                    <li><strong>Document findings:</strong> Keep logs of scan results</li>
+                    <li><strong>Respect rate limits:</strong> Don't flood target systems</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Common Issues & Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Permission Issues</h3>
+                    <pre><code># Run with sudo
+sudo hping3 -S target -p 80
+
+# Check raw socket permissions
+sudo setcap cap_net_raw+ep /usr/sbin/hping3</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Issues</h3>
+                    <pre><code># Check interface
+ip addr show
+
+# Verify routing
+ip route show
+
+# Test local connectivity
+sudo hping3 -1 127.0.0.1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>No Response Issues</h3>
+                    <pre><code># Increase timeout
+sudo hping3 -S target -p 80 -W 5
+
+# Check if target is up
+sudo hping3 -1 target -c 3
+
+# Try different protocols
+sudo hping3 --udp target -p 53</code></pre>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> hping3 should only be used for:</p>
+                    <ul>
+                        <li>Testing your own networks and systems</li>
+                        <li>Authorized penetration testing with written permission</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Network troubleshooting and administration</li>
+                    </ul>
+                    <p>Unauthorized network scanning, DoS testing, or packet crafting may violate computer crime laws and network policies. Flood attacks can cause service disruption and may be considered illegal. Always obtain proper authorization before testing network security.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

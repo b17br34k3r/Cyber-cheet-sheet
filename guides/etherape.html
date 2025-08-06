@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EtherApe Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>EtherApe: Graphical Network Monitor</h1>
+            <p>Master Visual Network Traffic Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is EtherApe?</h2>
+                <p>EtherApe is a graphical network monitor for Unix modeled after etherman. It displays network activity graphically by showing a network graph where network nodes are represented as circles of varying size and color, and network links are represented as lines of varying color and thickness. Traffic between nodes is shown as moving dots along the links. This visual representation makes it easy to identify network patterns, bottlenecks, and unusual activity at a glance.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install etherape
+
+# CentOS/RHEL
+sudo yum install etherape
+
+# Fedora
+sudo dnf install etherape
+
+# Arch Linux
+sudo pacman -S etherape</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Download source from official site
+wget http://etherape.sourceforge.net/etherape-x.x.x.tar.gz
+tar -xzf etherape-x.x.x.tar.gz
+cd etherape-x.x.x
+
+# Install dependencies
+sudo apt install libgtk-3-dev libpcap-dev libglade2-dev
+
+# Compile and install
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using MacPorts
+sudo port install etherape
+
+# Using Homebrew (if available)
+brew install etherape
+
+# Note: May require X11 server (XQuartz) for GUI</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Interface</h2>
+                <div class="command-block">
+                    <h3>Starting EtherApe</h3>
+                    <pre><code># Start with GUI
+etherape
+
+# Start with specific interface
+sudo etherape -i eth0
+
+# Start in text mode
+etherape -t
+
+# Start with capture file
+etherape -r capture.pcap</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Interface selection
+-i interface    # Specify network interface
+
+# Capture options
+-r file         # Read from capture file
+-w file         # Write to capture file
+-f filter       # Apply BPF filter
+
+# Display options
+-t              # Text mode (no GUI)
+-n              # Don't resolve hostnames
+-N              # Don't resolve port names
+
+# Protocol options
+-l              # Link layer mode
+-p              # IP mode
+-P              # TCP mode</code></pre>
+                </div>
+            </section>
+
+            <section id="interface-overview">
+                <h2>Interface Overview</h2>
+                <div class="command-block">
+                    <h3>Main Display Elements</h3>
+                    <ul>
+                        <li><strong>Network Nodes:</strong> Circles representing hosts/networks</li>
+                        <li><strong>Links:</strong> Lines showing connections between nodes</li>
+                        <li><strong>Traffic Flow:</strong> Moving dots indicating data transfer</li>
+                        <li><strong>Protocol Colors:</strong> Different colors for different protocols</li>
+                        <li><strong>Node Size:</strong> Proportional to traffic volume</li>
+                        <li><strong>Link Thickness:</strong> Proportional to bandwidth usage</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Control Panel</h3>
+                    <ul>
+                        <li><strong>Start/Stop:</strong> Control packet capture</li>
+                        <li><strong>Mode Selection:</strong> Choose display mode</li>
+                        <li><strong>Protocol Filter:</strong> Filter by protocol type</li>
+                        <li><strong>Zoom Controls:</strong> Adjust display scale</li>
+                        <li><strong>Statistics:</strong> View traffic statistics</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="display-modes">
+                <h2>Display Modes</h2>
+                <div class="command-block">
+                    <h3>Link Layer Mode</h3>
+                    <pre><code># Start in link layer mode
+etherape -l
+
+# Shows:
+# - MAC addresses as nodes
+# - Ethernet frame traffic
+# - Layer 2 protocols (ARP, STP, etc.)
+# - Physical network topology</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>IP Mode</h3>
+                    <pre><code># Start in IP mode (default)
+etherape
+
+# Shows:
+# - IP addresses as nodes
+# - IP packet traffic
+# - Layer 3 protocols (ICMP, etc.)
+# - Logical network topology</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>TCP Mode</h3>
+                    <pre><code># Start in TCP mode
+etherape -P
+
+# Shows:
+# - TCP connections as links
+# - Port-based communication
+# - Application-level traffic
+# - Service relationships</code></pre>
+                </div>
+            </section>
+
+            <section id="filtering-options">
+                <h2>Filtering & Customization</h2>
+                <div class="command-block">
+                    <h3>Protocol Filtering</h3>
+                    <pre><code># Filter specific protocols
+etherape -f "tcp"
+etherape -f "udp"
+etherape -f "icmp"
+
+# Filter by port
+etherape -f "port 80"
+etherape -f "port 443"
+
+# Filter by host
+etherape -f "host 192.168.1.100"
+
+# Complex filters
+etherape -f "tcp and port 80"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Display Customization</h3>
+                    <ul>
+                        <li><strong>Node Timeout:</strong> How long inactive nodes remain visible</li>
+                        <li><strong>Link Timeout:</strong> How long inactive links remain visible</li>
+                        <li><strong>Refresh Rate:</strong> Display update frequency</li>
+                        <li><strong>Color Scheme:</strong> Protocol color assignments</li>
+                        <li><strong>Size Scaling:</strong> Node and link size calculations</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="analysis-features">
+                <h2>Analysis Features</h2>
+                <div class="command-block">
+                    <h3>Traffic Statistics</h3>
+                    <ul>
+                        <li><strong>Total Traffic:</strong> Overall network utilization</li>
+                        <li><strong>Protocol Breakdown:</strong> Traffic by protocol type</li>
+                        <li><strong>Top Talkers:</strong> Most active hosts</li>
+                        <li><strong>Bandwidth Usage:</strong> Current and peak rates</li>
+                        <li><strong>Packet Counts:</strong> Packets per second statistics</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Node Information</h3>
+                    <p>Right-click on nodes to view:</p>
+                    <ul>
+                        <li>Host/IP address details</li>
+                        <li>Traffic statistics for that node</li>
+                        <li>Protocol breakdown</li>
+                        <li>Connection information</li>
+                        <li>Hostname resolution (if enabled)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="capture-analysis">
+                <h2>Capture File Analysis</h2>
+                <div class="command-block">
+                    <h3>Reading Capture Files</h3>
+                    <pre><code># Analyze existing capture
+etherape -r network_capture.pcap
+
+# Analyze with specific mode
+etherape -r capture.pcap -P  # TCP mode
+
+# Apply filters to capture
+etherape -r capture.pcap -f "tcp port 80"
+
+# Text mode analysis
+etherape -t -r capture.pcap</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Creating Captures</h3>
+                    <pre><code># Capture while monitoring
+etherape -w output.pcap
+
+# Capture with tcpdump, analyze with EtherApe
+sudo tcpdump -i eth0 -w capture.pcap
+etherape -r capture.pcap
+
+# Capture specific traffic
+sudo tcpdump -i eth0 -w web_traffic.pcap port 80
+etherape -r web_traffic.pcap</code></pre>
+                </div>
+            </section>
+
+            <section id="practical-applications">
+                <h2>Practical Applications</h2>
+                <div class="command-block">
+                    <h3>Network Troubleshooting</h3>
+                    <ul>
+                        <li><strong>Identify bottlenecks:</strong> Look for thick links and large nodes</li>
+                        <li><strong>Spot unusual traffic:</strong> Unexpected connections or protocols</li>
+                        <li><strong>Monitor performance:</strong> Real-time bandwidth utilization</li>
+                        <li><strong>Detect loops:</strong> Circular traffic patterns</li>
+                        <li><strong>Analyze failures:</strong> Missing or broken connections</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <ul>
+                        <li><strong>Detect intrusions:</strong> Unusual traffic patterns</li>
+                        <li><strong>Monitor data exfiltration:</strong> Large outbound transfers</li>
+                        <li><strong>Identify scanning:</strong> Many connections from single source</li>
+                        <li><strong>Spot malware:</strong> Unexpected network communications</li>
+                        <li><strong>Track lateral movement:</strong> Internal host-to-host traffic</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Network Planning</h3>
+                    <ul>
+                        <li><strong>Capacity planning:</strong> Identify high-usage links</li>
+                        <li><strong>Traffic patterns:</strong> Understand communication flows</li>
+                        <li><strong>Protocol usage:</strong> See which protocols dominate</li>
+                        <li><strong>Peak analysis:</strong> Monitor during busy periods</li>
+                        <li><strong>Growth tracking:</strong> Compare usage over time</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Wireshark Integration</h3>
+                    <pre><code># Capture with tcpdump, analyze with both tools
+sudo tcpdump -i eth0 -w traffic.pcap
+
+# Visual overview with EtherApe
+etherape -r traffic.pcap
+
+# Detailed analysis with Wireshark
+wireshark traffic.pcap</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Monitoring Pipeline</h3>
+                    <pre><code>#!/bin/bash
+# Continuous monitoring script
+
+interface="eth0"
+capture_dir="/var/log/network_captures"
+timestamp=$(date +%Y%m%d_%H%M%S)
+
+# Start background capture
+sudo tcpdump -i $interface -w $capture_dir/capture_$timestamp.pcap &
+tcpdump_pid=$!
+
+# Start EtherApe for real-time monitoring
+etherape -i $interface &
+etherape_pid=$!
+
+# Monitor for specified duration
+sleep 3600  # 1 hour
+
+# Stop monitoring
+kill $etherape_pid
+kill $tcpdump_pid
+
+# Analyze captured data
+etherape -r $capture_dir/capture_$timestamp.pcap</code></pre>
+                </div>
+            </section>
+
+            <section id="text-mode">
+                <h2>Text Mode Operation</h2>
+                <div class="command-block">
+                    <h3>Command Line Monitoring</h3>
+                    <pre><code># Text mode with statistics
+etherape -t -i eth0
+
+# Text mode with capture file
+etherape -t -r capture.pcap
+
+# Text mode with filtering
+etherape -t -f "tcp port 80" -i eth0</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Automated Analysis</h3>
+                    <pre><code>#!/bin/bash
+# Automated network analysis script
+
+# Capture traffic for analysis
+sudo tcpdump -i eth0 -c 10000 -w temp_capture.pcap
+
+# Analyze with EtherApe text mode
+echo "=== Network Analysis Report ==="
+echo "Generated: $(date)"
+echo ""
+
+echo "=== IP Mode Analysis ==="
+etherape -t -r temp_capture.pcap
+
+echo "=== TCP Mode Analysis ==="
+etherape -t -P -r temp_capture.pcap
+
+# Cleanup
+rm temp_capture.pcap</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-tuning">
+                <h2>Performance Tuning</h2>
+                <div class="command-block">
+                    <h3>Optimization Settings</h3>
+                    <ul>
+                        <li><strong>Reduce refresh rate:</strong> Lower CPU usage</li>
+                        <li><strong>Increase timeouts:</strong> Keep nodes visible longer</li>
+                        <li><strong>Limit node count:</strong> Prevent display clutter</li>
+                        <li><strong>Use filters:</strong> Focus on relevant traffic</li>
+                        <li><strong>Disable hostname resolution:</strong> Faster operation</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>High-Traffic Networks</h3>
+                    <pre><code># Optimize for high-traffic monitoring
+etherape -n -f "not arp and not broadcast" -i eth0
+
+# Sample traffic for better performance
+sudo tcpdump -i eth0 -c 1000 -w sample.pcap
+etherape -r sample.pcap
+
+# Use aggregation for large networks
+etherape -f "net 192.168.0.0/16" -i eth0</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting & Common Issues</h2>
+                <div class="command-block">
+                    <h3>Permission Issues</h3>
+                    <pre><code># Run with sudo for packet capture
+sudo etherape -i eth0
+
+# Check interface permissions
+sudo chmod +r /dev/bpf*  # macOS
+sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/etherape  # Linux</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Display Issues</h3>
+                    <pre><code># X11 forwarding for remote systems
+ssh -X user@remote_host
+etherape
+
+# Check display environment
+echo $DISPLAY
+xhost +localhost</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <ul>
+                        <li><strong>High CPU usage:</strong> Reduce refresh rate, use filters</li>
+                        <li><strong>Memory consumption:</strong> Limit capture duration</li>
+                        <li><strong>Display lag:</strong> Increase node/link timeouts</li>
+                        <li><strong>Network impact:</strong> Use promiscuous mode carefully</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with filters:</strong> Focus on specific traffic types</li>
+                    <li><strong>Use different modes:</strong> Switch between link, IP, and TCP modes</li>
+                    <li><strong>Monitor baselines:</strong> Learn normal traffic patterns</li>
+                    <li><strong>Combine with captures:</strong> Save interesting traffic for later analysis</li>
+                    <li><strong>Adjust timeouts:</strong> Balance visibility with performance</li>
+                    <li><strong>Use text mode:</strong> For automated analysis and scripting</li>
+                    <li><strong>Document findings:</strong> Screenshot unusual patterns</li>
+                    <li><strong>Regular monitoring:</strong> Establish monitoring schedules</li>
+                </ul>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Administration</h3>
+                    <ul>
+                        <li>Monitor network utilization</li>
+                        <li>Identify bandwidth hogs</li>
+                        <li>Troubleshoot connectivity issues</li>
+                        <li>Plan network upgrades</li>
+                        <li>Verify QoS implementations</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Analysis</h3>
+                    <ul>
+                        <li>Detect network intrusions</li>
+                        <li>Monitor for data exfiltration</li>
+                        <li>Identify rogue devices</li>
+                        <li>Analyze malware communications</li>
+                        <li>Investigate security incidents</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Educational Purposes</h3>
+                    <ul>
+                        <li>Visualize network protocols</li>
+                        <li>Demonstrate traffic patterns</li>
+                        <li>Teach network troubleshooting</li>
+                        <li>Show security concepts</li>
+                        <li>Analyze protocol behavior</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="alternatives">
+                <h2>Alternatives & Similar Tools</h2>
+                <div class="command-block">
+                    <h3>Similar Visualization Tools</h3>
+                    <ul>
+                        <li><strong>ntopng:</strong> Web-based network monitoring</li>
+                        <li><strong>Cacti:</strong> Network graphing solution</li>
+                        <li><strong>Nagios:</strong> Network monitoring system</li>
+                        <li><strong>PRTG:</strong> Commercial network monitoring</li>
+                        <li><strong>SolarWinds:</strong> Enterprise network management</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use EtherApe</h3>
+                    <ul>
+                        <li>Need visual network representation</li>
+                        <li>Real-time traffic monitoring</li>
+                        <li>Quick network overview</li>
+                        <li>Educational demonstrations</li>
+                        <li>Lightweight monitoring solution</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> EtherApe should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own networks and systems</li>
+                        <li>Authorized network administration and troubleshooting</li>
+                        <li>Security monitoring with proper authorization</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized network monitoring may violate privacy laws, computer crime statutes, and organizational policies. Packet capture and network analysis can reveal sensitive information. Always obtain proper authorization before monitoring network traffic, and ensure compliance with applicable laws and regulations. Be aware that promiscuous mode packet capture may be restricted or logged by network security systems.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

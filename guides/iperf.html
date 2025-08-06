@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iperf Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>iperf: Network Bandwidth Testing</h1>
+            <p>Master Performance Measurement and Network Tuning</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is iperf?</h2>
+                <p>iperf is an open-source command-line tool for actively measuring the maximum achievable bandwidth on IP networks. It supports both TCP and UDP protocols, allowing users to test network performance, diagnose bottlenecks, and tune network configurations. iperf is widely used by network administrators and engineers to assess throughput, latency, jitter, and packet loss in various network environments.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install iperf
+sudo apt update
+sudo apt install iperf
+
+# Install iperf3 (latest version)
+sudo apt install iperf3
+
+# Verify installation
+iperf -v
+iperf3 -v</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+sudo yum install iperf
+
+# Install iperf3
+sudo yum install iperf3
+
+# Verify installation
+iperf -v
+iperf3 -v</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Install Homebrew (if not installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install iperf
+brew install iperf
+
+# Install iperf3
+brew install iperf3
+
+# Verify installation
+iperf -v
+iperf3 -v</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from official website
+# Visit: https://iperf.fr/iperf-download.php
+
+# Extract and add to PATH
+# Copy iperf.exe to C:\Windows\System32
+
+# Verify installation
+iperf -v
+iperf3 -v
+
+# System Requirements:
+# - Windows 7 or later
+# - 512MB RAM
+# - 50MB free disk space</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Building from Source</h3>
+                    <pre><code># Install build tools and dependencies
+sudo apt install build-essential libssl-dev
+
+# Download and extract source
+wget https://github.com/esnet/iperf/archive/refs/tags/3.17.1.tar.gz
+tar -xvzf 3.17.1.tar.gz
+cd iperf-3.17.1
+
+# Configure, build, and install
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check iperf version
+iperf -v
+iperf3 -v
+
+# Test server mode
+iperf3 -s
+
+# System Requirements:
+# - Linux, macOS, or Windows
+# - 512MB RAM
+# - 50MB free disk space
+# - Network connectivity</code></pre>
+                </div>
+            </section>
+
+            <section id="getting-started">
+                <h2>Getting Started</h2>
+                <div class="command-block">
+                    <h3>Basic Usage</h3>
+                    <pre><code># Start iperf server
+iperf -s
+
+# Start iperf3 server
+iperf3 -s
+
+# Run client to test bandwidth
+iperf -c <server_ip>
+iperf3 -c <server_ip>
+
+# Example: Test TCP bandwidth
+iperf3 -c 192.168.1.100</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Server Configuration</h3>
+                    <pre><code># Run server on specific port
+iperf3 -s -p 5201
+
+# Run server in daemon mode
+iperf3 -s -D
+
+# Bind to specific interface
+iperf3 -s -B 192.168.1.10</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Client Configuration</h3>
+                    <pre><code># Test with specific duration
+iperf3 -c <server_ip> -t 30
+
+# Test with multiple parallel streams
+iperf3 -c <server_ip> -P 4
+
+# Test bidirectional traffic
+iperf3 -c <server_ip> --bidir</code></pre>
+                </div>
+            </section>
+
+            <section id="interface-overview">
+                <h2>CLI Interface Overview</h2>
+                <div class="command-block">
+                    <h3>Core Commands (iperf3)</h3>
+                    <ul>
+                        <li><strong>-s:</strong> Run in server mode</li>
+                        <li><strong>-c:</strong> Run in client mode, connect to server</li>
+                        <li><strong>-p:</strong> Specify port</li>
+                        <li><strong>-t:</strong> Test duration in seconds</li>
+                        <li><strong>-P:</strong> Number of parallel streams</li>
+                        <li><strong>-u:</strong> Use UDP instead of TCP</li>
+                        <li><strong>-b:</strong> Set target bandwidth (UDP only)</li>
+                        <li><strong>-J:</strong> JSON output</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Navigation Tips</h3>
+                    <ul>
+                        <li>Read output for bandwidth, jitter, and loss</li>
+                        <li>Use -i for interval reports</li>
+                        <li>Save JSON output for scripting: <code>-J > output.json</code></li>
+                        <li>Pipe output to file for analysis</li>
+                        <li>Combine with monitoring tools for real-time stats</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="testing-techniques">
+                <h2>Testing Techniques</h2>
+                <div class="command-block">
+                    <h3>TCP Testing</h3>
+                    <pre><code># Basic TCP test
+iperf3 -c <server_ip> -t 10
+
+# Test with specific window size
+iperf3 -c <server_ip> -w 64K
+
+# Test with multiple streams
+iperf3 -c <server_ip> -P 4</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>UDP Testing</h3>
+                    <pre><code># Basic UDP test
+iperf3 -c <server_ip> -u -b 10M
+
+# Test jitter and packet loss
+iperf3 -c <server_ip> -u -b 100M -t 10
+
+# Specify packet length
+iperf3 -c <server_ip> -u -l 1470</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Bidirectional Testing</h3>
+                    <pre><code># Test both directions simultaneously
+iperf3 -c <server_ip> --bidir
+
+# Test reverse direction
+iperf3 -c <server_ip> -R</code></pre>
+                </div>
+            </section>
+
+            <section id="output-analysis">
+                <h2>Output Analysis</h2>
+                <div class="command-block">
+                    <h3>Reading Output</h3>
+                    <pre><code># Example TCP output
+iperf3 -c <server_ip>
+# Output fields:
+# - Interval: Time range of measurement
+# - Transfer: Data transferred
+# - Bandwidth: Throughput in Mbps
+# - Retr: Retransmitted packets (TCP)
+
+# Example UDP output
+iperf3 -c <server_ip> -u
+# Output fields:
+# - Jitter: Packet delay variation
+# - Loss: Percentage of lost packets
+# - Datagrams: Total packets sent</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Saving Output</h3>
+                    <pre><code># Save to text file
+iperf3 -c <server_ip> > output.txt
+
+# Save to JSON
+iperf3 -c <server_ip> -J > output.json
+
+# Parse JSON with jq
+jq .intervals output.json</code></pre>
+                </div>
+            </section>
+
+            <section id="network-tuning">
+                <h2>Network Tuning</h2>
+                <div class="command-block">
+                    <h3>Optimizing TCP Performance</h3>
+                    <pre><code># Increase TCP window size
+iperf3 -c <server_ip> -w 128K
+
+# Adjust MTU (system-level)
+sudo ifconfig eth0 mtu 9000
+
+# Check system TCP settings
+sysctl -a | grep tcp</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>UDP Tuning</h3>
+                    <pre><code># Set specific bandwidth
+iperf3 -c <server_ip> -u -b 50M
+
+# Adjust buffer size
+iperf3 -c <server_ip> -u -l 1400
+
+# Increase system buffer
+sudo sysctl -w net.core.rmem_max=8388608</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Diagnosing Bottlenecks</h3>
+                    <pre><code># Test with multiple streams
+iperf3 -c <server_ip> -P 4
+
+# Check for packet loss
+iperf3 -c <server_ip> -u -b 100M
+
+# Monitor system resources
+top -n 1 | grep iperf3</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Monitoring Tools</h3>
+                    <ul>
+                        <li><strong>Grafana:</strong> Visualize bandwidth metrics</li>
+                        <li><strong>Zabbix:</strong> Monitor network performance</li>
+                        <li><strong>Nagios:</strong> Alert on performance thresholds</li>
+                    </ul>
+                    <pre><code># Save JSON for monitoring
+iperf3 -c <server_ip> -J > metrics.json</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scripting</h3>
+                    <ul>
+                        <li><strong>Bash:</strong> Automate tests</li>
+                        <li><strong>Python:</strong> Parse JSON output</li>
+                        <li><strong>Cron:</strong> Schedule periodic tests</li>
+                    </ul>
+                    <pre><code># Example: Cron job for daily test
+0 0 * * * iperf3 -c <server_ip> -J > /var/log/iperf3-$(date +%F).json</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Connection refused
+# Ensure server is running
+iperf3 -s -p 5201
+
+# Firewall blocking
+# Open port (example: Ubuntu)
+sudo ufw allow 5201
+
+# Low performance
+# Check MTU and buffer settings
+ifconfig eth0 | grep mtu
+sysctl net.ipv4.tcp_rmem</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Debugging Tips</h3>
+                    <pre><code># Verbose output
+iperf3 -c <server_ip> -V
+
+# Check network interface
+ifconfig eth0
+
+# Test connectivity
+ping <server_ip></code></pre>
+                </div>
+            </section>
+
+            <section id="best-practices">
+                <h2>Best Practices</h2>
+                <div class="command-block">
+                    <h3>Testing</h3>
+                    <ul>
+                        <li>Run tests during low network usage</li>
+                        <li>Use multiple streams for accuracy</li>
+                        <li>Test both TCP and UDP protocols</li>
+                        <li>Repeat tests for consistency</li>
+                        <li>Document baseline performance</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Performance</h3>
+                    <ul>
+                        <li>Adjust MTU for jumbo frames</li>
+                        <li>Optimize system TCP/UDP buffers</li>
+                        <li>Use dedicated NICs for testing</li>
+                        <li>Minimize background processes</li>
+                        <li>Monitor CPU and memory usage</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security</h3>
+                    <ul>
+                        <li>Restrict server access with firewall</li>
+                        <li>Use non-default ports</li>
+                        <li>Secure JSON output files</li>
+                        <li>Avoid testing over public networks</li>
+                        <li>Monitor for unauthorized iperf traffic</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Performance Testing</h3>
+                    <ul>
+                        <li>Measure LAN/WAN bandwidth</li>
+                        <li>Test VPN performance</li>
+                        <li>Assess cloud connectivity</li>
+                        <li>Validate QoS policies</li>
+                        <li>Benchmark network upgrades</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Network Troubleshooting</h3>
+                    <ul>
+                        <li>Diagnose bandwidth bottlenecks</li>
+                        <li>Identify packet loss issues</li>
+                        <li>Test jitter in VoIP networks</li>
+                        <li>Verify firewall configurations</li>
+                        <li>Analyze network latency</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Capacity Planning</h3>
+                    <ul>
+                        <li>Plan network upgrades</li>
+                        <li>Estimate bandwidth requirements</li>
+                        <li>Validate ISP performance</li>
+                        <li>Assess server capacity</li>
+                        <li>Support SLA verification</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Run long tests:</strong> Use -t for extended duration</li>
+                    <li><strong>Use JSON:</strong> Leverage -J for scripted analysis</li>
+                    <li><strong>Test bidirectionally:</strong> Use --bidir for realistic results</li>
+                    <li><strong>Automate tests:</strong> Schedule with cron or scripts</li>
+                    <li><strong>Monitor metrics:</strong> Track retransmits and jitter</li>
+                    <li><strong>Combine tools:</strong> Use with ping or traceroute</li>
+                    <li><strong>Stay updated:</strong> Use latest iperf3 version</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> iperf should only be used for:</p>
+                    <ul>
+                        <li>Testing networks with proper authorization</li>
+                        <li>Performance analysis in controlled environments</li>
+                        <li>Network troubleshooting with consent</li>
+                        <li>Educational purposes with permission</li>
+                        <li>Authorized capacity planning</li>
+                    </ul>
+                    <p>Unauthorized network testing may violate network policies, service agreements, or local laws. Ensure compliance with applicable regulations, organizational policies, and ethical guidelines. Obtain proper authorization before running iperf on any network. Be aware of network usage policies and potential impacts on network performance.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

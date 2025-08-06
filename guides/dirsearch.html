@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dirsearch Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>dirsearch: Web Path Scanner</h1>
+            <p>Master Directory and File Discovery for Web Applications</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is dirsearch?</h2>
+                <p>dirsearch is a simple command-line tool designed to brute force directories and files in websites. It's written in Python and offers a fast, flexible approach to web content discovery. Unlike some other directory brute-forcers, dirsearch is designed to be simple to use while still offering advanced features like custom wordlists, multiple extensions, request customization, and result filtering. It's particularly popular among penetration testers and bug bounty hunters for its ease of use and effectiveness in discovering hidden web content.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Clone from GitHub
+git clone https://github.com/maurosoria/dirsearch.git
+cd dirsearch
+
+# Install dependencies
+pip3 install -r requirements.txt
+
+# Make executable
+chmod +x dirsearch.py
+
+# Create symlink for global access
+sudo ln -s $(pwd)/dirsearch.py /usr/local/bin/dirsearch
+
+# Verify installation
+python3 dirsearch.py -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Clone repository
+git clone https://github.com/maurosoria/dirsearch.git
+cd dirsearch
+
+# Install Python dependencies
+pip3 install -r requirements.txt
+
+# Run directly
+python3 dirsearch.py -h
+
+# Or create alias
+echo 'alias dirsearch="python3 /path/to/dirsearch/dirsearch.py"' >> ~/.zshrc
+source ~/.zshrc</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Install Python 3 from python.org
+# Install Git for Windows
+
+# Clone repository
+git clone https://github.com/maurosoria/dirsearch.git
+cd dirsearch
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run tool
+python dirsearch.py -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Build Docker image
+docker build -t dirsearch .
+
+# Run with Docker
+docker run --rm dirsearch -u http://example.com
+
+# Run with custom wordlist
+docker run --rm -v $(pwd):/wordlists dirsearch -u http://example.com -w /wordlists/custom.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Simple Directory Scanning</h3>
+                    <pre><code># Basic directory scan
+python3 dirsearch.py -u http://example.com
+
+# Scan with specific extensions
+python3 dirsearch.py -u http://example.com -e php,html,js,txt
+
+# Scan with custom wordlist
+python3 dirsearch.py -u http://example.com -w /path/to/wordlist.txt
+
+# Recursive scanning
+python3 dirsearch.py -u http://example.com -r</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Multiple Targets</h3>
+                    <pre><code># Scan multiple URLs
+python3 dirsearch.py -u http://example.com,https://test.com
+
+# Scan from URL list file
+python3 dirsearch.py -l urls.txt
+
+# Scan with URL prefix
+python3 dirsearch.py -u http://example.com/app/ -e php</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Options</h3>
+                    <pre><code># Save results to file
+python3 dirsearch.py -u http://example.com -o results.txt
+
+# JSON output format
+python3 dirsearch.py -u http://example.com --format json -o results.json
+
+# CSV output format
+python3 dirsearch.py -u http://example.com --format csv -o results.csv
+
+# Simple output format
+python3 dirsearch.py -u http://example.com --format simple -o results.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Options</h2>
+                <div class="command-block">
+                    <h3>Request Customization</h3>
+                    <pre><code># Custom headers
+python3 dirsearch.py -u http://example.com -H "Authorization: Bearer token123"
+
+# Multiple headers
+python3 dirsearch.py -u http://example.com -H "User-Agent: Custom" -H "X-API-Key: key123"
+
+# Custom cookies
+python3 dirsearch.py -u http://example.com --cookie "sessionid=abc123; token=xyz789"
+
+# Custom user agent
+python3 dirsearch.py -u http://example.com --user-agent "Custom User Agent"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Authentication</h3>
+                    <pre><code># HTTP Basic Authentication
+python3 dirsearch.py -u http://example.com --auth username:password
+
+# Custom authentication header
+python3 dirsearch.py -u http://example.com -H "Authorization: Basic dXNlcjpwYXNz"
+
+# Session-based authentication
+python3 dirsearch.py -u http://example.com --cookie "PHPSESSID=abc123"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Tuning</h3>
+                    <pre><code># Increase threads for faster scanning
+python3 dirsearch.py -u http://example.com -t 50
+
+# Set request timeout
+python3 dirsearch.py -u http://example.com --timeout 10
+
+# Add delays between requests
+python3 dirsearch.py -u http://example.com --delay 1
+
+# Maximum retries
+python3 dirsearch.py -u http://example.com --retries 3</code></pre>
+                </div>
+            </section>
+
+            <section id="filtering">
+                <h2>Response Filtering</h2>
+                <div class="command-block">
+                    <h3>Status Code Filtering</h3>
+                    <pre><code># Include specific status codes
+python3 dirsearch.py -u http://example.com -i 200,301,302
+
+# Exclude specific status codes
+python3 dirsearch.py -u http://example.com -x 404,403
+
+# Include status code ranges
+python3 dirsearch.py -u http://example.com -i 200-299,300-399</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Size and Content Filtering</h3>
+                    <pre><code># Exclude responses by size
+python3 dirsearch.py -u http://example.com --exclude-sizes 1234,5678
+
+# Exclude responses by content
+python3 dirsearch.py -u http://example.com --exclude-texts "Not Found,Error"
+
+# Exclude responses by regex
+python3 dirsearch.py -u http://example.com --exclude-regexps "error.*404"
+
+# Include only specific sizes
+python3 dirsearch.py -u http://example.com --include-sizes 1000-5000</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Response Analysis</h3>
+                    <pre><code># Show response length
+python3 dirsearch.py -u http://example.com --full-url
+
+# Show redirects
+python3 dirsearch.py -u http://example.com --redirects-history
+
+# Crawl found directories
+python3 dirsearch.py -u http://example.com --crawl</code></pre>
+                </div>
+            </section>
+
+            <section id="wordlists">
+                <h2>Wordlists and Dictionaries</h2>
+                <div class="command-block">
+                    <h3>Built-in Wordlists</h3>
+                    <pre><code># Default wordlist location
+# dirsearch/db/dicc.txt
+
+# Use specific built-in wordlist
+python3 dirsearch.py -u http://example.com -w db/dicc.txt
+
+# List available wordlists
+ls db/
+
+# Common wordlists:
+# db/dicc.txt - Default wordlist
+# db/common.txt - Common directories
+# db/big.txt - Large wordlist</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Wordlists</h3>
+                    <pre><code># Use custom wordlist
+python3 dirsearch.py -u http://example.com -w /path/to/custom.txt
+
+# Combine multiple wordlists
+cat wordlist1.txt wordlist2.txt > combined.txt
+python3 dirsearch.py -u http://example.com -w combined.txt
+
+# SecLists wordlists
+git clone https://github.com/danielmiessler/SecLists.git
+python3 dirsearch.py -u http://example.com -w SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Wordlist Optimization</h3>
+                    <pre><code># Remove duplicates
+sort -u wordlist.txt > clean_wordlist.txt
+
+# Filter by length
+awk 'length($0) >= 3 && length($0) <= 20' wordlist.txt > filtered.txt
+
+# Create target-specific wordlist
+cewl http://example.com -w target_wordlist.txt
+python3 dirsearch.py -u http://example.com -w target_wordlist.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="extensions">
+                <h2>File Extensions</h2>
+                <div class="command-block">
+                    <h3>Common Extensions</h3>
+                    <pre><code># Web application extensions
+python3 dirsearch.py -u http://example.com -e php,asp,aspx,jsp,html
+
+# Configuration and backup files
+python3 dirsearch.py -u http://example.com -e bak,backup,old,tmp,conf
+
+# Script and source files
+python3 dirsearch.py -u http://example.com -e js,css,json,xml,txt
+
+# Archive and document files
+python3 dirsearch.py -u http://example.com -e zip,tar,gz,pdf,doc</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Extension Lists</h3>
+                    <pre><code># Use extension list file
+echo -e "php\nasp\naspx\njsp" > extensions.txt
+python3 dirsearch.py -u http://example.com --extensions-list extensions.txt
+
+# Force extensions (don't use default)
+python3 dirsearch.py -u http://example.com --force-extensions -e php,html
+
+# No extensions (directories only)
+python3 dirsearch.py -u http://example.com -e ""</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Scanning</h3>
+                    <pre><code># Multi-target scanning script
+#!/bin/bash
+targets=("http://example1.com" "http://example2.com" "http://example3.com")
+output_dir="dirsearch_results"
+mkdir -p "$output_dir"
+
+for target in "${targets[@]}"; do
+    echo "Scanning $target"
+    domain=$(echo "$target" | sed 's|https\?://||' | sed 's|/.*||')
+    python3 dirsearch.py -u "$target" -e php,html,js,txt \
+                        -o "$output_dir/${domain}_results.txt" \
+                        --format simple
+    sleep 5
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Extract URLs from results
+grep -E "^200|^301|^302" results.txt | awk '{print $3}' > found_urls.txt
+
+# Parse JSON results
+jq -r '.results[] | select(.status == 200) | .url' results.json > status_200.txt
+
+# Python script for processing
+import json
+
+with open('results.json', 'r') as f:
+    data = json.load(f)
+
+interesting_files = []
+for result in data['results']:
+    if result['status'] in [200, 301, 302]:
+        if any(ext in result['path'] for ext in ['.php', '.asp', '.jsp']):
+            interesting_files.append(result['url'])
+
+print(f"Found {len(interesting_files)} interesting files")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Tools</h3>
+                    <pre><code># Chain with other tools
+python3 dirsearch.py -u http://example.com -o found_dirs.txt --format simple
+grep "200" found_dirs.txt | awk '{print $3}' | while read url; do
+    echo "Testing $url with curl"
+    curl -s "$url" | grep -i "admin\|login\|password"
+done
+
+# Integration with Burp Suite
+python3 dirsearch.py -u http://example.com --proxy http://127.0.0.1:8080</code></pre>
+                </div>
+            </section>
+
+            <section id="recursive-scanning">
+                <h2>Recursive Scanning</h2>
+                <div class="command-block">
+                    <h3>Recursive Options</h3>
+                    <pre><code># Enable recursive scanning
+python3 dirsearch.py -u http://example.com -r
+
+# Set maximum recursion depth
+python3 dirsearch.py -u http://example.com -r --max-recursion-depth 3
+
+# Recursive with specific status codes
+python3 dirsearch.py -u http://example.com -r --recursion-status 200,301,302
+
+# Exclude paths from recursion
+python3 dirsearch.py -u http://example.com -r --exclude-subdirs admin,private</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Crawling</h3>
+                    <pre><code># Enable crawling
+python3 dirsearch.py -u http://example.com --crawl
+
+# Crawl with depth limit
+python3 dirsearch.py -u http://example.com --crawl --max-crawl-depth 2
+
+# Crawl specific file types
+python3 dirsearch.py -u http://example.com --crawl -e html,php</code></pre>
+                </div>
+            </section>
+
+            <section id="proxy-ssl">
+                <h2>Proxy and SSL Options</h2>
+                <div class="command-block">
+                    <h3>Proxy Configuration</h3>
+                    <pre><code># HTTP proxy
+python3 dirsearch.py -u http://example.com --proxy http://127.0.0.1:8080
+
+# SOCKS proxy
+python3 dirsearch.py -u http://example.com --proxy socks5://127.0.0.1:1080
+
+# Proxy with authentication
+python3 dirsearch.py -u http://example.com --proxy http://user:pass@proxy:8080</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>SSL/TLS Options</h3>
+                    <pre><code># Ignore SSL certificate errors
+python3 dirsearch.py -u https://example.com --verify-ssl=false
+
+# Custom CA certificate
+python3 dirsearch.py -u https://example.com --ca-certs /path/to/ca.pem
+
+# Client certificate authentication
+python3 dirsearch.py -u https://example.com --cert /path/to/client.pem</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Debug mode
+python3 dirsearch.py -u http://example.com --debug
+
+# Verbose output
+python3 dirsearch.py -u http://example.com -v
+
+# Test connectivity
+curl -I http://example.com
+
+# Check Python dependencies
+pip3 list | grep -E "requests|urllib3"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Reduce threads
+python3 dirsearch.py -u http://example.com -t 10
+
+# Increase timeout
+python3 dirsearch.py -u http://example.com --timeout 30
+
+# Add delays
+python3 dirsearch.py -u http://example.com --delay 2
+
+# Monitor system resources
+top -p $(pgrep python3)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Rate Limiting</h3>
+                    <pre><code># Handle rate limiting
+python3 dirsearch.py -u http://example.com --delay 1 -t 5
+
+# Random delays
+python3 dirsearch.py -u http://example.com --random-delay
+
+# Retry on failures
+python3 dirsearch.py -u http://example.com --retries 5</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Web Application Testing</h3>
+                    <ul>
+                        <li>Hidden directory and file discovery</li>
+                        <li>Admin panel and sensitive area identification</li>
+                        <li>Backup and configuration file detection</li>
+                        <li>API endpoint discovery</li>
+                        <li>Development and testing environment location</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Assessment</h3>
+                    <ul>
+                        <li>Information disclosure vulnerability testing</li>
+                        <li>Access control bypass identification</li>
+                        <li>Sensitive data exposure detection</li>
+                        <li>Application structure mapping</li>
+                        <li>Attack surface enumeration</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with common wordlists:</strong> Use well-known lists before custom ones</li>
+                    <li><strong>Use appropriate extensions:</strong> Target relevant file types for the technology stack</li>
+                    <li><strong>Filter noise:</strong> Exclude common error pages and irrelevant responses</li>
+                    <li><strong>Tune performance:</strong> Adjust threads and delays based on target response</li>
+                    <li><strong>Use recursion carefully:</strong> Recursive scanning can generate many requests</li>
+                    <li><strong>Save results:</strong> Always output results to files for later analysis</li>
+                    <li><strong>Validate findings:</strong> Manually verify interesting discoveries</li>
+                    <li><strong>Combine techniques:</strong> Use with other reconnaissance tools</li>
+                    <li><strong>Respect rate limits:</strong> Avoid overwhelming target servers</li>
+                    <li><strong>Document discoveries:</strong> Keep organized records of findings</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> dirsearch should only be used for:</p>
+                    <ul>
+                        <li>Testing web applications you own or have explicit permission to test</li>
+                        <li>Authorized penetration testing with proper legal agreements</li>
+                        <li>Bug bounty programs with defined scope and rules</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Security research with appropriate institutional approval</li>
+                    </ul>
+                    <p>Unauthorized directory brute-forcing may violate computer crime laws, terms of service, and other regulations. Web application security testing should only be performed by qualified professionals with proper authorization and legal agreements. dirsearch can generate significant traffic and may impact server performance or trigger security controls. Always ensure you have explicit written permission before scanning any web application. Some scanning techniques may be considered intrusive and could potentially cause service disruption. Maintain proper documentation of testing activities and findings. Follow responsible disclosure practices for any vulnerabilities or sensitive information discovered. Be aware that scanning activities may be logged and monitored by target systems. Respect rate limits and implement appropriate delays to minimize impact on target systems. Directory brute-forcing may reveal sensitive information that should be handled appropriately and in accordance with applicable privacy laws and regulations.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

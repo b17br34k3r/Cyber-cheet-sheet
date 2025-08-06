@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExifTool Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>ExifTool: Metadata Analysis Tool</h1>
+            <p>Master Digital Evidence and Metadata Forensics</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is ExifTool?</h2>
+                <p>ExifTool is a platform-independent Perl application for reading, writing, and editing meta information in a wide variety of files. It supports EXIF, GPS, IPTC, XMP, JFIF, GeoTIFF, ICC Profile, Photoshop IRB, FlashPix, AFCP, and ID3, as well as the maker notes of many digital cameras. ExifTool is essential for digital forensics, privacy analysis, and metadata investigation, allowing investigators to extract valuable information from digital files that may not be visible to users.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install exiftool
+
+# CentOS/RHEL/Fedora
+sudo yum install perl-Image-ExifTool
+# or
+sudo dnf install perl-Image-ExifTool
+
+# Arch Linux
+sudo pacman -S perl-image-exiftool
+
+# From CPAN
+sudo cpan Image::ExifTool</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download Windows executable from:
+# https://exiftool.org/
+
+# Extract exiftool(-k).exe to desired location
+# Rename to exiftool.exe
+# Add to PATH environment variable
+
+# Alternative: Install Strawberry Perl, then:
+cpan Image::ExifTool</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install exiftool
+
+# Using MacPorts
+sudo port install p5-image-exiftool
+
+# Manual installation
+curl -O https://exiftool.org/Image-ExifTool-12.70.tar.gz
+tar -xzf Image-ExifTool-12.70.tar.gz
+cd Image-ExifTool-12.70
+perl Makefile.PL
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check installation
+exiftool -ver
+
+# Display help
+exiftool -h
+
+# Test with sample file
+exiftool /path/to/image.jpg</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Reading Metadata</h3>
+                    <pre><code># Display all metadata
+exiftool image.jpg
+
+# Display specific tags
+exiftool -CreateDate -ModifyDate image.jpg
+exiftool -GPS* image.jpg
+exiftool -Camera* image.jpg
+
+# Display in different formats
+exiftool -s image.jpg          # Short tag names
+exiftool -S image.jpg          # Very short tag names
+exiftool -t image.jpg          # Tab-delimited output
+exiftool -csv image.jpg        # CSV format
+exiftool -json image.jpg       # JSON format
+exiftool -xml image.jpg        # XML format</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Batch Processing</h3>
+                    <pre><code># Process all images in directory
+exiftool *.jpg
+
+# Recursive processing
+exiftool -r /path/to/directory/
+
+# Process specific file types
+exiftool -ext jpg -ext png -r /path/to/directory/
+
+# Output to file
+exiftool -csv -r /path/to/directory/ > metadata_report.csv
+exiftool -json -r /path/to/directory/ > metadata_report.json</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Metadata Tags</h3>
+                    <pre><code># Camera information
+exiftool -Make -Model -LensModel image.jpg
+
+# Date/time information
+exiftool -CreateDate -ModifyDate -DateTimeOriginal image.jpg
+
+# GPS location data
+exiftool -GPS* image.jpg
+exiftool -GPSLatitude -GPSLongitude image.jpg
+
+# Image technical details
+exiftool -ImageSize -Megapixels -ISO -FNumber -ExposureTime image.jpg
+
+# Software information
+exiftool -Software -ProcessingSoftware image.jpg</code></pre>
+                </div>
+            </section>
+
+            <section id="forensic-analysis">
+                <h2>Forensic Analysis</h2>
+                <div class="command-block">
+                    <h3>Digital Evidence Extraction</h3>
+                    <pre><code># Extract all available metadata
+exiftool -a -u -g1 evidence_photo.jpg
+
+# Show duplicate tags
+exiftool -a evidence_photo.jpg
+
+# Display unknown tags
+exiftool -u evidence_photo.jpg
+
+# Group related tags
+exiftool -g evidence_photo.jpg
+
+# Extract binary data
+exiftool -b -ThumbnailImage evidence_photo.jpg > thumbnail.jpg
+exiftool -b -PreviewImage evidence_photo.jpg > preview.jpg</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeline Analysis</h3>
+                    <pre><code># Extract all date/time stamps
+exiftool -time:all -s evidence_photo.jpg
+
+# Compare creation vs modification times
+exiftool -CreateDate -ModifyDate -FileModifyDate evidence_photo.jpg
+
+# Extract date information in specific format
+exiftool -d "%Y-%m-%d %H:%M:%S" -CreateDate -ModifyDate evidence_photo.jpg
+
+# Timeline for multiple files
+exiftool -csv -CreateDate -ModifyDate -FileName *.jpg > timeline.csv</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Location Intelligence</h3>
+                    <pre><code># Extract GPS coordinates
+exiftool -GPS* evidence_photo.jpg
+
+# Convert GPS to decimal degrees
+exiftool -c "%.6f" -GPSLatitude -GPSLongitude evidence_photo.jpg
+
+# Extract location with timestamp
+exiftool -GPSLatitude -GPSLongitude -GPSDateTime evidence_photo.jpg
+
+# Generate KML file for mapping
+exiftool -p kml.fmt -r /path/to/photos/ > locations.kml</code></pre>
+                </div>
+            </section>
+
+            <section id="privacy-analysis">
+                <h2>Privacy Analysis</h2>
+                <div class="command-block">
+                    <h3>Personal Information Detection</h3>
+                    <pre><code># Check for personal information
+exiftool -Artist -Copyright -Creator -Author document.pdf
+
+# Extract user/owner information
+exiftool -Owner -User -Creator -Producer document.pdf
+
+# Check for hidden personal data
+exiftool -a -u document.pdf | grep -i -E "(name|user|owner|author|creator)"
+
+# Extract application information
+exiftool -Software -Application -Producer -Creator document.pdf</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Device Fingerprinting</h3>
+                    <pre><code># Camera/device identification
+exiftool -Make -Model -SerialNumber -InternalSerialNumber image.jpg
+
+# Lens information
+exiftool -LensModel -LensSerialNumber -LensInfo image.jpg
+
+# Software fingerprinting
+exiftool -Software -ProcessingSoftware -ColorSpace image.jpg
+
+# Unique identifiers
+exiftool -DocumentID -InstanceID -OriginalDocumentID document.pdf</code></pre>
+                </div>
+            </section>
+
+            <section id="file-type-analysis">
+                <h2>File Type-Specific Analysis</h2>
+                <div class="command-block">
+                    <h3>Image Files</h3>
+                    <pre><code># JPEG analysis
+exiftool -JFIF* -EXIF* -Photoshop* image.jpg
+
+# PNG analysis
+exiftool -PNG* -Textual* image.png
+
+# RAW camera files
+exiftool -MakerNotes* -CameraSettings* image.cr2
+
+# TIFF analysis
+exiftool -TIFF* -GeoTIFF* image.tif
+
+# Extract embedded thumbnails
+exiftool -b -ThumbnailImage image.jpg > thumb.jpg
+exiftool -b -PreviewImage image.cr2 > preview.jpg</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Document Files</h3>
+                    <pre><code># PDF analysis
+exiftool -PDF* -XMP* document.pdf
+
+# Microsoft Office documents
+exiftool -FlashPix* -Office* document.docx
+
+# Extract document statistics
+exiftool -Pages -Words -Characters -Lines document.pdf
+
+# Check for digital signatures
+exiftool -Signature* document.pdf
+
+# Extract embedded objects
+exiftool -a -u document.pdf | grep -i embed</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Video Files</h3>
+                    <pre><code># Video metadata
+exiftool -QuickTime* -Track* video.mp4
+
+# Extract video thumbnails
+exiftool -b -ThumbnailImage video.mp4 > video_thumb.jpg
+
+# Audio/video technical details
+exiftool -Duration -VideoCodec -AudioCodec -Bitrate video.mp4
+
+# GPS from video files
+exiftool -GPS* -Location* video.mp4</code></pre>
+                </div>
+            </section>
+
+            <section id="metadata-manipulation">
+                <h2>Metadata Manipulation</h2>
+                <div class="command-block">
+                    <h3>Removing Metadata</h3>
+                    <pre><code># Remove all metadata
+exiftool -all= image.jpg
+
+# Remove specific metadata groups
+exiftool -EXIF:all= image.jpg
+exiftool -GPS:all= image.jpg
+exiftool -XMP:all= image.jpg
+
+# Remove metadata but keep image quality
+exiftool -all= -tagsfromfile @ -colorspace -orientation image.jpg
+
+# Batch removal
+exiftool -all= -r /path/to/directory/
+
+# Create cleaned copies
+exiftool -all= -o clean_%f.%e *.jpg</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Adding/Modifying Metadata</h3>
+                    <pre><code># Add copyright information
+exiftool -Copyright="© 2023 Your Name" image.jpg
+
+# Modify creation date
+exiftool -CreateDate="2023:06:15 12:00:00" image.jpg
+
+# Add GPS coordinates
+exiftool -GPS:GPSLatitude=40.7128 -GPS:GPSLongitude=-74.0060 image.jpg
+
+# Add keywords
+exiftool -Keywords="forensics,evidence,investigation" image.jpg
+
+# Batch modifications
+exiftool -Copyright="© 2023 Investigation Team" *.jpg</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Backup and Restore</h3>
+                    <pre><code># Create backup before modification
+exiftool -tagsFromFile original.jpg -all:all modified.jpg
+
+# Save metadata to file
+exiftool -j image.jpg > metadata_backup.json
+
+# Restore metadata from backup
+exiftool -json=metadata_backup.json image_clean.jpg
+
+# Copy metadata between files
+exiftool -tagsFromFile source.jpg target.jpg</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Techniques</h2>
+                <div class="command-block">
+                    <h3>Custom Output Formats</h3>
+                    <pre><code># Create custom format file
+cat > forensic_format.fmt << 'EOF'
+$filename
+Creation Date: $CreateDate
+GPS Location: $GPSLatitude, $GPSLongitude
+Camera: $Make $Model
+Software: $Software
+File Size: $FileSize
+---
+EOF
+
+# Use custom format
+exiftool -p forensic_format.fmt *.jpg
+
+# HTML report format
+cat > html_format.fmt << 'EOF'
+<tr>
+<td>$filename</td>
+<td>$CreateDate</td>
+<td>$Make $Model</td>
+<td>$GPSLatitude, $GPSLongitude</td>
+</tr>
+EOF
+
+exiftool -p html_format.fmt *.jpg > report.html</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Conditional Processing</h3>
+                    <pre><code># Process only files with GPS data
+exiftool -if '$GPSLatitude' -csv *.jpg
+
+# Process files from specific camera
+exiftool -if '$Make eq "Canon"' *.jpg
+
+# Process files within date range
+exiftool -if '$CreateDate ge "2023:01:01"' *.jpg
+
+# Complex conditions
+exiftool -if '$Make eq "Canon" and $GPSLatitude' -csv *.jpg</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scripting and Automation</h3>
+                    <pre><code>#!/bin/bash
+# Forensic metadata extraction script
+
+INPUT_DIR="$1"
+OUTPUT_DIR="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <input_directory> <output_directory>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Extracting metadata from $INPUT_DIR"
+
+# Extract all metadata to CSV
+exiftool -csv -r "$INPUT_DIR" > "$OUTPUT_DIR/all_metadata.csv"
+
+# Extract GPS data only
+exiftool -csv -GPS* -r "$INPUT_DIR" > "$OUTPUT_DIR/gps_data.csv"
+
+# Extract timeline data
+exiftool -csv -CreateDate -ModifyDate -FileModifyDate -r "$INPUT_DIR" > "$OUTPUT_DIR/timeline.csv"
+
+# Extract camera information
+exiftool -csv -Make -Model -SerialNumber -r "$INPUT_DIR" > "$OUTPUT_DIR/camera_info.csv"
+
+# Generate summary report
+echo "=== Metadata Extraction Summary ===" > "$OUTPUT_DIR/summary.txt"
+echo "Input Directory: $INPUT_DIR" >> "$OUTPUT_DIR/summary.txt"
+echo "Extraction Date: $(date)" >> "$OUTPUT_DIR/summary.txt"
+echo "Total Files Processed: $(exiftool -csv -r "$INPUT_DIR" | wc -l)" >> "$OUTPUT_DIR/summary.txt"
+echo "Files with GPS Data: $(exiftool -if '$GPSLatitude' -csv -r "$INPUT_DIR" | wc -l)" >> "$OUTPUT_DIR/summary.txt"
+
+echo "Metadata extraction completed. Results in $OUTPUT_DIR"</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Autopsy</h3>
+                    <pre><code># Export metadata for Autopsy import
+exiftool -csv -r /evidence/images/ > autopsy_metadata.csv
+
+# Extract GPS coordinates for mapping
+exiftool -c "%.6f" -csv -GPSLatitude -GPSLongitude -r /evidence/ > gps_coordinates.csv
+
+# Timeline integration
+exiftool -d "%Y-%m-%d %H:%M:%S" -csv -CreateDate -ModifyDate -r /evidence/ > timeline_data.csv</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with GIS Tools</h3>
+                    <pre><code># Generate KML for Google Earth
+cat > kml_format.fmt << 'EOF'
+<Placemark>
+<name>$filename</name>
+<description>Created: $CreateDate, Camera: $Make $Model</description>
+<Point><coordinates>$GPSLongitude,$GPSLatitude,0</coordinates></Point>
+</Placemark>
+EOF
+
+echo '<?xml version="1.0" encoding="UTF-8"?>' > evidence_locations.kml
+echo '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>' >> evidence_locations.kml
+exiftool -if '$GPSLatitude' -p kml_format.fmt *.jpg >> evidence_locations.kml
+echo '</Document></kml>' >> evidence_locations.kml</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Integration</h3>
+                    <pre><code># Generate SQL INSERT statements
+cat > sql_format.fmt << 'EOF'
+INSERT INTO evidence_metadata (filename, create_date, gps_lat, gps_lon, camera_make, camera_model) 
+VALUES ('$filename', '$CreateDate', '$GPSLatitude', '$GPSLongitude', '$Make', '$Model');
+EOF
+
+exiftool -p sql_format.fmt *.jpg > metadata_inserts.sql</code></pre>
+                </div>
+            </section>
+
+            <section id="case-studies">
+                <h2>Forensic Case Studies</h2>
+                <div class="command-block">
+                    <h3>Digital Photo Investigation</h3>
+                    <pre><code># Comprehensive photo analysis
+exiftool -a -u -g1 suspicious_photo.jpg
+
+# Check for editing software traces
+exiftool -Software -ProcessingSoftware -ColorSpace suspicious_photo.jpg
+
+# Verify timestamp consistency
+exiftool -CreateDate -ModifyDate -FileModifyDate suspicious_photo.jpg
+
+# Extract hidden thumbnails
+exiftool -b -ThumbnailImage suspicious_photo.jpg > hidden_thumb.jpg
+
+# Check for GPS spoofing indicators
+exiftool -GPS* -c "%.8f" suspicious_photo.jpg</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Document Authenticity Verification</h3>
+                    <pre><code># Extract document creation history
+exiftool -CreateDate -ModifyDate -Creator -Producer document.pdf
+
+# Check for multiple authors/editors
+exiftool -Author -Creator -LastModifiedBy document.docx
+
+# Verify software consistency
+exiftool -Software -Application -Producer document.pdf
+
+# Extract revision history
+exiftool -RevisionNumber -TotalEditTime document.docx</code></pre>
+                </div>
+            </section>
+
+            <section id="privacy-protection">
+                <h2>Privacy Protection</h2>
+                <div class="command-block">
+                    <h3>Metadata Sanitization</h3>
+                    <pre><code>#!/bin/bash
+# Privacy protection script
+
+DIRECTORY="$1"
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <directory_to_sanitize>"
+    exit 1
+fi
+
+echo "Sanitizing metadata in $DIRECTORY"
+
+# Create backup
+cp -r "$DIRECTORY" "${DIRECTORY}_backup"
+
+# Remove all metadata while preserving image quality
+find "$DIRECTORY" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.tiff" \) -exec exiftool -all= -tagsfromfile @ -colorspace -orientation {} \;
+
+# Remove backup files created by exiftool
+find "$DIRECTORY" -name "*_original" -delete
+
+echo "Metadata sanitization completed"
+echo "Backup created at ${DIRECTORY}_backup"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Selective Metadata Removal</h3>
+                    <pre><code># Remove only privacy-sensitive metadata
+exiftool -GPS:all= -EXIF:Artist= -EXIF:Copyright= -XMP:Creator= image.jpg
+
+# Remove location data but keep camera settings
+exiftool -GPS:all= -Location:all= image.jpg
+
+# Remove personal information from documents
+exiftool -Author= -Creator= -Producer= -Subject= document.pdf</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># File permission issues
+chmod +r file.jpg
+sudo exiftool file.jpg
+
+# Corrupted metadata
+exiftool -a -u -g1 corrupted_file.jpg
+
+# Large file processing
+exiftool -fast file.jpg  # Skip some metadata for speed
+
+# Character encoding issues
+exiftool -charset utf8 file.jpg
+exiftool -L file.jpg  # Use system locale</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <pre><code># Speed up batch processing
+exiftool -fast -r /large/directory/
+
+# Process specific file types only
+exiftool -ext jpg -ext png -r /directory/
+
+# Limit metadata extraction
+exiftool -common /directory/
+
+# Parallel processing
+find /directory -name "*.jpg" | xargs -n 10 -P 4 exiftool</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Evidence authentication and verification</li>
+                        <li>Timeline reconstruction from metadata</li>
+                        <li>Location tracking from GPS data</li>
+                        <li>Device identification and fingerprinting</li>
+                        <li>Hidden data extraction</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Privacy Analysis</h3>
+                    <ul>
+                        <li>Personal information leakage detection</li>
+                        <li>Metadata sanitization before sharing</li>
+                        <li>Privacy compliance auditing</li>
+                        <li>Data minimization verification</li>
+                        <li>Third-party data exposure assessment</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Research</h3>
+                    <ul>
+                        <li>Malware analysis and attribution</li>
+                        <li>Document authenticity verification</li>
+                        <li>Software fingerprinting</li>
+                        <li>Steganography detection</li>
+                        <li>Data provenance tracking</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Always backup originals:</strong> Use -o option or manual backup before modifications</li>
+                    <li><strong>Use appropriate output formats:</strong> CSV for analysis, JSON for automation</li>
+                    <li><strong>Verify metadata integrity:</strong> Cross-reference multiple metadata sources</li>
+                    <li><strong>Document your process:</strong> Keep detailed logs of extraction and analysis</li>
+                    <li><strong>Understand file formats:</strong> Different formats store metadata differently</li>
+                    <li><strong>Check for hidden data:</strong> Use -a and -u flags to find all metadata</li>
+                    <li><strong>Validate timestamps:</strong> Compare creation, modification, and file system dates</li>
+                    <li><strong>Consider privacy implications:</strong> Handle personal data responsibly</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> ExifTool should only be used for:</p>
+                    <ul>
+                        <li>Analyzing metadata from your own files</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Privacy protection and data sanitization</li>
+                        <li>Security research with appropriate permissions</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized metadata extraction or analysis may violate privacy laws, computer crime statutes, and other regulations. Always ensure you have proper authorization before analyzing files that don't belong to you. Metadata may contain sensitive personal information that must be handled according to applicable privacy laws and data protection requirements. Respect intellectual property rights and comply with applicable laws and organizational policies when using ExifTool for forensic or security purposes.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

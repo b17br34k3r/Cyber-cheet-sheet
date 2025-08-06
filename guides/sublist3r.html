@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sublist3r Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Sublist3r: Fast Subdomain Enumeration Tool</h1>
+            <p>Master Subdomain Discovery and Reconnaissance</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Sublist3r?</h2>
+                <p>Sublist3r is a fast subdomain enumeration tool for penetration testers. It enumerates subdomains using many search engines such as Google, Yahoo, Bing, Baidu, and Ask. Sublist3r also enumerates subdomains using Netcraft, Virustotal, ThreatCrowd, DNSdumpster, and ReverseDNS. The tool helps security professionals and bug bounty hunters discover subdomains that could potentially be vulnerable or expose additional attack surfaces. It's written in Python and designed to be fast, efficient, and easy to use.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Clone from GitHub
+git clone https://github.com/aboul3la/Sublist3r.git
+cd Sublist3r
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Alternative: Install via pip
+pip install sublist3r
+
+# Verify installation
+python sublist3r.py -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew (if available)
+brew install sublist3r
+
+# Manual installation
+git clone https://github.com/aboul3la/Sublist3r.git
+cd Sublist3r
+pip3 install -r requirements.txt
+
+# Verify installation
+python3 sublist3r.py -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Install Python first from python.org
+# Download and install Git for Windows
+
+# Clone repository
+git clone https://github.com/aboul3la/Sublist3r.git
+cd Sublist3r
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run tool
+python sublist3r.py -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Build Docker image
+docker build -t sublist3r .
+
+# Run with Docker
+docker run --rm sublist3r -d example.com
+
+# Run with output directory
+docker run --rm -v $(pwd):/output sublist3r -d example.com -o /output/subdomains.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Simple Subdomain Enumeration</h3>
+                    <pre><code># Basic subdomain enumeration
+python sublist3r.py -d example.com
+
+# Save results to file
+python sublist3r.py -d example.com -o subdomains.txt
+
+# Verbose output
+python sublist3r.py -d example.com -v
+
+# Enable brute force
+python sublist3r.py -d example.com -b</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Multiple Domains</h3>
+                    <pre><code># Enumerate multiple domains
+python sublist3r.py -d example.com,test.com,demo.com
+
+# From file
+echo -e "example.com\ntest.com\ndemo.com" > domains.txt
+python sublist3r.py -d $(cat domains.txt | tr '\n' ',')
+
+# Batch processing script
+#!/bin/bash
+while read domain; do
+    python sublist3r.py -d "$domain" -o "${domain}_subdomains.txt"
+done < domains.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Search Engine Selection</h3>
+                    <pre><code># Use specific search engines
+python sublist3r.py -d example.com -e google,yahoo,bing
+
+# Exclude specific engines
+python sublist3r.py -d example.com -e google,virustotal,dnsdumpster
+
+# Available engines:
+# google, yahoo, bing, baidu, ask, netcraft, virustotal, 
+# threatcrowd, dnsdumpster, reversedns</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Options</h2>
+                <div class="command-block">
+                    <h3>Brute Force Options</h3>
+                    <pre><code># Enable brute force with default wordlist
+python sublist3r.py -d example.com -b
+
+# Custom brute force wordlist
+python sublist3r.py -d example.com -b -w custom_wordlist.txt
+
+# Brute force with threads
+python sublist3r.py -d example.com -b -t 30
+
+# Combine passive and brute force
+python sublist3r.py -d example.com -b -v -o complete_results.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Tuning</h3>
+                    <pre><code># Increase threads for faster enumeration
+python sublist3r.py -d example.com -t 50
+
+# Set timeout for requests
+python sublist3r.py -d example.com --timeout 10
+
+# Limit results per engine
+python sublist3r.py -d example.com --limit 100
+
+# Disable SSL verification
+python sublist3r.py -d example.com --no-ssl</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Formatting</h3>
+                    <pre><code># JSON output format
+python sublist3r.py -d example.com --json -o results.json
+
+# CSV output format
+python sublist3r.py -d example.com --csv -o results.csv
+
+# Plain text with timestamps
+python sublist3r.py -d example.com -v -o results.txt
+
+# Unique results only
+python sublist3r.py -d example.com -o results.txt
+sort -u results.txt > unique_subdomains.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="wordlists">
+                <h2>Wordlists and Dictionaries</h2>
+                <div class="command-block">
+                    <h3>Default Wordlists</h3>
+                    <pre><code># Default wordlist location
+# sublist3r/subbrute/names.txt
+
+# Common subdomain wordlists
+wget https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/DNS/subdomains-top1million-5000.txt
+wget https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/DNS/fierce-hostlist.txt
+wget https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/DNS/dns-Jhaddix.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Wordlist Creation</h3>
+                    <pre><code># Create custom wordlist
+echo -e "www\nmail\nftp\nadmin\napi\ndev\ntest\nstaging" > custom.txt
+
+# Combine multiple wordlists
+cat wordlist1.txt wordlist2.txt | sort -u > combined.txt
+
+# Generate wordlist from target
+# Use tools like cewl to create target-specific wordlists
+cewl http://example.com -w target_wordlist.txt
+
+# Filter wordlist by length
+awk 'length($0) >= 3 && length($0) <= 15' wordlist.txt > filtered.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Nmap Integration</h3>
+                    <pre><code># Enumerate subdomains then scan with Nmap
+python sublist3r.py -d example.com -o subdomains.txt
+nmap -iL subdomains.txt -p 80,443,8080,8443 --open -oN nmap_results.txt
+
+# Port scan discovered subdomains
+while read subdomain; do
+    nmap -p- --min-rate 1000 "$subdomain" -oN "${subdomain}_scan.txt"
+done < subdomains.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Gobuster Integration</h3>
+                    <pre><code># Use Sublist3r results with Gobuster
+python sublist3r.py -d example.com -o subdomains.txt
+while read subdomain; do
+    gobuster dir -u "http://$subdomain" -w /usr/share/wordlists/dirb/common.txt
+done < subdomains.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Amass Integration</h3>
+                    <pre><code># Combine Sublist3r with Amass for comprehensive enumeration
+python sublist3r.py -d example.com -o sublist3r_results.txt
+amass enum -d example.com -o amass_results.txt
+
+# Merge and deduplicate results
+cat sublist3r_results.txt amass_results.txt | sort -u > all_subdomains.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Processing</h3>
+                    <pre><code># Multi-domain enumeration script
+#!/bin/bash
+domains=("example.com" "test.com" "demo.com")
+output_dir="subdomain_results"
+mkdir -p "$output_dir"
+
+for domain in "${domains[@]}"; do
+    echo "Enumerating subdomains for $domain"
+    python sublist3r.py -d "$domain" -b -v -o "$output_dir/${domain}_subdomains.txt"
+    sleep 5
+done
+
+# Combine all results
+cat "$output_dir"/*_subdomains.txt | sort -u > "$output_dir/all_subdomains.txt"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Python script for processing results
+import re
+import requests
+
+def validate_subdomains(filename):
+    with open(filename, 'r') as f:
+        subdomains = f.read().splitlines()
+    
+    valid_subdomains = []
+    for subdomain in subdomains:
+        try:
+            response = requests.get(f"http://{subdomain}", timeout=5)
+            if response.status_code == 200:
+                valid_subdomains.append(subdomain)
+                print(f"Valid: {subdomain}")
+        except:
+            pass
+    
+    return valid_subdomains
+
+# Usage
+valid = validate_subdomains('subdomains.txt')
+with open('valid_subdomains.txt', 'w') as f:
+    for subdomain in valid:
+        f.write(f"{subdomain}\n")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Continuous Monitoring</h3>
+                    <pre><code># Continuous subdomain monitoring script
+#!/bin/bash
+domain="example.com"
+baseline="baseline_subdomains.txt"
+current="current_subdomains.txt"
+
+# Initial baseline
+if [ ! -f "$baseline" ]; then
+    python sublist3r.py -d "$domain" -b -o "$baseline"
+fi
+
+while true; do
+    echo "Checking for new subdomains..."
+    python sublist3r.py -d "$domain" -b -o "$current"
+    
+    # Find new subdomains
+    new_subdomains=$(comm -13 <(sort "$baseline") <(sort "$current"))
+    
+    if [ ! -z "$new_subdomains" ]; then
+        echo "New subdomains found:"
+        echo "$new_subdomains"
+        # Send alert or notification
+        echo "$new_subdomains" | mail -s "New subdomains for $domain" admin@example.com
+        
+        # Update baseline
+        cp "$current" "$baseline"
+    fi
+    
+    sleep 3600  # Check every hour
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="api-integration">
+                <h2>API Integration</h2>
+                <div class="command-block">
+                    <h3>VirusTotal API</h3>
+                    <pre><code># Configure VirusTotal API key
+export VT_API_KEY="your_virustotal_api_key"
+
+# Use API for enhanced results
+python sublist3r.py -d example.com -e virustotal -v
+
+# Custom script with VirusTotal API
+import requests
+import json
+
+def get_subdomains_vt(domain, api_key):
+    url = f"https://www.virustotal.com/vtapi/v2/domain/report"
+    params = {'apikey': api_key, 'domain': domain}
+    response = requests.get(url, params=params)
+    
+    if response.status_code == 200:
+        data = response.json()
+        if 'subdomains' in data:
+            return data['subdomains']
+    return []</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Certificate Transparency</h3>
+                    <pre><code># Query Certificate Transparency logs
+import requests
+import json
+
+def get_ct_subdomains(domain):
+    url = f"https://crt.sh/?q=%.{domain}&output=json"
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        certificates = response.json()
+        subdomains = set()
+        
+        for cert in certificates:
+            name = cert.get('name_value', '')
+            if name:
+                subdomains.update(name.split('\n'))
+        
+        return list(subdomains)
+    return []</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Debug mode
+python sublist3r.py -d example.com -v
+
+# Check dependencies
+pip list | grep -E "requests|dnspython|argparse"
+
+# Test connectivity
+curl -I https://google.com
+
+# Check DNS resolution
+nslookup example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Rate Limiting Issues</h3>
+                    <pre><code># Reduce threads to avoid rate limiting
+python sublist3r.py -d example.com -t 10
+
+# Add delays between requests
+# Modify source code to add time.sleep() if needed
+
+# Use different search engines
+python sublist3r.py -d example.com -e netcraft,dnsdumpster
+
+# Rotate IP addresses or use proxies if available</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Monitor system resources
+top -p $(pgrep python)
+
+# Reduce memory usage
+python sublist3r.py -d example.com --limit 50
+
+# Check network latency
+ping google.com
+
+# Use local DNS resolver
+echo "nameserver 8.8.8.8" > /etc/resolv.conf</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Bug Bounty Hunting</h3>
+                    <ul>
+                        <li>Discovering hidden subdomains for expanded attack surface</li>
+                        <li>Finding development and staging environments</li>
+                        <li>Identifying forgotten or misconfigured subdomains</li>
+                        <li>Locating admin panels and internal applications</li>
+                        <li>Mapping organization's web presence</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Penetration Testing</h3>
+                    <ul>
+                        <li>Reconnaissance and information gathering</li>
+                        <li>Attack surface enumeration</li>
+                        <li>Identifying potential entry points</li>
+                        <li>Mapping network infrastructure</li>
+                        <li>Finding vulnerable services and applications</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Combine multiple tools:</strong> Use Sublist3r with Amass, Gobuster, and others</li>
+                    <li><strong>Use custom wordlists:</strong> Create target-specific wordlists for better results</li>
+                    <li><strong>Enable brute force:</strong> Combine passive and active enumeration techniques</li>
+                    <li><strong>Validate results:</strong> Check if discovered subdomains are actually accessible</li>
+                    <li><strong>Monitor continuously:</strong> Set up automated monitoring for new subdomains</li>
+                    <li><strong>Respect rate limits:</strong> Avoid overwhelming target servers or APIs</li>
+                    <li><strong>Use multiple search engines:</strong> Different engines may return different results</li>
+                    <li><strong>Save and organize results:</strong> Maintain organized records of discoveries</li>
+                    <li><strong>Follow up discoveries:</strong> Investigate interesting subdomains further</li>
+                    <li><strong>Stay updated:</strong> Keep Sublist3r and dependencies current</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Sublist3r should only be used for:</p>
+                    <ul>
+                        <li>Testing domains you own or have explicit permission to test</li>
+                        <li>Authorized penetration testing with proper legal agreements</li>
+                        <li>Bug bounty programs with defined scope and rules</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Security research with appropriate institutional approval</li>
+                    </ul>
+                    <p>Unauthorized subdomain enumeration may violate computer crime laws, terms of service, and other regulations. Reconnaissance activities should only be performed by qualified professionals with proper authorization and legal agreements. Sublist3r queries multiple search engines and services, which may have their own terms of service and rate limiting policies. Always ensure you have explicit written permission before enumerating subdomains of any domain you do not own. Some enumeration techniques may trigger security monitoring or alerting systems. Maintain proper documentation of testing activities and findings. Follow responsible disclosure practices for any vulnerabilities or sensitive information discovered. Be aware that enumeration activities may be logged by target systems and third-party services. Respect the terms of service of search engines and other data sources used by the tool. Consider the privacy implications of subdomain enumeration and handle any discovered information appropriately.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

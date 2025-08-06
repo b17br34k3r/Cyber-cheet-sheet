@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xplico Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Xplico: Open Source Network Forensic Analysis Tool</h1>
+            <p>Reconstruct and Extract Application Data from PCAP Files with a Web UI</p>
+            <a href="../index.html" class="back-link">← Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Xplico?</h2>
+                <p>Xplico is an open-source Network Forensic Analysis Tool (NFAT) designed to extract and reconstruct application data from network traffic captures, such as PCAP files or live acquisitions. Unlike traditional protocol analyzers, Xplico focuses on reconstructing data for protocols like HTTP, SIP, IMAP, POP, SMTP, FTP, and VoIP, extracting artifacts such as emails, web content, and VoIP calls. It features a web-based user interface and supports SQLite, MySQL, or PostgreSQL backends, making it suitable for forensic investigators, incident responders, and cybersecurity professionals. Xplico is included in distributions like Kali Linux, DEFT, and Security Onion.</p>[](https://www.xplico.org/)[](https://cybarrior.com/blog/2019/04/21/xplico/)
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Add Xplico repository
+sudo bash -c 'echo "deb http://repo.xplico.org/ $(lsb_release -s -c) main" >> /etc/apt/sources.list'
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 791C25CE
+sudo apt update
+sudo apt install xplico
+
+# Start Xplico service
+sudo service xplico start
+
+# Initialize SQLite database
+sudo /opt/xplico/script/sqlite_demo.sh
+
+# Verify installation
+xplico -v</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS Installation</h3>
+                    <pre><code># Install dependencies
+sudo yum groupinstall "Development Tools"
+sudo yum install tcpdump httpd php php-mysql sqlite sqlite-devel libzip-devel recode sox php-gd php-xml php-mbstring php-ldap php-pear php-xmlrpc mysql-connector-odbc libdbi-dbd-mysql libnet libnet-devel libXext libXext-devel postgresql-devel psmisc python-pip
+pip install psycopg2 httplib2
+
+# Install MySQL
+sudo rpm --ivh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
+sudo yum install mysql-community-server mysql-community-client mysql-community-libs mysql-community-devel
+sudo mysql_secure_installation
+sudo chkconfig mysql on
+
+# Download and compile Xplico
+git clone https://github.com/xplico/xplico.git
+cd xplico
+make DISABLE_GEOIP=1 LOCAL_NDPI=1
+sudo make install
+
+# Configure MySQL database
+cd /opt/xplico/script/db/mysql
+./create_xplico_db.sh root xplico
+cd /opt/xplico/cfg
+mv dema.cfg dema_lite.cfg
+cp dema_my.cfg dema.cfg
+sed -i 's/DISPATCH=disp_lite.so/DISPATCH=disp_mysql.so/' *.cfg
+sed -i 's/DB_TYPE=sqlite/DB_TYPE=mysql/' dema.cfg
+sed -i 's/DB_NAME=xplico/DB_NAME=xplico/' dema.cfg
+sed -i 's/DB_USER=xplico/DB_USER=xplico/' dema.cfg
+sed -i 's/DB_PASSWORD=xplico/DB_PASSWORD=xplico/' dema.cfg
+
+# Start Xplico
+sudo /opt/xplico/script/mysql_demo.sh</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Kali Linux Installation</h3>
+                    <pre><code># Xplico is pre-installed in Kali Linux
+sudo apt update
+sudo apt install xplico
+
+# Start Xplico service
+sudo service xplico start
+
+# Access web interface
+# Open browser: http://localhost:9876
+# Default credentials: xplico/xplico
+
+# Verify installation
+xplico -v</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull unofficial Xplico Docker image
+docker pull kalilinux/xplico
+
+# Run Xplico with web interface
+docker run --rm -it -p 9876:9876 -v /path/to/pcap:/pcap kalilinux/xplico /bin/bash
+
+# Start Xplico service inside container
+service xplico start
+
+# Access web interface
+# Open browser: http://localhost:9876</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Web Interface Usage</h3>
+                    <pre><code># Start Xplico service
+sudo service xplico start
+
+# Access web interface
+# Open browser: http://localhost:9876
+# Login: xplico/xplico
+
+# Create new case
+# New Case -> Enter case name and reference number -> Create
+# New Session -> Select PCAP file -> Upload
+# Wait for decoding to complete (Status: DECODING COMPLETED)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Console Mode PCAP Analysis</h3>
+                    <pre><code># Analyze single PCAP file
+xplico -m pcap -f /path/to/capture.pcap
+
+# Analyze directory of PCAP files
+xplico -m pcap -d /path/to/pcap_directory
+
+# Output stored in /tmp/xplico/xdecode/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Live Network Capture</h3>
+                    <pre><code># Start real-time capture on eth0
+xplico -m rltm -i eth0
+
+# Output stored in /tmp/xplico/xdecode/</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Forensic Techniques</h2>
+                <div class="command-block">
+                    <h3>Data Reconstruction</h3>
+                    <pre><code># Analyze PCAP for HTTP content
+xplico -m pcap -f capture.pcap
+# View results in /tmp/xplico/xdecode/ip/http/
+
+# Web interface: Navigate to Web -> Pages/Files/Images
+# View reconstructed web pages, files, or images</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>VoIP Analysis</h3>
+                    <pre><code># Analyze PCAP for VoIP (SIP, RTP)
+xplico -m pcap -f voip.pcap
+# View results in /tmp/xplico/xdecode/ip/rtp/
+
+# Web interface: Navigate to VoIP -> Calls
+# Play reconstructed audio or view call details</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Email Extraction</h3>
+                    <pre><code># Analyze PCAP for emails (POP, IMAP, SMTP)
+xplico -m pcap -f email.pcap
+# View results in /tmp/xplico/xdecode/ip/pop/ or /smtp/
+
+# Web interface: Navigate to Mail -> Emails
+# View extracted email content</code></pre>
+                </div>
+            </section>
+
+            <section id="filtering">
+                <h2>Data Filtering</h2>
+                <div class="command-block">
+                    <h3>Protocol Filtering</h3>
+                    <pre><code># Filter specific protocols in console mode
+xplico -m pcap -f capture.pcap --module http
+# Only HTTP module loaded, others excluded
+
+# Web interface: Navigate to specific protocol tabs (e.g., Web, Mail, VoIP)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Keyword Search</h3>
+                    <pre><code># Search extracted data (post-processing)
+find /tmp/xplico/xdecode/ -type f | xargs grep -i "password"
+
+# Web interface: Use search bar in Web/Mail tabs for keyword filtering</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>GeoMap Filtering</h3>
+                    <pre><code># Generate GeoMap KML file
+xplico -m pcap -f capture.pcap
+# KML file in /tmp/xplico/xdecode/ip/
+
+# Web interface: Navigate to Graphs -> GeoMap
+# Open KML in Google Earth for geographic visualization</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output and Reporting</h2>
+                <div class="command-block">
+                    <h3>Export Artifacts</h3>
+                    <pre><code># Console mode: Artifacts in /tmp/xplico/xdecode/
+ls /tmp/xplico/xdecode/ip/http/
+
+# Web interface: Export files from Web/Mail/VoIP tabs
+# Click file links to download or view</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Output</h3>
+                    <pre><code># Configure MySQL output
+# Edit /opt/xplico/cfg/dema.cfg for MySQL settings
+# Run Xplico with MySQL
+sudo /opt/xplico/script/mysql_demo.sh
+
+# Query database for results
+mysql -u xplico -p xplico -e "SELECT * FROM http;"</code></pre>
+                </div>
+            </section>
+
+            <section id="tools">
+                <h2>Key Features of Xplico</h2>
+                <div class="command-block">
+                    <h3>Protocol Dissectors</h3>
+                    <pre><code># List available dissectors
+xplico --help
+
+# Load specific dissector
+xplico -m pcap -f capture.pcap --module sip
+
+# Supported protocols: HTTP, SIP, IMAP, POP, SMTP, FTP, etc.</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>GeoMap Visualization</h3>
+                    <pre><code># Generate KML for geographic data
+xplico -m pcap -f capture.pcap
+# Open /tmp/xplico/xdecode/ip/*.kml in Google Earth
+
+# Web interface: Graphs -> GeoMap</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Real-Time Analysis</h3>
+                    <pre><code># Capture and analyze live traffic
+xplico -m rltm -i eth0
+
+# View results in /tmp/xplico/xdecode/</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Bash Automation</h3>
+                    <pre><code>#!/bin/bash
+pcaps=("/pcap/capture1.pcap" "/pcap/capture2.pcap")
+for pcap in "${pcaps[@]}"; do
+    echo "Analyzing $pcap"
+    xplico -m pcap -f "$pcap" -o "$(basename $pcap .pcap)_output"
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Extract specific files
+find /tmp/xplico/xdecode/ -name "*.jpg" > images.txt
+
+# Python script for parsing XML metadata
+import xml.etree.ElementTree as ET
+tree = ET.parse('/tmp/xplico/xdecode/ip/http/info.xml')
+root = tree.getroot()
+for flow in root.findall('flow'):
+    print(flow.find('url').text)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Tools</h3>
+                    <pre><code># Capture with Wireshark
+tshark -i eth0 -w capture.pcap
+
+# Analyze with Xplico
+xplico -m pcap -f capture.pcap
+
+# Chain with tcpdump
+tcpdump -i eth0 -w capture.pcap
+xplico -m pcap -f capture.pcap</code></pre>
+                </div>
+            </section>
+
+            <section id="specialized-techniques">
+                <h2>Specialized Forensic Techniques</h2>
+                <div class="command-block">
+                    <h3>MMS Reconstruction</h3>
+                    <pre><code># Analyze PCAP for MMS over HTTP
+xplico -m pcap -f mms.pcap
+# View results in /tmp/xplico/xdecode/ip/http/
+
+# Web interface: Web -> Images/Videos</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>VoIP Call Reconstruction</h3>
+                    <pre><code># Analyze VoIP PCAP
+xplico -m pcap -f voip.pcap
+# View audio in /tmp/xplico/xdecode/ip/rtp/
+
+# Web interface: VoIP -> Calls -> Play audio</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>FTP File Extraction</h3>
+                    <pre><code># Analyze FTP PCAP
+xplico -m pcap -f ftp.pcap
+# View files in /tmp/xplico/xdecode/ip/ftp/
+
+# Web interface: Navigate to FTP -> Files</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Check PCAP integrity
+md5sum capture.pcap
+
+# Debug Xplico
+xplico -m pcap -f capture.pcap --verbose > debug.log
+
+# Check web interface port
+netstat -tulnp | grep 9876
+
+# Restart Xplico service
+sudo service xplico restart</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Monitor system resources
+top
+
+# Limit CPU usage
+cpulimit -p $(pgrep xplico) -l 50
+
+# Check disk I/O
+iostat -x 1
+
+# Process smaller PCAP chunks
+trigcap -f large.pcap -t 1000 -b 500 -a 500 -o chunk.pcap
+xplico -m pcap -f chunk.pcap</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Forensics</h3>
+                    <ul>
+                        <li>Extract emails from POP/IMAP/SMTP traffic</li>
+                        <li>Reconstruct web pages and files from HTTP</li>
+                        <li>Analyze VoIP calls (SIP, RTP)</li>
+                        <li>Extract FTP/TFTP file transfers</li>
+                        <li>Generate geographic visualizations</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Investigate data exfiltration</li>
+                        <li>Analyze malware C2 traffic</li>
+                        <li>Track unauthorized network activity</li>
+                        <li>Reconstruct user sessions</li>
+                        <li>Generate forensic reports</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use sandbox environments:</strong> Analyze PCAPs in isolated environments to avoid executing malicious content</li>
+                    <li><strong>Capture with Wireshark/tcpdump:</strong> Generate clean PCAPs for Xplico analysis</li>
+                    <li><strong>Enable GeoMap:</strong> Use KML output for geographic visualization</li>
+                    <li><strong>Filter protocols:</strong> Load only necessary dissectors to improve performance</li>
+                    <li><strong>Backup PCAPs:</strong> Preserve original files before analysis</li>
+                    <li><strong>Use MySQL for large cases:</strong> SQLite may be slow for large datasets</li>
+                    <li><strong>Monitor resources:</strong> Large PCAPs require significant RAM and CPU</li>
+                    <li><strong>Check for updates:</strong> Xplico is under active development, report bugs to bug@xplico.org</li>
+                    <li><strong>Combine tools:</strong> Use with Wireshark or NetworkMiner for comprehensive analysis</li>
+                    <li><strong>Document findings:</strong> Save logs, XML metadata, and exported files for reporting</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Xplico should only be used for:</p>
+                    <ul>
+                        <li>Analyzing network traffic from systems you own or have explicit permission to monitor</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Educational purposes in controlled environments</li>
+                        <li>Security research with institutional approval</li>
+                        <li>Incident response with documented consent</li>
+                    </ul>
+                    <p>Unauthorized use of Xplico to capture or analyze network traffic without permission may violate privacy laws, computer crime laws, or other regulations. Network forensic analysis should only be performed by qualified professionals with proper authorization. Always ensure data integrity and chain of custody during investigations. Improper handling of extracted artifacts, especially malicious files, can lead to system infection or data loss. Maintain detailed documentation of all analysis activities. Follow responsible disclosure practices for any vulnerabilities or incidents discovered. Be aware that network monitoring may be logged or detected by target systems. Respect data privacy and confidentiality requirements. Ensure compliance with all relevant laws and regulations during forensic activities.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

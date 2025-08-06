@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPTraf-NG Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>IPTraf-NG: IP Network Monitoring Utility</h1>
+            <p>Master Comprehensive Network Traffic Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is IPTraf-NG?</h2>
+                <p>IPTraf-NG is a console-based network monitoring utility for Linux that displays information about IP traffic. It returns such information as TCP connection packet and byte counts, interface statistics and activity indicators, TCP/UDP traffic breakdowns, and LAN station packet and byte counts. IPTraf-NG is the next generation of the original IPTraf program, featuring improved performance, additional protocols support, and enhanced functionality for modern network analysis.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install IPTraf-NG
+sudo apt update
+sudo apt install iptraf-ng
+
+# Install dependencies
+sudo apt install libncurses5-dev</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+
+# Install IPTraf-NG
+sudo yum install iptraf-ng
+
+# Or on newer versions
+sudo dnf install iptraf-ng</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Arch Linux Installation</h3>
+                    <pre><code># Install IPTraf-NG
+sudo pacman -S iptraf-ng</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Clone repository
+git clone https://github.com/iptraf-ng/iptraf-ng.git
+cd iptraf-ng
+
+# Install build dependencies
+sudo apt install build-essential libncurses5-dev
+
+# Compile and install
+make
+sudo make install</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Starting IPTraf-NG</h3>
+                    <pre><code># Start interactive menu (requires root)
+sudo iptraf-ng
+
+# Direct monitoring modes
+sudo iptraf-ng -i eth0          # Monitor specific interface
+sudo iptraf-ng -g               # General interface statistics
+sudo iptraf-ng -d               # Detailed interface statistics
+sudo iptraf-ng -s               # Statistical breakdowns
+sudo iptraf-ng -z               # Packet size breakdowns</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Interface monitoring
+-i interface    # Monitor specific interface
+-g              # General interface statistics
+-d              # Detailed interface statistics
+
+# Traffic analysis
+-s              # Statistical breakdowns
+-z              # Packet size breakdowns
+-l              # LAN station monitor
+
+# Output options
+-t timeout      # Run for specified time (minutes)
+-B              # Run in background (batch mode)
+-f              # Clear all locks and counters
+-L logfile      # Specify log file
+
+# Example usage
+sudo iptraf-ng -i eth0 -t 10    # Monitor eth0 for 10 minutes
+sudo iptraf-ng -g -B            # Background general statistics</code></pre>
+                </div>
+            </section>
+
+            <section id="monitoring-modes">
+                <h2>Monitoring Modes</h2>
+                <div class="command-block">
+                    <h3>IP Traffic Monitor</h3>
+                    <pre><code># Start IP traffic monitor
+sudo iptraf-ng -i eth0
+
+# Features:
+# - Real-time TCP/UDP connections
+# - Source and destination addresses
+# - Packet and byte counts
+# - Connection status and flags
+# - Protocol identification</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>General Interface Statistics</h3>
+                    <pre><code># General interface statistics
+sudo iptraf-ng -g
+
+# Shows:
+# - Total packets and bytes
+# - IP packets breakdown
+# - Non-IP packets
+# - Broadcast packets
+# - Interface activity indicators</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Detailed Interface Statistics</h3>
+                    <pre><code># Detailed interface statistics
+sudo iptraf-ng -d
+
+# Provides:
+# - Incoming/outgoing packet rates
+# - Packet size distribution
+# - Protocol breakdown
+# - Error statistics
+# - Interface utilization</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Statistical Breakdowns</h3>
+                    <pre><code># Statistical breakdowns
+sudo iptraf-ng -s
+
+# Includes:
+# - TCP/UDP service statistics
+# - Protocol distribution
+# - Port usage statistics
+# - Traffic by protocol type</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>LAN Station Monitor</h3>
+                    <pre><code># LAN station monitor
+sudo iptraf-ng -l
+
+# Monitors:
+# - Individual host statistics
+# - MAC address information
+# - Host-to-host communication
+# - Local network activity</code></pre>
+                </div>
+            </section>
+
+            <section id="interactive-interface">
+                <h2>Interactive Interface</h2>
+                <div class="command-block">
+                    <h3>Main Menu Navigation</h3>
+                    <pre><code># Main menu options:
+# 1. IP traffic monitor
+# 2. General interface statistics
+# 3. Detailed interface statistics
+# 4. Statistical breakdowns
+# 5. LAN station monitor
+# 6. Filters
+# 7. Configure
+# 8. Exit
+
+# Navigation keys:
+# Up/Down arrows: Navigate menu
+# Enter: Select option
+# Esc: Go back/exit
+# Tab: Switch between windows</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Traffic Monitor Controls</h3>
+                    <pre><code># In traffic monitor mode:
+# s: Sort entries
+# r: Reverse sort order
+# f: Apply filters
+# l: Toggle logging
+# p: Pause/unpause display
+# q: Quit current monitor
+# Ctrl+L: Refresh screen</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Display Options</h3>
+                    <pre><code># Display controls:
+# +/-: Adjust update interval
+# Space: Pause/resume updates
+# Enter: View detailed information
+# F: Toggle full-screen mode
+# H: Toggle help display</code></pre>
+                </div>
+            </section>
+
+            <section id="filtering-configuration">
+                <h2>Filtering & Configuration</h2>
+                <div class="command-block">
+                    <h3>Traffic Filters</h3>
+                    <pre><code># Configure filters from main menu
+# Select "Filters" option
+
+# Filter types:
+# - IP address filters
+# - TCP/UDP port filters
+# - Protocol filters
+# - Packet size filters
+
+# Example filter configurations:
+# Include only HTTP traffic: TCP port 80
+# Exclude local traffic: !192.168.0.0/16
+# Monitor specific host: 192.168.1.100</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Configuration Options</h3>
+                    <pre><code># Access configuration from main menu
+# Select "Configure" option
+
+# Configuration categories:
+# - Timers and intervals
+# - Display options
+# - Logging settings
+# - Interface settings
+# - Color schemes</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Logging Configuration</h3>
+                    <pre><code># Enable logging in configuration
+# Log files typically stored in /var/log/iptraf-ng/
+
+# Log file types:
+# - Traffic logs
+# - Interface statistics logs
+# - Protocol breakdown logs
+# - Error logs
+
+# Log rotation and management
+sudo logrotate /etc/logrotate.d/iptraf-ng</code></pre>
+                </div>
+            </section>
+
+            <section id="batch-mode">
+                <h2>Batch Mode Operation</h2>
+                <div class="command-block">
+                    <h3>Background Monitoring</h3>
+                    <pre><code># Run in background mode
+sudo iptraf-ng -i eth0 -B -t 60 -L /var/log/iptraf-ng/traffic.log
+
+# Background general statistics
+sudo iptraf-ng -g -B -t 30 -L /var/log/iptraf-ng/stats.log
+
+# Background detailed statistics
+sudo iptraf-ng -d -B -t 120 -L /var/log/iptraf-ng/detailed.log</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Automated Monitoring Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated IPTraf-NG monitoring script
+
+INTERFACE="eth0"
+LOG_DIR="/var/log/iptraf-ng"
+DURATION=60  # minutes
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+# Create log directory
+sudo mkdir -p $LOG_DIR
+
+# Function to start monitoring
+start_monitoring() {
+    local mode="$1"
+    local logfile="$2"
+    
+    echo "Starting IPTraf-NG monitoring: $mode"
+    echo "Log file: $logfile"
+    echo "Duration: ${DURATION} minutes"
+    
+    case $mode in
+        "traffic")
+            sudo iptraf-ng -i $INTERFACE -B -t $DURATION -L $logfile
+            ;;
+        "general")
+            sudo iptraf-ng -g -B -t $DURATION -L $logfile
+            ;;
+        "detailed")
+            sudo iptraf-ng -d -B -t $DURATION -L $logfile
+            ;;
+        "stats")
+            sudo iptraf-ng -s -B -t $DURATION -L $logfile
+            ;;
+    esac
+}
+
+# Start different monitoring modes
+start_monitoring "traffic" "$LOG_DIR/traffic_$TIMESTAMP.log" &
+start_monitoring "general" "$LOG_DIR/general_$TIMESTAMP.log" &
+start_monitoring "detailed" "$LOG_DIR/detailed_$TIMESTAMP.log" &
+
+# Wait for all background processes
+wait
+
+echo "All monitoring completed"</code></pre>
+                </div>
+            </section>
+
+            <section id="log-analysis">
+                <h2>Log Analysis</h2>
+                <div class="command-block">
+                    <h3>Traffic Log Analysis</h3>
+                    <pre><code># Analyze traffic logs
+grep "TCP" /var/log/iptraf-ng/traffic.log | head -20
+grep "UDP" /var/log/iptraf-ng/traffic.log | head -20
+
+# Extract connection statistics
+awk '/TCP/ {print $3, $4, $5}' /var/log/iptraf-ng/traffic.log | sort | uniq -c
+
+# Find top talkers
+awk '{print $3}' /var/log/iptraf-ng/traffic.log | sort | uniq -c | sort -nr | head -10</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Statistical Analysis Script</h3>
+                    <pre><code>#!/bin/bash
+# IPTraf-NG log analysis script
+
+LOG_FILE="$1"
+REPORT_FILE="/tmp/iptraf_analysis_$(date +%Y%m%d_%H%M%S).txt"
+
+if [ ! -f "$LOG_FILE" ]; then
+    echo "Usage: $0 <log_file>"
+    exit 1
+fi
+
+echo "IPTraf-NG Log Analysis Report" > $REPORT_FILE
+echo "Generated: $(date)" >> $REPORT_FILE
+echo "Log file: $LOG_FILE" >> $REPORT_FILE
+echo "=================================" >> $REPORT_FILE
+
+# Protocol breakdown
+echo "Protocol Breakdown:" >> $REPORT_FILE
+grep -E "(TCP|UDP|ICMP)" $LOG_FILE | \
+awk '{print $2}' | sort | uniq -c | sort -nr >> $REPORT_FILE
+
+# Top source IPs
+echo -e "\nTop Source IPs:" >> $REPORT_FILE
+awk '{print $3}' $LOG_FILE | grep -E "^[0-9]+\." | \
+sort | uniq -c | sort -nr | head -10 >> $REPORT_FILE
+
+# Top destination IPs
+echo -e "\nTop Destination IPs:" >> $REPORT_FILE
+awk '{print $4}' $LOG_FILE | grep -E "^[0-9]+\." | \
+sort | uniq -c | sort -nr | head -10 >> $REPORT_FILE
+
+# Port analysis
+echo -e "\nTop Destination Ports:" >> $REPORT_FILE
+grep -E "(TCP|UDP)" $LOG_FILE | \
+awk -F':' '{print $NF}' | sort | uniq -c | sort -nr | head -10 >> $REPORT_FILE
+
+echo "Analysis completed: $REPORT_FILE"</code></pre>
+                </div>
+            </section>
+
+            <section id="monitoring-scenarios">
+                <h2>Monitoring Scenarios</h2>
+                <div class="command-block">
+                    <h3>Network Troubleshooting</h3>
+                    <pre><code># Monitor specific interface for issues
+sudo iptraf-ng -i eth0
+
+# Check for connection problems
+sudo iptraf-ng -i eth0 -t 10 -L /tmp/troubleshoot.log
+
+# Analyze protocol distribution
+sudo iptraf-ng -s -t 5</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <pre><code># Monitor for suspicious connections
+sudo iptraf-ng -i eth0 -L /var/log/security_monitor.log
+
+# Check for port scanning
+sudo iptraf-ng -s -t 30
+
+# Monitor LAN for unusual activity
+sudo iptraf-ng -l -t 60</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Analysis</h3>
+                    <pre><code># Monitor interface utilization
+sudo iptraf-ng -d -t 30
+
+# Check for bandwidth usage patterns
+sudo iptraf-ng -g -B -t 120
+
+# Analyze packet size distribution
+sudo iptraf-ng -z -t 15</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Log Analysis Integration</h3>
+                    <pre><code># Combine with other log analysis tools
+# Parse IPTraf-NG logs with awk/sed
+awk '/TCP/ {print $1, $2, $3, $4}' /var/log/iptraf-ng/traffic.log
+
+# Integration with ELK stack
+cat /var/log/iptraf-ng/traffic.log | \
+while read line; do
+    echo "{\"timestamp\":\"$(date -Iseconds)\",\"data\":\"$line\"}" | \
+    curl -X POST "localhost:9200/iptraf/_doc" -H "Content-Type: application/json" -d @-
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Monitoring System Integration</h3>
+                    <pre><code># Nagios check script
+#!/bin/bash
+# Check for high connection count
+
+INTERFACE="$1"
+THRESHOLD="$2"
+LOG_FILE="/tmp/iptraf_check.log"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <interface> <threshold>"
+    exit 3
+fi
+
+# Run IPTraf-NG for 1 minute
+sudo iptraf-ng -i $INTERFACE -B -t 1 -L $LOG_FILE
+
+# Count connections
+connection_count=$(grep -c "TCP\|UDP" $LOG_FILE)
+
+if [ $connection_count -gt $THRESHOLD ]; then
+    echo "CRITICAL - High connection count: $connection_count | connections=$connection_count;$THRESHOLD"
+    exit 2
+else
+    echo "OK - Connection count: $connection_count | connections=$connection_count;$THRESHOLD"
+    exit 0
+fi</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Permission denied
+sudo iptraf-ng             # Run with root privileges
+
+# Interface not found
+ip link show               # List available interfaces
+sudo iptraf-ng -i any      # Monitor all interfaces
+
+# Display issues
+export TERM=xterm-256color
+resize</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Lock File Issues</h3>
+                    <pre><code># Clear locks and counters
+sudo iptraf-ng -f
+
+# Remove lock files manually
+sudo rm -f /var/lock/iptraf-ng/*
+sudo rm -f /tmp/.iptraf-ng*
+
+# Check for running instances
+ps aux | grep iptraf-ng</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log File Issues</h3>
+                    <pre><code># Check log directory permissions
+ls -la /var/log/iptraf-ng/
+sudo chown -R root:root /var/log/iptraf-ng/
+sudo chmod -R 755 /var/log/iptraf-ng/
+
+# Disk space issues
+df -h /var/log/
+sudo logrotate -f /etc/logrotate.d/iptraf-ng</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Administration</h3>
+                    <ul>
+                        <li>Real-time traffic monitoring</li>
+                        <li>Interface utilization analysis</li>
+                        <li>Protocol distribution analysis</li>
+                        <li>Connection tracking and analysis</li>
+                        <li>Network performance troubleshooting</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <ul>
+                        <li>Suspicious connection detection</li>
+                        <li>Port scanning identification</li>
+                        <li>Unusual traffic pattern analysis</li>
+                        <li>Network intrusion detection</li>
+                        <li>Baseline establishment for anomaly detection</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Analysis</h3>
+                    <ul>
+                        <li>Bandwidth utilization monitoring</li>
+                        <li>Application performance analysis</li>
+                        <li>Network capacity planning</li>
+                        <li>Quality of Service (QoS) monitoring</li>
+                        <li>Service level agreement (SLA) verification</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use batch mode:</strong> For automated monitoring and logging</li>
+                    <li><strong>Configure filters:</strong> Focus on relevant traffic for analysis</li>
+                    <li><strong>Regular log rotation:</strong> Prevent log files from consuming too much space</li>
+                    <li><strong>Monitor multiple modes:</strong> Use different monitoring modes for comprehensive analysis</li>
+                    <li><strong>Combine with other tools:</strong> Use alongside tcpdump, wireshark for detailed analysis</li>
+                    <li><strong>Set appropriate timeouts:</strong> Balance between data collection and system resources</li>
+                    <li><strong>Document configurations:</strong> Keep track of filter and configuration settings</li>
+                    <li><strong>Regular analysis:</strong> Analyze logs regularly to identify trends and issues</li>
+                </ul>
+            </section>
+
+            <section id="alternatives">
+                <h2>Alternatives & Similar Tools</h2>
+                <div class="command-block">
+                    <h3>Similar Tools</h3>
+                    <ul>
+                        <li><strong>iftop:</strong> Real-time connection monitoring</li>
+                        <li><strong>nethogs:</strong> Per-process network monitoring</li>
+                        <li><strong>nload:</strong> Interface bandwidth monitoring</li>
+                        <li><strong>bmon:</strong> Flexible bandwidth monitoring</li>
+                        <li><strong>vnstat:</strong> Historical network statistics</li>
+                        <li><strong>ntopng:</strong> Web-based network monitoring</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use IPTraf-NG</h3>
+                    <ul>
+                        <li>Need comprehensive IP traffic analysis</li>
+                        <li>Want multiple monitoring modes in one tool</li>
+                        <li>Require detailed protocol breakdowns</li>
+                        <li>Need both interactive and batch modes</li>
+                        <li>Want LAN station monitoring capabilities</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> IPTraf-NG should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own networks and systems</li>
+                        <li>Authorized network administration and troubleshooting</li>
+                        <li>Security monitoring with proper authorization</li>
+                        <li>Performance analysis of owned infrastructure</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized network monitoring may violate privacy laws, computer crime statutes, and organizational policies. Network traffic monitoring can reveal sensitive information about users and their activities. Always obtain proper authorization before monitoring network traffic, ensure compliance with applicable laws and regulations, and implement appropriate data protection measures. Be aware that packet capture and traffic analysis may be restricted or logged by network security systems.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

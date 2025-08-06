@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nikto Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Nikto: Web Server Scanner</h1>
+            <p>Master Web Server Vulnerability Assessment and Security Testing</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Nikto?</h2>
+                <p>Nikto is an Open Source web server scanner which performs comprehensive tests against web servers for multiple items, including over 6700 potentially dangerous files/programs, checks for outdated versions of over 1250 servers, and version specific problems on over 270 servers. It also checks for server configuration items such as the presence of multiple index files, HTTP server options, and will attempt to identify installed web servers and software. Nikto is built on LibWhisker2 and can run on any platform which has a Perl environment.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install nikto
+
+# CentOS/RHEL/Fedora
+sudo yum install nikto
+# or
+sudo dnf install nikto
+
+# From source
+git clone https://github.com/sullo/nikto
+cd nikto/program
+chmod +x nikto.pl
+
+# Verify installation
+nikto -Version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install nikto
+
+# Manual installation
+curl -L https://github.com/sullo/nikto/archive/master.zip -o nikto.zip
+unzip nikto.zip
+cd nikto-master/program
+chmod +x nikto.pl
+
+# Verify installation
+./nikto.pl -Version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Install Perl first
+# Download from https://www.activestate.com/products/perl/
+
+# Download Nikto
+# https://github.com/sullo/nikto/archive/master.zip
+
+# Extract and run
+cd nikto-master\program
+perl nikto.pl -Version
+
+# Or use WSL/Docker
+docker run --rm sullo/nikto -h http://example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull Nikto Docker image
+docker pull sullo/nikto
+
+# Run basic scan
+docker run --rm sullo/nikto -h http://example.com
+
+# Run with custom options
+docker run --rm -v $(pwd):/tmp sullo/nikto -h http://example.com -o /tmp/nikto-report.html</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Simple Scans</h3>
+                    <pre><code># Basic scan
+nikto -h http://example.com
+
+# Scan with specific port
+nikto -h http://example.com:8080
+
+# Scan HTTPS site
+nikto -h https://example.com
+
+# Scan multiple hosts
+nikto -h http://example.com,https://test.com
+
+# Scan from file
+echo "http://example.com" > targets.txt
+nikto -h targets.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Options</h3>
+                    <pre><code># Save output to file
+nikto -h http://example.com -o report.txt
+
+# HTML output
+nikto -h http://example.com -o report.html -Format html
+
+# XML output
+nikto -h http://example.com -o report.xml -Format xml
+
+# CSV output
+nikto -h http://example.com -o report.csv -Format csv
+
+# Multiple formats
+nikto -h http://example.com -o report -Format htm,txt,xml</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scan Tuning</h3>
+                    <pre><code># Specific tests only
+nikto -h http://example.com -Tuning 1,2,3
+
+# Exclude specific tests
+nikto -h http://example.com -Tuning x6
+
+# Test categories:
+# 1 - Interesting File / Seen in logs
+# 2 - Misconfiguration / Default File
+# 3 - Information Disclosure
+# 4 - Injection (XSS/Script/HTML)
+# 5 - Remote File Retrieval - Inside Web Root
+# 6 - Denial of Service
+# 7 - Remote File Retrieval - Server Wide
+# 8 - Command Execution - Remote Shell
+# 9 - SQL Injection
+# 0 - File Upload
+# a - Authentication Bypass
+# b - Software Identification
+# c - Remote Source Inclusion</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Scanning Options</h2>
+                <div class="command-block">
+                    <h3>Authentication</h3>
+                    <pre><code># Basic authentication
+nikto -h http://example.com -id username:password
+
+# Custom headers
+nikto -h http://example.com -H "Authorization: Bearer token123"
+
+# Cookie authentication
+nikto -h http://example.com -H "Cookie: sessionid=abc123"
+
+# Custom user agent
+nikto -h http://example.com -useragent "Custom User Agent"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Proxy and Network Options</h3>
+                    <pre><code># Use proxy
+nikto -h http://example.com -useproxy http://proxy:8080
+
+# Proxy with authentication
+nikto -h http://example.com -useproxy http://user:pass@proxy:8080
+
+# Custom timeout
+nikto -h http://example.com -timeout 10
+
+# Limit requests per second
+nikto -h http://example.com -Pause 2
+
+# Custom port range
+nikto -h example.com -port 80,443,8080,8443</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>SSL/TLS Options</h3>
+                    <pre><code># Force SSL
+nikto -h example.com -ssl
+
+# Ignore SSL certificate errors
+nikto -h https://example.com -nossl
+
+# Custom SSL port
+nikto -h example.com -ssl -port 8443
+
+# SSL cipher testing
+nikto -h https://example.com -Plugins ssl</code></pre>
+                </div>
+            </section>
+
+            <section id="plugins">
+                <h2>Plugins and Extensions</h2>
+                <div class="command-block">
+                    <h3>Available Plugins</h3>
+                    <pre><code># List available plugins
+nikto -list-plugins
+
+# Use specific plugins
+nikto -h http://example.com -Plugins "apache_expect_xss,cookies"
+
+# Common plugins:
+# apache_expect_xss - Apache Expect XSS
+# cookies - Cookie testing
+# headers - HTTP headers analysis
+# httpoptions - HTTP OPTIONS testing
+# msgs - Message testing
+# outdated - Outdated software detection
+# paths - Path traversal testing
+# put_del_test - PUT/DELETE method testing
+# robots - robots.txt analysis
+# shellshock - Shellshock vulnerability testing
+# ssl - SSL/TLS testing</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Plugin Development</h3>
+                    <pre><code># Plugin structure (Perl)
+sub nikto_plugin_name {
+    my ($mark) = @_;
+    
+    # Plugin logic here
+    my $response = nfetch($mark, "/test/path", "GET", "", "", "", "");
+    
+    if ($response->{'content'} =~ /vulnerable_pattern/) {
+        add_vulnerability($mark, 
+                         "Vulnerability Description",
+                         999999,  # OSVDB ID
+                         0,       # Method
+                         "/test/path");
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="database-updates">
+                <h2>Database Updates</h2>
+                <div class="command-block">
+                    <h3>Update Vulnerability Database</h3>
+                    <pre><code># Update Nikto databases
+nikto -update
+
+# Force update
+nikto -update -Force
+
+# Check current database version
+nikto -Version
+
+# Manual database location
+# Linux: /var/lib/nikto/
+# macOS: /usr/local/var/lib/nikto/
+# Windows: nikto/databases/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Databases</h3>
+                    <pre><code># Use custom database directory
+nikto -h http://example.com -dbcheck /path/to/custom/db
+
+# Create custom vulnerability entries
+# Edit db_tests file to add custom checks
+
+# Database file format:
+# "id","osvdb","server","method","uri","dir_check","name","data"
+"999999","0","generic","GET","/admin/","1","Admin Directory","Admin directory found"</code></pre>
+                </div>
+            </section>
+
+            <section id="reporting">
+                <h2>Reporting and Analysis</h2>
+                <div class="command-block">
+                    <h3>Report Formats</h3>
+                    <pre><code># Generate comprehensive HTML report
+nikto -h http://example.com -o detailed_report.html -Format html
+
+# XML for tool integration
+nikto -h http://example.com -o scan_results.xml -Format xml
+
+# CSV for spreadsheet analysis
+nikto -h http://example.com -o findings.csv -Format csv
+
+# Plain text summary
+nikto -h http://example.com -o summary.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Report Analysis</h3>
+                    <pre><code># Parse XML output with Python
+import xml.etree.ElementTree as ET
+
+tree = ET.parse('scan_results.xml')
+root = tree.getroot()
+
+for item in root.findall('.//item'):
+    print(f"ID: {item.get('id')}")
+    print(f"Method: {item.get('method')}")
+    print(f"URI: {item.get('uri')}")
+    print(f"Description: {item.text}")
+    print("---")</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Integration</h2>
+                <div class="command-block">
+                    <h3>Batch Scanning</h3>
+                    <pre><code># Scan multiple targets from file
+cat targets.txt
+http://example1.com
+http://example2.com
+https://example3.com
+
+nikto -h targets.txt -o batch_results.html -Format html
+
+# Automated scanning script
+#!/bin/bash
+for target in $(cat targets.txt); do
+    echo "Scanning $target"
+    nikto -h "$target" -o "nikto_$(echo $target | sed 's/[^a-zA-Z0-9]/_/g').txt"
+    sleep 5
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CI/CD Integration</h3>
+                    <pre><code># Jenkins pipeline
+pipeline {
+    agent any
+    stages {
+        stage('Security Scan') {
+            steps {
+                sh 'nikto -h ${TARGET_URL} -o nikto-report.xml -Format xml'
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: 'nikto-report.html',
+                    reportName: 'Nikto Security Report'
+                ])
+            }
+        }
+    }
+}</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Tools</h3>
+                    <pre><code># Combine with Nmap
+nmap -p 80,443,8080,8443 --open target_network | grep -E "^[0-9]" | awk '{print $1}' > live_hosts.txt
+for host in $(cat live_hosts.txt); do
+    nikto -h http://$host -o nikto_$host.txt
+done
+
+# Integration with Metasploit
+# Use Nikto results to identify targets for MSF modules
+
+# OWASP ZAP integration
+# Use Nikto findings to guide manual testing in ZAP</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-tuning">
+                <h2>Performance Tuning</h2>
+                <div class="command-block">
+                    <h3>Speed Optimization</h3>
+                    <pre><code># Faster scanning (less thorough)
+nikto -h http://example.com -Tuning 1,2,3 -timeout 5
+
+# Parallel scanning
+nikto -h http://example.com -Pause 0
+
+# Limit scan scope
+nikto -h http://example.com -root /app/
+
+# Skip time-consuming tests
+nikto -h http://example.com -Tuning x6,x9</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Resource Management</h3>
+                    <pre><code># Limit memory usage
+nikto -h http://example.com -maxtime 3600
+
+# Control request rate
+nikto -h http://example.com -Pause 1
+
+# Timeout settings
+nikto -h http://example.com -timeout 10
+
+# Connection limits
+nikto -h http://example.com -maxtime 1800</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Debug mode
+nikto -h http://example.com -Debug
+
+# Verbose output
+nikto -h http://example.com -verbose
+
+# Check SSL issues
+nikto -h https://example.com -ssl -Debug
+
+# Proxy troubleshooting
+nikto -h http://example.com -useproxy http://proxy:8080 -Debug</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Configuration Issues</h3>
+                    <pre><code># Check Nikto configuration
+nikto -Version
+
+# Verify database files
+ls -la /var/lib/nikto/
+
+# Test basic connectivity
+curl -I http://example.com
+
+# Check Perl dependencies
+perl -MCPAN -e 'install Net::SSLeay'</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Web Application Security Assessment</h3>
+                    <ul>
+                        <li>Initial reconnaissance and information gathering</li>
+                        <li>Identification of common web vulnerabilities</li>
+                        <li>Server configuration assessment</li>
+                        <li>Outdated software and version detection</li>
+                        <li>Default file and directory discovery</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Compliance and Auditing</h3>
+                    <ul>
+                        <li>PCI DSS compliance scanning</li>
+                        <li>Security baseline verification</li>
+                        <li>Regular security monitoring</li>
+                        <li>Vulnerability management programs</li>
+                        <li>Security control validation</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Update regularly:</strong> Keep vulnerability databases current</li>
+                    <li><strong>Tune for environment:</strong> Customize tests for your specific setup</li>
+                    <li><strong>Combine with other tools:</strong> Use Nikto as part of comprehensive testing</li>
+                    <li><strong>Review false positives:</strong> Validate findings before taking action</li>
+                    <li><strong>Use appropriate timing:</strong> Avoid overwhelming target servers</li>
+                    <li><strong>Document findings:</strong> Maintain records of vulnerabilities and remediation</li>
+                    <li><strong>Test in staging first:</strong> Validate scan impact before production</li>
+                    <li><strong>Monitor scan logs:</strong> Watch for errors or incomplete scans</li>
+                    <li><strong>Customize for applications:</strong> Focus on relevant vulnerability types</li>
+                    <li><strong>Integrate with workflow:</strong> Automate scanning in security processes</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Nikto should only be used for:</p>
+                    <ul>
+                        <li>Testing web servers you own or have explicit permission to test</li>
+                        <li>Authorized penetration testing with proper legal agreements</li>
+                        <li>Security assessments with documented scope and approval</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Compliance scanning with appropriate authorization</li>
+                    </ul>
+                    <p>Unauthorized web server scanning may violate computer crime laws, terms of service, and other regulations. Web server security testing should only be performed by qualified professionals with proper authorization and legal agreements. Nikto can generate significant traffic and may impact server performance or trigger security controls. Always ensure you have explicit written permission before scanning any web server. Some scan techniques may be considered intrusive and could potentially cause service disruption. Maintain proper documentation of testing activities and findings. Follow responsible disclosure practices for any vulnerabilities discovered. Be aware that scanning activities may be logged and monitored by target systems. Respect rate limits and implement appropriate delays to minimize impact on target systems.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

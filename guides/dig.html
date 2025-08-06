@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dig Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>dig: Domain Information Groper</h1>
+            <p>Master DNS Lookup and Investigation</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is dig?</h2>
+                <p>dig (Domain Information Groper) is a flexible command-line tool for interrogating DNS name servers. It performs DNS lookups and displays the answers that are returned from the name servers. dig is part of the BIND domain name server software suite and is widely used for DNS troubleshooting, network diagnostics, and security research.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install dnsutils
+
+# CentOS/RHEL
+sudo yum install bind-utils
+
+# Arch Linux
+sudo pacman -S bind-tools</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Pre-installed on macOS
+dig --version
+
+# Install via Homebrew (for latest version)
+brew install bind</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Use Windows Subsystem for Linux
+wsl sudo apt install dnsutils
+
+# Or download BIND for Windows
+# https://www.isc.org/bind/</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+dig [options] [domain] [record_type] [@server]
+
+# Simple A record lookup
+dig example.com
+
+# Lookup specific record type
+dig example.com MX
+
+# Use specific DNS server
+dig @8.8.8.8 example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Record Types</h3>
+                    <pre><code># A record (IPv4 address)
+dig example.com A
+
+# AAAA record (IPv6 address)
+dig example.com AAAA
+
+# MX record (mail exchange)
+dig example.com MX
+
+# NS record (name servers)
+dig example.com NS
+
+# TXT record (text records)
+dig example.com TXT
+
+# CNAME record (canonical name)
+dig www.example.com CNAME</code></pre>
+                </div>
+            </section>
+
+            <section id="dns-servers">
+                <h2>DNS Server Specification</h2>
+                <div class="command-block">
+                    <h3>Using Different DNS Servers</h3>
+                    <pre><code># Google DNS
+dig @8.8.8.8 example.com
+
+# Cloudflare DNS
+dig @1.1.1.1 example.com
+
+# Quad9 DNS
+dig @9.9.9.9 example.com
+
+# OpenDNS
+dig @208.67.222.222 example.com
+
+# Local DNS server
+dig @192.168.1.1 example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Multiple DNS Servers</h3>
+                    <pre><code># Compare responses from different servers
+dig @8.8.8.8 example.com > google_dns.txt
+dig @1.1.1.1 example.com > cloudflare_dns.txt
+diff google_dns.txt cloudflare_dns.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="output-formats">
+                <h2>Output Formats & Options</h2>
+                <div class="command-block">
+                    <h3>Output Control</h3>
+                    <pre><code># Short output (answer only)
+dig +short example.com
+
+# No comments
+dig +nocomments example.com
+
+# No authority section
+dig +noauthority example.com
+
+# No additional section
+dig +noadditional example.com
+
+# No question section
+dig +noquestion example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Detailed Output</h3>
+                    <pre><code># Show all sections
+dig +all example.com
+
+# Show query time
+dig +stats example.com
+
+# Show trace information
+dig +trace example.com
+
+# Multiline output
+dig +multiline example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="reverse-dns">
+                <h2>Reverse DNS Lookups</h2>
+                <div class="command-block">
+                    <h3>PTR Record Lookups</h3>
+                    <pre><code># Reverse lookup using -x
+dig -x 8.8.8.8
+
+# Manual PTR lookup
+dig 8.8.8.8.in-addr.arpa PTR
+
+# IPv6 reverse lookup
+dig -x 2001:4860:4860::8888
+
+# Batch reverse lookups
+for ip in 8.8.8.8 1.1.1.1 9.9.9.9; do
+    echo "=== $ip ==="
+    dig +short -x $ip
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-queries">
+                <h2>Advanced Query Types</h2>
+                <div class="command-block">
+                    <h3>Zone Transfers</h3>
+                    <pre><code># Attempt zone transfer (AXFR)
+dig @nameserver example.com AXFR
+
+# Incremental zone transfer (IXFR)
+dig @nameserver example.com IXFR
+
+# List all records in zone
+dig @nameserver example.com ANY</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Security Records</h3>
+                    <pre><code># DNSSEC records
+dig example.com DNSKEY
+dig example.com DS
+dig example.com RRSIG
+
+# CAA records (Certificate Authority Authorization)
+dig example.com CAA
+
+# TLSA records (DNS-based Authentication of Named Entities)
+dig _443._tcp.example.com TLSA</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Service Records</h3>
+                    <pre><code># SRV records (service records)
+dig _http._tcp.example.com SRV
+dig _sip._tcp.example.com SRV
+
+# SPF records (in TXT)
+dig example.com TXT | grep "v=spf1"
+
+# DMARC records
+dig _dmarc.example.com TXT</code></pre>
+                </div>
+            </section>
+
+            <section id="trace-queries">
+                <h2>Trace Queries</h2>
+                <div class="command-block">
+                    <h3>DNS Resolution Path</h3>
+                    <pre><code># Trace full resolution path
+dig +trace example.com
+
+# Trace with short output
+dig +trace +short example.com
+
+# Trace specific record type
+dig +trace example.com MX
+
+# Trace from specific server
+dig @8.8.8.8 +trace example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Understanding Trace Output</h3>
+                    <pre><code># Trace shows:
+# 1. Root servers (.)
+# 2. TLD servers (.com)
+# 3. Authoritative servers (example.com)
+# 4. Final answer
+
+# Example trace interpretation:
+# . 518400 IN NS a.root-servers.net.
+# com. 172800 IN NS a.gtld-servers.net.
+# example.com. 86400 IN NS ns1.example.com.
+# example.com. 300 IN A 93.184.216.34</code></pre>
+                </div>
+            </section>
+
+            <section id="batch-queries">
+                <h2>Batch Queries & Scripting</h2>
+                <div class="command-block">
+                    <h3>File-Based Queries</h3>
+                    <pre><code># Create query file (queries.txt)
+example.com A
+google.com MX
+cloudflare.com NS
+
+# Process batch queries
+dig -f queries.txt
+
+# Batch with specific server
+dig @8.8.8.8 -f queries.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scripted Queries</h3>
+                    <pre><code>#!/bin/bash
+# DNS enumeration script
+domain=$1
+
+echo "=== A Records ==="
+dig +short $domain A
+
+echo "=== MX Records ==="
+dig +short $domain MX
+
+echo "=== NS Records ==="
+dig +short $domain NS
+
+echo "=== TXT Records ==="
+dig +short $domain TXT</code></pre>
+                </div>
+            </section>
+
+            <section id="security-testing">
+                <h2>Security Testing & Reconnaissance</h2>
+                <div class="command-block">
+                    <h3>DNS Enumeration</h3>
+                    <pre><code># Common subdomain enumeration
+for sub in www mail ftp admin test dev staging; do
+    dig +short $sub.example.com A
+done
+
+# Wildcard detection
+dig +short randomstring123.example.com A
+
+# Zone transfer attempts
+dig @ns1.example.com example.com AXFR
+dig @ns2.example.com example.com AXFR</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>DNS Cache Poisoning Tests</h3>
+                    <pre><code># Check for cache poisoning
+dig @target_dns example.com
+dig @8.8.8.8 example.com
+
+# Compare TTL values
+dig +noall +answer example.com | awk '{print $2}'
+
+# Check authoritative vs cached responses
+dig +norecurse @nameserver example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>DNSSEC Validation</h3>
+                    <pre><code># Check DNSSEC status
+dig +dnssec example.com
+
+# Validate DNSSEC chain
+dig +trace +dnssec example.com
+
+# Check for DNSSEC records
+dig example.com DNSKEY
+dig example.com DS</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>DNS Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Check if domain exists
+dig +short example.com A
+
+# Test different record types
+dig example.com A
+dig example.com AAAA
+dig example.com MX
+
+# Check authoritative servers
+dig +short example.com NS</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Testing</h3>
+                    <pre><code># Measure query time
+dig +stats example.com
+
+# Compare server performance
+time dig @8.8.8.8 example.com
+time dig @1.1.1.1 example.com
+
+# Test with TCP (instead of UDP)
+dig +tcp example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Debugging Options</h3>
+                    <pre><code># Show query packet
+dig +qr example.com
+
+# Show answer packet
+dig +answer example.com
+
+# Verbose output
+dig +all example.com
+
+# Debug mode
+dig +debug example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="practical-examples">
+                <h2>Practical Examples</h2>
+                <div class="command-block">
+                    <h3>Email Server Investigation</h3>
+                    <pre><code># Check MX records
+dig +short example.com MX
+
+# Check SPF records
+dig +short example.com TXT | grep "v=spf1"
+
+# Check DMARC policy
+dig +short _dmarc.example.com TXT
+
+# Check DKIM records
+dig +short selector1._domainkey.example.com TXT</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Website Investigation</h3>
+                    <pre><code># Check A records
+dig +short example.com A
+
+# Check AAAA records (IPv6)
+dig +short example.com AAAA
+
+# Check CDN usage
+dig +short www.example.com CNAME
+
+# Check CAA records
+dig +short example.com CAA</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Forensics</h3>
+                    <pre><code># Historical DNS data (if available)
+dig +short example.com A
+dig +short -x [IP_ADDRESS]
+
+# Check for suspicious domains
+dig +short suspicious-domain.com A
+dig +short suspicious-domain.com TXT
+
+# Investigate domain reputation
+dig +short domain.com NS
+dig +short domain.com SOA</code></pre>
+                </div>
+            </section>
+
+            <section id="output-parsing">
+                <h2>Output Parsing & Analysis</h2>
+                <div class="command-block">
+                    <h3>Extracting Specific Data</h3>
+                    <pre><code># Get only IP addresses
+dig +short example.com A
+
+# Get MX priorities and servers
+dig +short example.com MX | sort -n
+
+# Extract nameservers
+dig +short example.com NS
+
+# Get TTL values
+dig +noall +answer example.com | awk '{print $2}'</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>JSON Output (with jq)</h3>
+                    <pre><code># Convert to JSON (requires additional tools)
+dig +short example.com A | jq -R -s 'split("\n")[:-1] | map({ip: .})'
+
+# Parse complex output
+dig example.com | grep -E "^example.com" | awk '{print $5}'</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use +short for scripts:</strong> Clean output for automation</li>
+                    <li><strong>Test multiple DNS servers:</strong> Compare responses for consistency</li>
+                    <li><strong>Check TTL values:</strong> Understand caching behavior</li>
+                    <li><strong>Use trace for troubleshooting:</strong> See full resolution path</li>
+                    <li><strong>Combine with other tools:</strong> Use with whois, nslookup, host</li>
+                    <li><strong>Monitor DNS changes:</strong> Regular checks for security</li>
+                    <li><strong>Document findings:</strong> Keep logs of DNS investigations</li>
+                    <li><strong>Understand DNS hierarchy:</strong> Root → TLD → Authoritative</li>
+                </ul>
+            </section>
+
+            <section id="common-errors">
+                <h2>Common Errors & Solutions</h2>
+                <div class="command-block">
+                    <h3>Error Messages</h3>
+                    <pre><code># NXDOMAIN - Domain doesn't exist
+dig nonexistent.example.com
+
+# SERVFAIL - Server failure
+dig @broken.dns.server example.com
+
+# REFUSED - Query refused
+dig @nameserver example.com AXFR
+
+# Timeout - No response
+dig +time=1 slow.server.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Troubleshooting Steps</h3>
+                    <pre><code># 1. Check if domain exists
+dig +short example.com A
+
+# 2. Try different DNS server
+dig @8.8.8.8 example.com
+
+# 3. Check authoritative servers
+dig +short example.com NS
+
+# 4. Test with TCP
+dig +tcp example.com
+
+# 5. Increase timeout
+dig +time=10 example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>NOTE:</strong> dig should be used responsibly for:</p>
+                    <ul>
+                        <li>Legitimate DNS troubleshooting and administration</li>
+                        <li>Authorized security testing and research</li>
+                        <li>Educational purposes and learning</li>
+                        <li>Network diagnostics and monitoring</li>
+                    </ul>
+                    <p>While DNS queries are generally legal and part of normal Internet operations, excessive querying or attempts to perform unauthorized zone transfers may violate terms of service or be considered reconnaissance activities. Always respect DNS server policies and rate limits.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

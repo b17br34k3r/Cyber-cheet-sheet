@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burp Suite Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Burp Suite: The Web Application Hacker's Toolkit</h1>
+            <p>Your All-in-One Platform for Web Security Testing</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Burp Suite?</h2>
+                <p>Burp Suite is an integrated platform for performing security testing of web applications. Its various tools work seamlessly together to support the entire testing process, from initial mapping and analysis of an application's attack surface, through to finding and exploiting security vulnerabilities. It acts as a proxy, sitting between your browser and the target application, allowing you to intercept, inspect, and modify the raw traffic passing in both directions.</p>
+            </section>
+
+            <section id="setup">
+                <h2>Initial Setup: Proxy Configuration</h2>
+                <p>The most crucial first step is configuring your browser to work with Burp Suite.</p>
+                <div class="command-block">
+                    <h3>Step 1: Configure Burp Proxy Listener</h3>
+                    <p>In Burp, go to the <strong>Proxy</strong> tab, then the <strong>Options</strong> sub-tab. Ensure the proxy listener is active and running on a specific address and port, typically <code>127.0.0.1:8080</code>.</p>
+                </div>
+                <div class="command-block">
+                    <h3>Step 2: Configure Your Browser</h3>
+                    <p>Set your browser's network settings to use a manual proxy configuration, pointing it to the same address and port as the Burp listener (<code>127.0.0.1:8080</code>). For HTTPS traffic, you must also install Burp's CA certificate in your browser.</p>
+                    <pre><code># In your browser, visit http://burpsuite
+# Click on 'CA Certificate' to download it, then import it into your browser's certificate store.</code></pre>
+                </div>
+                 <div class="command-block">
+                    <h3>Step 3: Turn on Intercept</h3>
+                    <p>In Burp's <strong>Proxy</strong> tab, go to the <strong>Intercept</strong> sub-tab and click the "Intercept is off" button to toggle it on. Your browser traffic will now be paused in Burp for you to inspect and manipulate.</p>
+                </div>
+            </section>
+
+            <section id="core-tools">
+                <h2>Core Tools & Usage</h2>
+                <p>Here are some of the most important tools within Burp Suite.</p>
+
+                <div class="command-block">
+                    <h3>Target</h3>
+                    <p>This tool gives you a site map of the target application, showing all the pages and resources you've discovered. It's the central hub for understanding the application's structure.</p>
+                </div>
+
+                <div class="command-block">
+                    <h3>Proxy</h3>
+                    <p>The heart of Burp. It allows you to intercept, view, and modify all requests and responses between your browser and the target server. Use the <strong>Forward</strong> button to send the request on, <strong>Drop</strong> to discard it, or modify it before forwarding.</p>
+                </div>
+
+                <div class="command-block">
+                    <h3>Intruder</h3>
+                    <p>A powerful tool for automating customized attacks. You can send a request to Intruder, mark positions in the request where you want to insert payloads, and configure payload lists (e.g., lists of common passwords, usernames, or fuzzing strings) to test for vulnerabilities like SQL injection or brute-force attacks.</p>
+                </div>
+
+                <div class="command-block">
+                    <h3>Repeater</h3>
+                    <p>A simple but invaluable tool. Send any request to Repeater to manually modify and resend it over and over, observing how the response changes. This is perfect for manually testing for vulnerabilities or confirming findings from other tools.</p>
+                </div>
+
+                <div class="command-block">
+                    <h3>Sequencer</h3>
+                    <p>Used to analyze the randomness of session tokens or other important data items that are intended to be unpredictable. It can help identify weak session management.</p>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Tips for Beginners</h2>
+                <ul>
+                    <li><strong>Use the Site Map:</strong> Always start by exploring the application manually with the proxy enabled to build out a comprehensive site map in the Target tab.</li>
+                    <li><strong>Send to Repeater:</strong> Right-click on almost any request in Burp and choose "Send to Repeater." This is the fastest way to start manually testing an endpoint.</li>
+                    <li><strong>Don't Forget to Turn Intercept Off:</strong> It's easy to leave intercept on and wonder why your browser is hanging. Remember to toggle it off when you're just browsing the application.</li>
+                    <li><strong>Community Edition is Powerful:</strong> While the Professional version has more automation, the free Community Edition is extremely powerful and sufficient for most manual testing tasks.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

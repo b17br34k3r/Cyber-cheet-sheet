@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>darkstat Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>darkstat: Web-based Network Statistics</h1>
+            <p>Master Lightweight Network Traffic Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is darkstat?</h2>
+                <p>darkstat is a network statistics gatherer that runs as a background process on a cable/DSL router, captures network traffic, calculates statistics about usage, and serves them over HTTP. It's designed to be small, portable, secure, and efficient. darkstat is particularly useful for monitoring network usage on routers, gateways, and small networks where you need a lightweight solution with web-based reporting capabilities.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install darkstat
+sudo apt update
+sudo apt install darkstat
+
+# Install dependencies
+sudo apt install libpcap-dev zlib1g-dev</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+
+# Install darkstat
+sudo yum install darkstat
+
+# Or on newer versions
+sudo dnf install darkstat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Arch Linux Installation</h3>
+                    <pre><code># Install darkstat
+sudo pacman -S darkstat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Download source
+wget https://unix4lyfe.org/darkstat/darkstat-3.0.719.tar.bz2
+tar -xjf darkstat-3.0.719.tar.bz2
+cd darkstat-3.0.719
+
+# Install build dependencies
+sudo apt install build-essential libpcap-dev zlib1g-dev
+
+# Configure and compile
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install darkstat
+
+# Using MacPorts
+sudo port install darkstat</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Starting darkstat</h3>
+                    <pre><code># Basic usage (requires root privileges)
+sudo darkstat -i eth0
+
+# Specify web interface port
+sudo darkstat -i eth0 -p 8080
+
+# Bind to specific address
+sudo darkstat -i eth0 -b 192.168.1.1
+
+# Run as daemon
+sudo darkstat -i eth0 --daemon</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Options</h3>
+                    <pre><code># Interface options
+-i interface    # Network interface to monitor
+-r file         # Read from pcap file instead of live capture
+
+# Web server options
+-p port         # HTTP port (default: 666)
+-b address      # Bind to specific IP address
+--base path     # Base URL path
+
+# Filtering options
+-f filter       # BPF packet filter
+-n network      # Local network specification
+--pppoe         # Enable PPPoE decoding
+
+# Daemon options
+--daemon        # Run as daemon
+--pidfile file  # Specify PID file
+--chroot dir    # Chroot to directory
+--user user     # Run as specified user
+--group group   # Run as specified group
+
+# Logging options
+--syslog        # Log to syslog
+--verbose       # Verbose output
+--no-daemon     # Don't fork to background
+
+# Example usage
+sudo darkstat -i eth0 -p 8080 --daemon --syslog</code></pre>
+                </div>
+            </section>
+
+            <section id="configuration">
+                <h2>Configuration</h2>
+                <div class="command-block">
+                    <h3>Network Configuration</h3>
+                    <pre><code># Specify local network for proper classification
+sudo darkstat -i eth0 -n 192.168.1.0/24
+
+# Multiple local networks
+sudo darkstat -i eth0 -n 192.168.1.0/24 -n 10.0.0.0/8
+
+# With packet filtering
+sudo darkstat -i eth0 -f "not port 22" -n 192.168.1.0/24</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Security Configuration</h3>
+                    <pre><code># Run with reduced privileges
+sudo darkstat -i eth0 --user nobody --group nogroup
+
+# Chroot for additional security
+sudo darkstat -i eth0 --chroot /var/empty --user nobody
+
+# Bind to localhost only
+sudo darkstat -i eth0 -b 127.0.0.1 -p 8080</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Service Configuration</h3>
+                    <pre><code># Create systemd service file
+sudo nano /etc/systemd/system/darkstat.service
+
+[Unit]
+Description=darkstat network statistics gatherer
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/darkstat -i eth0 --daemon --pidfile /var/run/darkstat.pid
+PIDFile=/var/run/darkstat.pid
+User=nobody
+Group=nogroup
+
+[Install]
+WantedBy=multi-user.target
+
+# Enable and start service
+sudo systemctl daemon-reload
+sudo systemctl enable darkstat
+sudo systemctl start darkstat</code></pre>
+                </div>
+            </section>
+
+            <section id="web-interface">
+                <h2>Web Interface</h2>
+                <div class="command-block">
+                    <h3>Accessing the Interface</h3>
+                    <pre><code># Default access
+http://localhost:666
+
+# Custom port
+http://localhost:8080
+
+# Remote access
+http://your-server-ip:8080
+
+# With base path
+http://localhost:8080/darkstat/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Web Interface Features</h3>
+                    <ul>
+                        <li><strong>Network Usage Graph:</strong> Real-time traffic visualization</li>
+                        <li><strong>Hosts List:</strong> Top hosts by traffic volume</li>
+                        <li><strong>Ports List:</strong> Most active ports and services</li>
+                        <li><strong>Protocols:</strong> Traffic breakdown by protocol</li>
+                        <li><strong>Graphs:</strong> Historical traffic graphs</li>
+                        <li><strong>Export:</strong> Data export capabilities</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Navigation</h3>
+                    <ul>
+                        <li><strong>Graphs:</strong> Traffic graphs and charts</li>
+                        <li><strong>Hosts:</strong> Individual host statistics</li>
+                        <li><strong>Ports:</strong> Port usage statistics</li>
+                        <li><strong>Export:</strong> Data export options</li>
+                        <li><strong>Reset:</strong> Reset statistics counters</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="monitoring-analysis">
+                <h2>Monitoring & Analysis</h2>
+                <div class="command-block">
+                    <h3>Traffic Analysis</h3>
+                    <ul>
+                        <li><strong>Real-time graphs:</strong> Current network utilization</li>
+                        <li><strong>Historical data:</strong> Traffic trends over time</li>
+                        <li><strong>Peak usage:</strong> Identify peak traffic periods</li>
+                        <li><strong>Protocol breakdown:</strong> Traffic by protocol type</li>
+                        <li><strong>Direction analysis:</strong> Incoming vs outgoing traffic</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Host Analysis</h3>
+                    <ul>
+                        <li><strong>Top talkers:</strong> Hosts with highest traffic</li>
+                        <li><strong>Local vs remote:</strong> Internal vs external traffic</li>
+                        <li><strong>Host details:</strong> Individual host statistics</li>
+                        <li><strong>Traffic patterns:</strong> Host communication patterns</li>
+                        <li><strong>Bandwidth usage:</strong> Per-host bandwidth consumption</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Port and Service Analysis</h3>
+                    <ul>
+                        <li><strong>Active ports:</strong> Most used network ports</li>
+                        <li><strong>Service identification:</strong> Common services and protocols</li>
+                        <li><strong>Port statistics:</strong> Traffic volume by port</li>
+                        <li><strong>Application analysis:</strong> Application-level traffic</li>
+                        <li><strong>Security monitoring:</strong> Unusual port activity</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Deployment Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated darkstat deployment script
+
+INTERFACE="eth0"
+PORT="8080"
+LOCAL_NETWORK="192.168.1.0/24"
+BIND_ADDRESS="0.0.0.0"
+USER="nobody"
+GROUP="nogroup"
+
+# Function to install darkstat
+install_darkstat() {
+    if command -v apt-get &> /dev/null; then
+        sudo apt-get update
+        sudo apt-get install -y darkstat
+    elif command -v yum &> /dev/null; then
+        sudo yum install -y epel-release
+        sudo yum install -y darkstat
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -S --noconfirm darkstat
+    else
+        echo "Unsupported package manager"
+        exit 1
+    fi
+}
+
+# Function to configure and start darkstat
+configure_darkstat() {
+    # Create systemd service
+    sudo tee /etc/systemd/system/darkstat.service > /dev/null << EOF
+[Unit]
+Description=darkstat network statistics gatherer
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/darkstat -i $INTERFACE -p $PORT -b $BIND_ADDRESS -n $LOCAL_NETWORK --daemon --pidfile /var/run/darkstat.pid --user $USER --group $GROUP --syslog
+PIDFile=/var/run/darkstat.pid
+User=$USER
+Group=$GROUP
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    # Enable and start service
+    sudo systemctl daemon-reload
+    sudo systemctl enable darkstat
+    sudo systemctl start darkstat
+    
+    echo "darkstat configured and started"
+    echo "Web interface available at: http://$(hostname -I | awk '{print $1}'):$PORT"
+}
+
+# Main execution
+echo "Installing darkstat..."
+install_darkstat
+
+echo "Configuring darkstat..."
+configure_darkstat
+
+echo "Deployment completed!"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Data Export Script</h3>
+                    <pre><code>#!/bin/bash
+# Export darkstat data for analysis
+
+DARKSTAT_HOST="localhost"
+DARKSTAT_PORT="8080"
+OUTPUT_DIR="/var/reports/darkstat"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+# Create output directory
+mkdir -p $OUTPUT_DIR
+
+# Function to export data
+export_data() {
+    local endpoint="$1"
+    local filename="$2"
+    
+    echo "Exporting $endpoint data..."
+    curl -s "http://$DARKSTAT_HOST:$DARKSTAT_PORT/$endpoint" > "$OUTPUT_DIR/${filename}_$TIMESTAMP.html"
+    
+    if [ $? -eq 0 ]; then
+        echo "Exported: $OUTPUT_DIR/${filename}_$TIMESTAMP.html"
+    else
+        echo "Failed to export $endpoint"
+    fi
+}
+
+# Export different data types
+export_data "" "main_page"
+export_data "hosts/" "hosts_data"
+export_data "ports/" "ports_data"
+export_data "graphs/" "graphs_data"
+
+# Create summary report
+echo "darkstat Data Export Summary" > "$OUTPUT_DIR/export_summary_$TIMESTAMP.txt"
+echo "Generated: $(date)" >> "$OUTPUT_DIR/export_summary_$TIMESTAMP.txt"
+echo "Files exported:" >> "$OUTPUT_DIR/export_summary_$TIMESTAMP.txt"
+ls -la $OUTPUT_DIR/*_$TIMESTAMP.* >> "$OUTPUT_DIR/export_summary_$TIMESTAMP.txt"
+
+echo "Data export completed: $OUTPUT_DIR"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Monitoring Script</h3>
+                    <pre><code>#!/bin/bash
+# Monitor darkstat and restart if needed
+
+DARKSTAT_HOST="localhost"
+DARKSTAT_PORT="8080"
+INTERFACE="eth0"
+LOG_FILE="/var/log/darkstat_monitor.log"
+
+# Function to check if darkstat is running
+check_darkstat() {
+    # Check if process is running
+    if pgrep -x "darkstat" > /dev/null; then
+        # Check if web interface is responding
+        if curl -s --connect-timeout 5 "http://$DARKSTAT_HOST:$DARKSTAT_PORT" > /dev/null; then
+            return 0  # Running and responding
+        else
+            return 1  # Running but not responding
+        fi
+    else
+        return 2  # Not running
+    fi
+}
+
+# Function to restart darkstat
+restart_darkstat() {
+    echo "$(date): Restarting darkstat" | tee -a $LOG_FILE
+    
+    # Kill existing process
+    sudo pkill -x darkstat
+    sleep 2
+    
+    # Start darkstat
+    sudo systemctl start darkstat
+    
+    # Wait and check
+    sleep 5
+    if check_darkstat; then
+        echo "$(date): darkstat restarted successfully" | tee -a $LOG_FILE
+    else
+        echo "$(date): Failed to restart darkstat" | tee -a $LOG_FILE
+    fi
+}
+
+# Main monitoring loop
+while true; do
+    check_darkstat
+    status=$?
+    
+    case $status in
+        0)
+            echo "$(date): darkstat is running normally" >> $LOG_FILE
+            ;;
+        1)
+            echo "$(date): darkstat process running but web interface not responding" | tee -a $LOG_FILE
+            restart_darkstat
+            ;;
+        2)
+            echo "$(date): darkstat process not running" | tee -a $LOG_FILE
+            restart_darkstat
+            ;;
+    esac
+    
+    sleep 300  # Check every 5 minutes
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Web Server Integration</h3>
+                    <pre><code># Nginx reverse proxy configuration
+server {
+    listen 80;
+    server_name darkstat.example.com;
+    
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+# Apache reverse proxy configuration
+<VirtualHost *:80>
+    ServerName darkstat.example.com
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:8080/
+    ProxyPassReverse / http://localhost:8080/
+</VirtualHost></code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Monitoring System Integration</h3>
+                    <pre><code># Nagios check script
+#!/bin/bash
+# Check darkstat availability
+
+HOST="$1"
+PORT="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <host> <port>"
+    exit 3
+fi
+
+# Check if darkstat web interface is responding
+response=$(curl -s --connect-timeout 10 "http://$HOST:$PORT" | grep -c "darkstat")
+
+if [ $response -gt 0 ]; then
+    echo "OK - darkstat is responding"
+    exit 0
+else
+    echo "CRITICAL - darkstat is not responding"
+    exit 2
+fi</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Analysis Integration</h3>
+                    <pre><code># Parse darkstat syslog entries
+grep darkstat /var/log/syslog | tail -20
+
+# Extract statistics from web interface
+curl -s "http://localhost:8080" | \
+grep -E "(bytes|packets)" | \
+sed 's/<[^>]*>//g' | \
+awk '{print $1, $2, $3}'
+
+# Integration with log analysis tools
+# Export data for Splunk, ELK stack, etc.
+curl -s "http://localhost:8080/hosts/" | \
+html2text | \
+grep -E "^[0-9]+\." > /var/log/darkstat_hosts.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="security-considerations">
+                <h2>Security Considerations</h2>
+                <div class="command-block">
+                    <h3>Access Control</h3>
+                    <pre><code># Bind to localhost only
+sudo darkstat -i eth0 -b 127.0.0.1
+
+# Use firewall to restrict access
+sudo iptables -A INPUT -p tcp --dport 8080 -s 192.168.1.0/24 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 8080 -j DROP
+
+# Use SSH tunneling for remote access
+ssh -L 8080:localhost:8080 user@remote-server</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Privilege Reduction</h3>
+                    <pre><code># Run as non-privileged user
+sudo darkstat -i eth0 --user nobody --group nogroup
+
+# Use chroot for additional isolation
+sudo darkstat -i eth0 --chroot /var/empty --user nobody
+
+# Set up dedicated user
+sudo useradd -r -s /bin/false darkstat
+sudo darkstat -i eth0 --user darkstat --group darkstat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Security</h3>
+                    <pre><code># Filter sensitive traffic
+sudo darkstat -i eth0 -f "not port 22 and not port 443"
+
+# Monitor specific networks only
+sudo darkstat -i eth0 -n 192.168.1.0/24 -f "net 192.168.1.0/24"
+
+# Use VPN or encrypted tunnels for remote monitoring</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Permission denied
+sudo darkstat -i eth0  # Run with root privileges
+
+# Interface not found
+ip link show          # List available interfaces
+sudo darkstat -i any  # Monitor all interfaces
+
+# Port already in use
+sudo netstat -tulpn | grep :666
+sudo darkstat -i eth0 -p 8080  # Use different port</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Web Interface Issues</h3>
+                    <pre><code># Check if darkstat is running
+ps aux | grep darkstat
+sudo systemctl status darkstat
+
+# Check if port is accessible
+telnet localhost 8080
+curl -I http://localhost:8080
+
+# Check firewall settings
+sudo iptables -L | grep 8080
+sudo ufw status</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Monitor darkstat resource usage
+top -p $(pgrep darkstat)
+ps -o pid,ppid,cmd,%mem,%cpu -p $(pgrep darkstat)
+
+# Check for high traffic interfaces
+sudo darkstat -i eth0 --verbose
+
+# Reduce monitoring scope
+sudo darkstat -i eth0 -f "tcp or udp"  # Monitor only TCP/UDP</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Home and Small Office</h3>
+                    <ul>
+                        <li>Internet usage monitoring</li>
+                        <li>Bandwidth consumption tracking</li>
+                        <li>Device usage analysis</li>
+                        <li>Network performance monitoring</li>
+                        <li>Data usage reporting</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Router and Gateway Monitoring</h3>
+                    <ul>
+                        <li>WAN/LAN traffic analysis</li>
+                        <li>Router performance monitoring</li>
+                        <li>Network utilization tracking</li>
+                        <li>Service usage statistics</li>
+                        <li>Capacity planning</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Monitoring</h3>
+                    <ul>
+                        <li>Unusual traffic pattern detection</li>
+                        <li>Network baseline establishment</li>
+                        <li>Bandwidth abuse detection</li>
+                        <li>Service usage monitoring</li>
+                        <li>Network forensics support</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Specify local networks:</strong> Use -n option for proper traffic classification</li>
+                    <li><strong>Run as daemon:</strong> Use --daemon for production deployments</li>
+                    <li><strong>Secure the interface:</strong> Bind to localhost or use firewall rules</li>
+                    <li><strong>Regular monitoring:</strong> Set up monitoring scripts to ensure availability</li>
+                    <li><strong>Export data regularly:</strong> Save statistics for historical analysis</li>
+                    <li><strong>Use appropriate filters:</strong> Focus on relevant traffic with BPF filters</li>
+                    <li><strong>Monitor resource usage:</strong> Keep an eye on CPU and memory consumption</li>
+                    <li><strong>Document configuration:</strong> Maintain records of setup and configuration</li>
+                </ul>
+            </section>
+
+            <section id="alternatives">
+                <h2>Alternatives & Similar Tools</h2>
+                <div class="command-block">
+                    <h3>Similar Tools</h3>
+                    <ul>
+                        <li><strong>ntopng:</strong> More advanced web-based monitoring</li>
+                        <li><strong>BandwidthD:</strong> Similar lightweight monitoring</li>
+                        <li><strong>vnstat:</strong> Command-line statistics with web frontend</li>
+                        <li><strong>cacti:</strong> SNMP-based network graphing</li>
+                        <li><strong>PRTG:</strong> Commercial network monitoring</li>
+                        <li><strong>LibreNMS:</strong> Open-source network monitoring</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use darkstat</h3>
+                    <ul>
+                        <li>Need lightweight web-based monitoring</li>
+                        <li>Want simple setup and configuration</li>
+                        <li>Monitoring small networks or routers</li>
+                        <li>Require minimal resource usage</li>
+                        <li>Need basic traffic statistics and graphs</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> darkstat should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own networks and systems</li>
+                        <li>Authorized network administration and monitoring</li>
+                        <li>Performance analysis of owned infrastructure</li>
+                        <li>Legitimate business purposes with proper authorization</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized network monitoring may violate privacy laws, computer crime statutes, and organizational policies. Network traffic monitoring can reveal sensitive information about users and their activities. Always obtain proper authorization before deploying network monitoring tools, ensure compliance with applicable laws and regulations, and implement appropriate data protection measures. Be aware of privacy implications and data retention requirements in your jurisdiction.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

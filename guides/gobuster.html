@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gobuster Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Gobuster: Directory and DNS Brute-Forcer</h1>
+            <p>Master Web Directory Discovery and DNS Enumeration</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Gobuster?</h2>
+                <p>Gobuster is a tool used to brute-force URIs (directories and files) in web sites, DNS subdomains (with wildcard support), Virtual Host names on target web servers, and Amazon S3 buckets. Written in Go, Gobuster is fast, efficient, and supports multiple modes of operation. It's particularly useful for web application security testing, penetration testing, and bug bounty hunting to discover hidden directories, files, and subdomains that might contain sensitive information or additional attack surfaces.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install gobuster
+
+# From GitHub releases
+wget https://github.com/OJ/gobuster/releases/download/v3.6.0/gobuster_Linux_x86_64.tar.gz
+tar -xzf gobuster_Linux_x86_64.tar.gz
+sudo mv gobuster /usr/local/bin/
+
+# Build from source
+git clone https://github.com/OJ/gobuster.git
+cd gobuster
+go build
+sudo mv gobuster /usr/local/bin/
+
+# Verify installation
+gobuster version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install gobuster
+
+# From GitHub releases
+wget https://github.com/OJ/gobuster/releases/download/v3.6.0/gobuster_Darwin_x86_64.tar.gz
+tar -xzf gobuster_Darwin_x86_64.tar.gz
+sudo mv gobuster /usr/local/bin/
+
+# Verify installation
+gobuster version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from GitHub releases
+# https://github.com/OJ/gobuster/releases/download/v3.6.0/gobuster_Windows_x86_64.zip
+
+# Extract and add to PATH
+# Or run directly: gobuster.exe
+
+# Using Chocolatey
+choco install gobuster
+
+# Verify installation
+gobuster.exe version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull Gobuster Docker image
+docker pull gobuster/gobuster
+
+# Run directory scan
+docker run --rm gobuster/gobuster dir -u http://example.com -w /usr/share/wordlists/dirb/common.txt
+
+# Run with custom wordlist
+docker run --rm -v $(pwd):/wordlists gobuster/gobuster dir -u http://example.com -w /wordlists/custom.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Directory Brute-Forcing</h3>
+                    <pre><code># Basic directory scan
+gobuster dir -u http://example.com -w /usr/share/wordlists/dirb/common.txt
+
+# Scan with specific extensions
+gobuster dir -u http://example.com -w wordlist.txt -x php,html,txt,js
+
+# Scan with custom user agent
+gobuster dir -u http://example.com -w wordlist.txt -a "Custom User Agent"
+
+# Scan with authentication
+gobuster dir -u http://example.com -w wordlist.txt -U username -P password</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>DNS Subdomain Enumeration</h3>
+                    <pre><code># Basic subdomain scan
+gobuster dns -d example.com -w /usr/share/wordlists/dnsrecon/subdomains-top1mil-5000.txt
+
+# Scan with custom resolvers
+gobuster dns -d example.com -w subdomains.txt -r 8.8.8.8,1.1.1.1
+
+# Wildcard detection
+gobuster dns -d example.com -w subdomains.txt --wildcard
+
+# Show IP addresses
+gobuster dns -d example.com -w subdomains.txt -i</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Virtual Host Discovery</h3>
+                    <pre><code># Virtual host enumeration
+gobuster vhost -u http://example.com -w vhosts.txt
+
+# Append domain to wordlist
+gobuster vhost -u http://example.com -w subdomains.txt --append-domain
+
+# Custom headers
+gobuster vhost -u http://example.com -w vhosts.txt -H "Host: {GOBUSTER}.example.com"</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Options</h2>
+                <div class="command-block">
+                    <h3>Performance Tuning</h3>
+                    <pre><code># Increase threads for faster scanning
+gobuster dir -u http://example.com -w wordlist.txt -t 50
+
+# Add delay between requests
+gobuster dir -u http://example.com -w wordlist.txt --delay 100ms
+
+# Set timeout
+gobuster dir -u http://example.com -w wordlist.txt --timeout 10s
+
+# Limit request rate
+gobuster dir -u http://example.com -w wordlist.txt -t 10 --delay 200ms</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Response Filtering</h3>
+                    <pre><code># Hide specific status codes
+gobuster dir -u http://example.com -w wordlist.txt -b 404,403
+
+# Show only specific status codes
+gobuster dir -u http://example.com -w wordlist.txt -s 200,301,302
+
+# Hide responses by length
+gobuster dir -u http://example.com -w wordlist.txt --exclude-length 1234
+
+# Hide responses by content
+gobuster dir -u http://example.com -w wordlist.txt --exclude-content "Not Found"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Options</h3>
+                    <pre><code># Save output to file
+gobuster dir -u http://example.com -w wordlist.txt -o results.txt
+
+# Verbose output
+gobuster dir -u http://example.com -w wordlist.txt -v
+
+# Quiet mode (minimal output)
+gobuster dir -u http://example.com -w wordlist.txt -q
+
+# No progress indicator
+gobuster dir -u http://example.com -w wordlist.txt --no-progress</code></pre>
+                </div>
+            </section>
+
+            <section id="wordlists">
+                <h2>Wordlists and Dictionaries</h2>
+                <div class="command-block">
+                    <h3>Common Wordlist Locations</h3>
+                    <pre><code># Kali Linux wordlists
+/usr/share/wordlists/dirb/common.txt
+/usr/share/wordlists/dirb/big.txt
+/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+/usr/share/wordlists/dnsrecon/subdomains-top1mil-5000.txt
+
+# SecLists (install separately)
+git clone https://github.com/danielmiessler/SecLists.git
+# Directory lists: SecLists/Discovery/Web-Content/
+# Subdomain lists: SecLists/Discovery/DNS/
+
+# Custom wordlist creation
+# Combine multiple wordlists
+cat wordlist1.txt wordlist2.txt | sort -u > combined.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Wordlist Optimization</h3>
+                    <pre><code># Remove duplicates and sort
+sort -u wordlist.txt > clean_wordlist.txt
+
+# Filter by length
+awk 'length($0) > 3 && length($0) < 20' wordlist.txt > filtered.txt
+
+# Create custom wordlist from target
+cewl http://example.com -w custom_wordlist.txt
+
+# Generate wordlist variations
+# Add common extensions
+sed 's/$/.php/' wordlist.txt > php_wordlist.txt
+sed 's/$/.html/' wordlist.txt > html_wordlist.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="s3-buckets">
+                <h2>S3 Bucket Enumeration</h2>
+                <div class="command-block">
+                    <h3>AWS S3 Bucket Discovery</h3>
+                    <pre><code># Basic S3 bucket enumeration
+gobuster s3 -w bucket_names.txt
+
+# Scan with specific region
+gobuster s3 -w bucket_names.txt --region us-west-2
+
+# Maximum keys to list
+gobuster s3 -w bucket_names.txt -m 1000
+
+# Example bucket wordlist
+echo "company-backups" > buckets.txt
+echo "company-logs" >> buckets.txt
+echo "company-data" >> buckets.txt
+echo "company-dev" >> buckets.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>S3 Bucket Analysis</h3>
+                    <pre><code># Check bucket permissions
+aws s3 ls s3://found-bucket-name --no-sign-request
+
+# Download accessible files
+aws s3 sync s3://found-bucket-name . --no-sign-request
+
+# Check for public read/write
+aws s3api get-bucket-acl --bucket found-bucket-name --no-sign-request</code></pre>
+                </div>
+            </section>
+
+            <section id="authentication">
+                <h2>Authentication and Headers</h2>
+                <div class="command-block">
+                    <h3>HTTP Authentication</h3>
+                    <pre><code># Basic authentication
+gobuster dir -u http://example.com -w wordlist.txt -U username -P password
+
+# Custom headers
+gobuster dir -u http://example.com -w wordlist.txt -H "Authorization: Bearer token123"
+
+# Multiple headers
+gobuster dir -u http://example.com -w wordlist.txt -H "X-API-Key: key123" -H "User-Agent: Custom"
+
+# Cookies
+gobuster dir -u http://example.com -w wordlist.txt -c "sessionid=abc123; token=xyz789"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Proxy and SSL</h3>
+                    <pre><code># Use proxy
+gobuster dir -u http://example.com -w wordlist.txt --proxy http://127.0.0.1:8080
+
+# Ignore SSL certificate errors
+gobuster dir -u https://example.com -w wordlist.txt -k
+
+# Follow redirects
+gobuster dir -u http://example.com -w wordlist.txt -r
+
+# Custom CA certificate
+gobuster dir -u https://example.com -w wordlist.txt --ca-cert /path/to/ca.crt</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Scanning</h3>
+                    <pre><code># Scan multiple targets
+#!/bin/bash
+targets=("http://example1.com" "http://example2.com" "http://example3.com")
+wordlist="/usr/share/wordlists/dirb/common.txt"
+
+for target in "${targets[@]}"; do
+    echo "Scanning $target"
+    gobuster dir -u "$target" -w "$wordlist" -o "$(echo $target | sed 's|http://||' | sed 's|/|_|g').txt"
+    sleep 5
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Tools</h3>
+                    <pre><code># Combine with Nmap results
+nmap -p 80,443,8080,8443 --open target_network | grep -E "^[0-9]" | awk '{print "http://"$1}' > targets.txt
+while read target; do
+    gobuster dir -u "$target" -w wordlist.txt -o "gobuster_$(echo $target | tr '/:' '_').txt"
+done < targets.txt
+
+# Parse results for further analysis
+grep -h "Status: 200" gobuster_*.txt | awk '{print $1}' | sort -u > found_directories.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>JSON Output Processing</h3>
+                    <pre><code># Output in JSON format (if supported)
+gobuster dir -u http://example.com -w wordlist.txt -o results.json
+
+# Process JSON with jq
+cat results.json | jq '.[] | select(.status == 200) | .url'
+
+# Python script for processing results
+import json
+with open('results.json', 'r') as f:
+    results = json.load(f)
+    
+for result in results:
+    if result['status'] in [200, 301, 302]:
+        print(f"Found: {result['url']} (Status: {result['status']})")</code></pre>
+                </div>
+            </section>
+
+            <section id="evasion-techniques">
+                <h2>Evasion and Stealth</h2>
+                <div class="command-block">
+                    <h3>Rate Limiting and Delays</h3>
+                    <pre><code># Slow and stealthy scan
+gobuster dir -u http://example.com -w wordlist.txt -t 5 --delay 2s
+
+# Random delays
+gobuster dir -u http://example.com -w wordlist.txt --delay 1s-5s
+
+# Randomize user agents
+gobuster dir -u http://example.com -w wordlist.txt -a "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Request Randomization</h3>
+                    <pre><code># Custom user agents list
+echo "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" > user_agents.txt
+echo "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" >> user_agents.txt
+
+# Rotate through user agents (manual implementation needed)
+# Use different source IPs if available
+# Implement request timing randomization</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Debug mode
+gobuster dir -u http://example.com -w wordlist.txt -v
+
+# Check connectivity
+curl -I http://example.com
+
+# Test with small wordlist first
+head -10 /usr/share/wordlists/dirb/common.txt > test.txt
+gobuster dir -u http://example.com -w test.txt -v
+
+# Check DNS resolution
+nslookup example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Reduce threads if getting errors
+gobuster dir -u http://example.com -w wordlist.txt -t 10
+
+# Increase timeout for slow servers
+gobuster dir -u http://example.com -w wordlist.txt --timeout 30s
+
+# Monitor system resources
+top -p $(pgrep gobuster)
+
+# Check network connectivity
+ping example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Web Application Testing</h3>
+                    <ul>
+                        <li>Discovery of hidden directories and files</li>
+                        <li>Identification of admin panels and sensitive areas</li>
+                        <li>Finding backup files and configuration files</li>
+                        <li>Discovering API endpoints and documentation</li>
+                        <li>Locating development and testing environments</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Reconnaissance and OSINT</h3>
+                    <ul>
+                        <li>Subdomain enumeration for attack surface mapping</li>
+                        <li>Virtual host discovery on shared hosting</li>
+                        <li>S3 bucket discovery for data exposure assessment</li>
+                        <li>Content discovery for information gathering</li>
+                        <li>Technology stack identification</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with common wordlists:</strong> Use well-known lists before custom ones</li>
+                    <li><strong>Tune for target:</strong> Adjust threads and delays based on server response</li>
+                    <li><strong>Use multiple wordlists:</strong> Different lists may reveal different content</li>
+                    <li><strong>Check extensions:</strong> Include relevant file extensions for the technology stack</li>
+                    <li><strong>Monitor responses:</strong> Look for unusual status codes or response lengths</li>
+                    <li><strong>Combine techniques:</strong> Use directory and subdomain enumeration together</li>
+                    <li><strong>Validate findings:</strong> Manually verify interesting discoveries</li>
+                    <li><strong>Respect rate limits:</strong> Avoid overwhelming target servers</li>
+                    <li><strong>Document results:</strong> Keep organized records of discoveries</li>
+                    <li><strong>Follow up:</strong> Investigate discovered directories and files further</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Gobuster should only be used for:</p>
+                    <ul>
+                        <li>Testing web applications you own or have explicit permission to test</li>
+                        <li>Authorized penetration testing with proper legal agreements</li>
+                        <li>Bug bounty programs with defined scope and rules</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Security research with appropriate institutional approval</li>
+                    </ul>
+                    <p>Unauthorized directory brute-forcing and subdomain enumeration may violate computer crime laws, terms of service, and other regulations. Web application security testing should only be performed by qualified professionals with proper authorization and legal agreements. Gobuster can generate significant traffic and may impact server performance or trigger security controls. Always ensure you have explicit written permission before scanning any web application or domain. Some scanning techniques may be considered intrusive and could potentially cause service disruption. Maintain proper documentation of testing activities and findings. Follow responsible disclosure practices for any vulnerabilities or sensitive information discovered. Be aware that scanning activities may be logged and monitored by target systems. Respect rate limits and implement appropriate delays to minimize impact on target systems. DNS enumeration may reveal sensitive internal infrastructure information that should be handled appropriately.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

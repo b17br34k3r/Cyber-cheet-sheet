@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arp-scan Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>arp-scan: ARP Network Discovery Tool</h1>
+            <p>Master Local Network Discovery and MAC Address Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is arp-scan?</h2>
+                <p>arp-scan is a command-line tool that uses the ARP protocol to discover and fingerprint IP hosts on the local network. It sends ARP requests to hosts on the local network and displays any responses that are received. This makes it excellent for network discovery, asset inventory, duplicate IP detection, and security assessments on local area networks.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install arp-scan
+
+# CentOS/RHEL
+sudo yum install arp-scan
+
+# Arch Linux
+sudo pacman -S arp-scan
+
+# From source
+git clone https://github.com/royhills/arp-scan.git
+cd arp-scan
+autoreconf --install
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install arp-scan
+
+# From source (requires Xcode tools)
+git clone https://github.com/royhills/arp-scan.git
+cd arp-scan
+autoreconf --install
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Use Windows Subsystem for Linux
+wsl sudo apt install arp-scan
+
+# Or use alternative tools like:
+# - Advanced IP Scanner
+# - Angry IP Scanner
+# - Nmap for Windows</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+sudo arp-scan [options] [targets]
+
+# Scan local network
+sudo arp-scan --local
+
+# Scan specific network
+sudo arp-scan 192.168.1.0/24
+
+# Scan with interface specification
+sudo arp-scan --interface=eth0 --local</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Target Specification</h3>
+                    <pre><code># Single IP
+sudo arp-scan 192.168.1.100
+
+# IP range
+sudo arp-scan 192.168.1.1-192.168.1.254
+
+# CIDR notation
+sudo arp-scan 192.168.1.0/24
+
+# Multiple networks
+sudo arp-scan 192.168.1.0/24 10.0.0.0/24
+
+# Read targets from file
+sudo arp-scan --file=targets.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="network-discovery">
+                <h2>Network Discovery</h2>
+                <div class="command-block">
+                    <h3>Local Network Scanning</h3>
+                    <pre><code># Auto-detect and scan local network
+sudo arp-scan --local
+
+# Scan all local networks
+sudo arp-scan --localnet
+
+# Scan with specific interface
+sudo arp-scan --interface=eth0 --local
+sudo arp-scan --interface=wlan0 --local</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Network Ranges</h3>
+                    <pre><code># Common private networks
+sudo arp-scan 192.168.1.0/24    # Class C
+sudo arp-scan 10.0.0.0/8        # Class A
+sudo arp-scan 172.16.0.0/12     # Class B
+
+# Specific subnets
+sudo arp-scan 192.168.1.0/25    # First half
+sudo arp-scan 192.168.1.128/25  # Second half</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output Options & Formatting</h2>
+                <div class="command-block">
+                    <h3>Output Formats</h3>
+                    <pre><code># Default output
+sudo arp-scan --local
+
+# Quiet mode (IP and MAC only)
+sudo arp-scan --quiet --local
+
+# Plain format
+sudo arp-scan --plain --local
+
+# Show only responding hosts
+sudo arp-scan --local | grep -v "DUP"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Vendor Information</h3>
+                    <pre><code># Show vendor information (default)
+sudo arp-scan --local
+
+# Hide vendor information
+sudo arp-scan --local --plain
+
+# Custom OUI file
+sudo arp-scan --local --ouifile=/path/to/oui.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Additional Information</h3>
+                    <pre><code># Show packet details
+sudo arp-scan --verbose --local
+
+# Show timing information
+sudo arp-scan --local --stats
+
+# Show interface information
+sudo arp-scan --local --interface=eth0 --verbose</code></pre>
+                </div>
+            </section>
+
+            <section id="timing-options">
+                <h2>Timing & Performance Options</h2>
+                <div class="command-block">
+                    <h3>Scan Speed Control</h3>
+                    <pre><code># Custom timeout (milliseconds)
+sudo arp-scan --timeout=500 --local
+
+# Custom interval between packets
+sudo arp-scan --interval=10 --local
+
+# Bandwidth limiting
+sudo arp-scan --bandwidth=1000000 --local  # 1 Mbps
+
+# Retry count
+sudo arp-scan --retry=3 --local</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <pre><code># Fast scan (aggressive timing)
+sudo arp-scan --timeout=100 --retry=1 --local
+
+# Slow scan (stealth timing)
+sudo arp-scan --timeout=2000 --interval=100 --local
+
+# Parallel scanning
+sudo arp-scan --local &
+sudo arp-scan --interface=wlan0 --local &
+wait</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Scanning Options</h2>
+                <div class="command-block">
+                    <h3>Source Configuration</h3>
+                    <pre><code># Custom source MAC address
+sudo arp-scan --srcaddr=00:11:22:33:44:55 --local
+
+# Random source MAC
+sudo arp-scan --random --local
+
+# Specific source IP
+sudo arp-scan --arpspa=192.168.1.100 --local</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Packet Customization</h3>
+                    <pre><code># Custom ARP hardware type
+sudo arp-scan --arpsha=00:11:22:33:44:55 --local
+
+# Custom prototype
+sudo arp-scan --prototype=0x0800 --local
+
+# VLAN tagging
+sudo arp-scan --vlan=100 --local</code></pre>
+                </div>
+            </section>
+
+            <section id="duplicate-detection">
+                <h2>Duplicate IP Detection</h2>
+                <div class="command-block">
+                    <h3>Finding Duplicate IPs</h3>
+                    <pre><code># Standard scan (shows duplicates)
+sudo arp-scan --local
+
+# Focus on duplicates only
+sudo arp-scan --local | grep "DUP"
+
+# Detailed duplicate analysis
+sudo arp-scan --local --verbose | grep -A2 -B2 "DUP"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Duplicate Resolution</h3>
+                    <pre><code># Multiple scans for verification
+for i in {1..5}; do
+    echo "Scan $i:"
+    sudo arp-scan --local | grep "DUP"
+    sleep 2
+done
+
+# Check specific IP for conflicts
+sudo arp-scan 192.168.1.100 --retry=5</code></pre>
+                </div>
+            </section>
+
+            <section id="security-applications">
+                <h2>Security Applications</h2>
+                <div class="command-block">
+                    <h3>Network Reconnaissance</h3>
+                    <pre><code># Discover all hosts on network
+sudo arp-scan --local --quiet
+
+# Identify device types by MAC vendor
+sudo arp-scan --local | grep -i "apple\|samsung\|intel"
+
+# Find specific device types
+sudo arp-scan --local | grep -i "raspberry\|arduino\|iot"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Rogue Device Detection</h3>
+                    <pre><code># Baseline network scan
+sudo arp-scan --local > baseline.txt
+
+# Compare current scan with baseline
+sudo arp-scan --local > current.txt
+diff baseline.txt current.txt
+
+# Monitor for new devices
+while true; do
+    sudo arp-scan --local --quiet > /tmp/current_scan.txt
+    if ! diff -q baseline.txt /tmp/current_scan.txt > /dev/null; then
+        echo "$(date): Network change detected!"
+        diff baseline.txt /tmp/current_scan.txt
+    fi
+    sleep 60
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>ARP Spoofing Detection</h3>
+                    <pre><code># Monitor for MAC address changes
+sudo arp-scan --local --retry=3 | sort > scan1.txt
+sleep 10
+sudo arp-scan --local --retry=3 | sort > scan2.txt
+diff scan1.txt scan2.txt
+
+# Continuous monitoring
+while true; do
+    sudo arp-scan --local --quiet --retry=1
+    sleep 5
+done | awk '{print strftime("%Y-%m-%d %H:%M:%S"), $0}'</code></pre>
+                </div>
+            </section>
+
+            <section id="scripting-automation">
+                <h2>Scripting & Automation</h2>
+                <div class="command-block">
+                    <h3>Network Inventory Script</h3>
+                    <pre><code>#!/bin/bash
+# Network inventory script
+output_file="network_inventory_$(date +%Y%m%d_%H%M%S).txt"
+
+echo "Network Inventory - $(date)" > $output_file
+echo "================================" >> $output_file
+
+# Scan all interfaces
+for interface in $(ip link show | grep -E '^[0-9]+:' | cut -d: -f2 | tr -d ' '); do
+    if [[ $interface != "lo" ]]; then
+        echo "Interface: $interface" >> $output_file
+        sudo arp-scan --interface=$interface --local >> $output_file
+        echo "" >> $output_file
+    fi
+done
+
+echo "Inventory saved to: $output_file"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Device Monitoring Script</h3>
+                    <pre><code>#!/bin/bash
+# Monitor for new devices
+baseline_file="network_baseline.txt"
+alert_log="device_alerts.log"
+
+# Create baseline if it doesn't exist
+if [ ! -f "$baseline_file" ]; then
+    sudo arp-scan --local --quiet > $baseline_file
+    echo "Baseline created: $baseline_file"
+    exit 0
+fi
+
+# Perform current scan
+current_scan=$(sudo arp-scan --local --quiet)
+
+# Compare with baseline
+if ! echo "$current_scan" | diff -q $baseline_file - > /dev/null; then
+    echo "$(date): Network change detected!" | tee -a $alert_log
+    echo "$current_scan" | diff $baseline_file - | tee -a $alert_log
+    
+    # Optional: Send alert (email, webhook, etc.)
+    # echo "New device detected" | mail -s "Network Alert" admin@company.com
+fi</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>MAC Address Analysis</h3>
+                    <pre><code>#!/bin/bash
+# Analyze MAC addresses and vendors
+scan_output=$(sudo arp-scan --local)
+
+echo "=== Vendor Analysis ==="
+echo "$scan_output" | grep -v "Interface\|packets\|Ending" | \
+awk '{print $3}' | sort | uniq -c | sort -nr
+
+echo "=== Device Count by Vendor ==="
+echo "$scan_output" | grep -oE '[A-Z][a-z]+ [A-Z][a-z]+' | \
+sort | uniq -c | sort -nr
+
+echo "=== Potential IoT Devices ==="
+echo "$scan_output" | grep -iE "raspberry|arduino|espressif|broadcom|realtek"</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Nmap Integration</h3>
+                    <pre><code># Use arp-scan for discovery, nmap for detailed scanning
+hosts=$(sudo arp-scan --local --quiet | awk '{print $1}' | grep -E '^[0-9]+\.')
+echo "$hosts" | nmap -sV -iL -
+
+# Combined discovery and port scanning
+sudo arp-scan --local --quiet | awk '{print $1}' | \
+while read ip; do
+    echo "Scanning $ip..."
+    nmap -sS -O $ip
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Integration</h3>
+                    <pre><code>#!/bin/bash
+# Store results in database (SQLite example)
+db_file="network_inventory.db"
+
+# Create table if not exists
+sqlite3 $db_file "CREATE TABLE IF NOT EXISTS devices (
+    timestamp TEXT,
+    ip_address TEXT,
+    mac_address TEXT,
+    vendor TEXT
+);"
+
+# Insert scan results
+sudo arp-scan --local --quiet | while read ip mac vendor; do
+    if [[ $ip =~ ^[0-9]+\. ]]; then
+        sqlite3 $db_file "INSERT INTO devices VALUES (
+            '$(date)',
+            '$ip',
+            '$mac',
+            '$vendor'
+        );"
+    fi
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting & Common Issues</h2>
+                <div class="command-block">
+                    <h3>Permission Issues</h3>
+                    <pre><code># Run with sudo (required for raw sockets)
+sudo arp-scan --local
+
+# Check interface permissions
+sudo arp-scan --interface=eth0 --local
+
+# Verify network interface is up
+ip link show</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Issues</h3>
+                    <pre><code># Check if interface is connected
+ip addr show eth0
+
+# Verify ARP table
+arp -a
+
+# Test with different interfaces
+sudo arp-scan --interface=eth0 --local
+sudo arp-scan --interface=wlan0 --local</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>No Responses</h3>
+                    <pre><code># Increase timeout and retries
+sudo arp-scan --timeout=2000 --retry=5 --local
+
+# Check if hosts are actually up
+ping -c 1 192.168.1.1
+
+# Verify network configuration
+route -n</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-tips">
+                <h2>Performance Tips & Optimization</h2>
+                <div class="command-block">
+                    <h3>Speed Optimization</h3>
+                    <pre><code># Fast scan for large networks
+sudo arp-scan --timeout=100 --retry=1 192.168.0.0/16
+
+# Parallel scanning of multiple networks
+sudo arp-scan 192.168.1.0/24 &
+sudo arp-scan 192.168.2.0/24 &
+sudo arp-scan 192.168.3.0/24 &
+wait</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Resource Management</h3>
+                    <pre><code># Limit bandwidth usage
+sudo arp-scan --bandwidth=100000 --local  # 100 Kbps
+
+# Control packet rate
+sudo arp-scan --interval=50 --local  # 50ms between packets
+
+# Monitor system resources
+sudo arp-scan --local --stats</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use sudo:</strong> Raw socket access requires root privileges</li>
+                    <li><strong>Regular baselines:</strong> Create network baselines for change detection</li>
+                    <li><strong>Multiple interfaces:</strong> Scan all network interfaces separately</li>
+                    <li><strong>Vendor analysis:</strong> Use MAC vendor info for device identification</li>
+                    <li><strong>Combine tools:</strong> Use with nmap for comprehensive discovery</li>
+                    <li><strong>Monitor continuously:</strong> Set up automated monitoring for security</li>
+                    <li><strong>Document findings:</strong> Keep inventory of network devices</li>
+                    <li><strong>Respect networks:</strong> Don't scan networks you don't own</li>
+                </ul>
+            </section>
+
+            <section id="output-examples">
+                <h2>Output Examples & Interpretation</h2>
+                <div class="command-block">
+                    <h3>Normal Output</h3>
+                    <pre><code># Example output:
+# Interface: eth0, datalink type: EN10MB (Ethernet)
+# Starting arp-scan 1.9.7 with 256 hosts (https://github.com/royhills/arp-scan)
+# 192.168.1.1     00:11:22:33:44:55       Cisco Systems, Inc.
+# 192.168.1.100   aa:bb:cc:dd:ee:ff       Apple, Inc.
+# 192.168.1.150   11:22:33:44:55:66       Samsung Electronics Co.,Ltd
+# 
+# 3 packets received by filter, 0 packets dropped by kernel
+# Ending arp-scan 1.9.7: 256 hosts scanned in 2.15 seconds (119.07 hosts/sec)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Duplicate Detection Output</h3>
+                    <pre><code># Example with duplicate IP:
+# 192.168.1.100   aa:bb:cc:dd:ee:ff       Apple, Inc.
+# 192.168.1.100   11:22:33:44:55:66       Samsung Electronics Co.,Ltd (DUP: 2)</code></pre>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> arp-scan should only be used for:</p>
+                    <ul>
+                        <li>Scanning your own networks and systems</li>
+                        <li>Authorized network administration and troubleshooting</li>
+                        <li>Security assessments with proper authorization</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                    </ul>
+                    <p>Unauthorized network scanning may violate computer crime laws, network policies, and terms of service. ARP scanning can be detected by network monitoring systems and may be considered reconnaissance activity. Always obtain proper authorization before scanning networks you don't own or administer.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexdump Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Hexdump: Binary File Analysis Tool</h1>
+            <p>Master Binary Data Inspection and Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Hexdump?</h2>
+                <p>Hexdump is a command-line utility that displays the contents of binary files in hexadecimal, decimal, octal, or ASCII format. It's an essential tool for digital forensics, malware analysis, reverse engineering, and debugging. Hexdump allows investigators to examine raw binary data, identify file signatures, analyze data structures, and detect hidden or embedded content within files. It provides multiple output formats and filtering options, making it versatile for various analysis scenarios.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Usually pre-installed on most Linux distributions
+hexdump -V
+
+# If not installed:
+# Ubuntu/Debian
+sudo apt update
+sudo apt install bsdmainutils
+
+# CentOS/RHEL/Fedora
+sudo yum install util-linux
+# or
+sudo dnf install util-linux
+
+# Arch Linux
+sudo pacman -S util-linux</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Option 1: Windows Subsystem for Linux (WSL)
+# Install Ubuntu on WSL, hexdump is included
+
+# Option 2: Git for Windows
+# Includes hexdump utility in Git Bash
+
+# Option 3: MSYS2/MinGW
+# Install MSYS2, then:
+pacman -S util-linux
+
+# Option 4: PowerShell alternative
+# Use Format-Hex cmdlet in PowerShell
+Format-Hex file.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Pre-installed on macOS
+hexdump -V
+
+# Alternative: Install via Homebrew
+brew install hexdump</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check installation
+hexdump -V
+
+# Display help
+hexdump --help
+
+# Test basic functionality
+echo "Hello World" | hexdump</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Default Output</h3>
+                    <pre><code># Basic hexdump (default format)
+hexdump file.bin
+
+# Canonical hex+ASCII display (most common)
+hexdump -C file.bin
+
+# Display specific number of bytes
+hexdump -C -n 256 file.bin
+
+# Skip first N bytes
+hexdump -C -s 1024 file.bin
+
+# Combine skip and length
+hexdump -C -s 512 -n 256 file.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Formats</h3>
+                    <pre><code># Canonical format (hex + ASCII)
+hexdump -C file.bin
+
+# One-byte octal display
+hexdump -b file.bin
+
+# One-byte character display
+hexdump -c file.bin
+
+# Two-byte decimal display
+hexdump -d file.bin
+
+# Two-byte octal display
+hexdump -o file.bin
+
+# Two-byte hexadecimal display
+hexdump -x file.bin
+
+# Four-byte hexadecimal display
+hexdump -X file.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Format Strings</h3>
+                    <pre><code># Custom format with -e option
+hexdump -e '16/1 "%02x " "\n"' file.bin
+
+# Display as 32-bit integers
+hexdump -e '4/4 "%08x " "\n"' file.bin
+
+# Mixed format (address + hex + ASCII)
+hexdump -e '"%08.8_ax: " 8/1 "%02x " " " 8/1 "%02x " " |" 16/1 "%_p" "|\n"' file.bin
+
+# Display only printable characters
+hexdump -e '16/1 "%_p"' -e '"\n"' file.bin</code></pre>
+                </div>
+            </section>
+
+            <section id="forensic-analysis">
+                <h2>Forensic Analysis</h2>
+                <div class="command-block">
+                    <h3>File Header Analysis</h3>
+                    <pre><code># Examine file headers (first 64 bytes)
+hexdump -C -n 64 suspicious_file.exe
+
+# Look for common file signatures
+hexdump -C -n 16 file.bin
+# Common signatures:
+# 4D 5A = PE executable (MZ)
+# 50 4B = ZIP archive (PK)
+# FF D8 FF = JPEG image
+# 89 50 4E 47 = PNG image
+# 25 50 44 46 = PDF document
+
+# Compare file headers
+hexdump -C -n 32 file1.bin > header1.txt
+hexdump -C -n 32 file2.bin > header2.txt
+diff header1.txt header2.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Data Structure Analysis</h3>
+                    <pre><code># Analyze specific data structures
+hexdump -C -s 0x1000 -n 512 binary_file.exe
+
+# Look for patterns in data
+hexdump -C file.bin | grep "00 00 00 00"
+
+# Find repeating patterns
+hexdump -C file.bin | awk '{print $2$3$4$5}' | sort | uniq -c | sort -nr
+
+# Analyze padding and alignment
+hexdump -C file.bin | grep -E "(00 00 00 00|ff ff ff ff)"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>String and Text Analysis</h3>
+                    <pre><code># Display readable text within binary
+hexdump -C file.bin | grep -E "[[:print:]]{4,}"
+
+# Look for Unicode strings
+hexdump -C file.bin | grep -E "00 [2-7][0-9a-f]"
+
+# Find null-terminated strings
+hexdump -C file.bin | grep -B2 -A2 "00$"
+
+# Extract ASCII representation only
+hexdump -e '16/1 "%_p"' -e '"\n"' file.bin | grep -E "[[:print:]]{4,}"</code></pre>
+                </div>
+            </section>
+
+            <section id="malware-analysis">
+                <h2>Malware Analysis</h2>
+                <div class="command-block">
+                    <h3>Malware Sample Analysis</h3>
+                    <pre><code># Examine malware headers
+hexdump -C -n 1024 malware.exe
+
+# Look for packed/encrypted sections
+hexdump -C malware.exe | head -50
+
+# Find embedded executables
+hexdump -C malware.exe | grep -E "4d 5a|50 4b"
+
+# Look for suspicious patterns
+hexdump -C malware.exe | grep -E "(90 90 90|cc cc cc|00 00 00)"
+
+# Analyze entry point
+hexdump -C -s 0x400000 -n 256 malware.exe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Obfuscation Detection</h3>
+                    <pre><code># Look for XOR patterns
+hexdump -C malware.exe | awk '{for(i=2;i<=17;i++) if($i!="") print $i}' | sort | uniq -c | sort -nr
+
+# Detect high entropy sections
+hexdump -C malware.exe | awk '{print NR, $0}' | head -100
+
+# Find repeating byte patterns
+hexdump -C malware.exe | grep -E "([0-9a-f]{2} )\1{3,}"
+
+# Look for common obfuscation techniques
+hexdump -C malware.exe | grep -E "(eb [0-9a-f]{2}|e8 [0-9a-f]{8})"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Shellcode Analysis</h3>
+                    <pre><code># Examine potential shellcode
+hexdump -C -s 0x2000 -n 512 exploit.bin
+
+# Look for common shellcode patterns
+hexdump -C shellcode.bin | grep -E "(eb|e8|e9|ff)"
+
+# Analyze NOP sleds
+hexdump -C exploit.bin | grep -E "90 90 90 90"
+
+# Find return addresses
+hexdump -C exploit.bin | grep -E "[0-9a-f]{2} [0-9a-f]{2} 40 00"</code></pre>
+                </div>
+            </section>
+
+            <section id="network-analysis">
+                <h2>Network Analysis</h2>
+                <div class="command-block">
+                    <h3>Packet Analysis</h3>
+                    <pre><code># Examine packet capture files
+hexdump -C -n 1024 capture.pcap
+
+# Look for HTTP headers
+hexdump -C capture.pcap | grep -E "(47 45 54|50 4f 53 54)"  # GET/POST
+
+# Find IP addresses in binary format
+hexdump -C capture.pcap | grep -E "c0 a8|0a 00|ac 1[0-9a-f]"  # Private IPs
+
+# Analyze protocol headers
+hexdump -C -s 14 -n 20 packet.bin  # IP header
+hexdump -C -s 34 -n 20 packet.bin  # TCP header</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Protocol Analysis</h3>
+                    <pre><code># Examine DNS packets
+hexdump -C dns_packet.bin
+
+# Look for DHCP options
+hexdump -C dhcp_packet.bin | grep -A5 -B5 "63 82 53 63"
+
+# Analyze SSL/TLS handshake
+hexdump -C tls_handshake.bin | grep -E "16 03 [0-3][0-9]"
+
+# Find protocol signatures
+hexdump -C network_data.bin | grep -E "(08 00|08 06|86 dd)"  # IP/ARP/IPv6</code></pre>
+                </div>
+            </section>
+
+            <section id="memory-analysis">
+                <h2>Memory Analysis</h2>
+                <div class="command-block">
+                    <h3>Memory Dump Analysis</h3>
+                    <pre><code># Examine memory dump headers
+hexdump -C -n 4096 memory_dump.raw
+
+# Look for process structures
+hexdump -C -s 0x10000 -n 1024 memory_dump.raw
+
+# Find executable code in memory
+hexdump -C memory_dump.raw | grep -E "55 8b ec|8b ff 55"  # Common function prologues
+
+# Search for specific patterns
+hexdump -C memory_dump.raw | grep -E "4d 5a 90 00"  # PE header in memory</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Heap and Stack Analysis</h3>
+                    <pre><code># Analyze heap structures
+hexdump -C -s 0x00400000 -n 2048 memory_dump.raw
+
+# Look for stack frames
+hexdump -C -s 0x7fff0000 -n 1024 memory_dump.raw
+
+# Find return addresses on stack
+hexdump -C memory_dump.raw | grep -E "00 40 [0-9a-f]{2} [0-9a-f]{2}"
+
+# Analyze memory allocation patterns
+hexdump -C memory_dump.raw | awk '{print $1}' | sort | uniq -c</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Techniques</h2>
+                <div class="command-block">
+                    <h3>Differential Analysis</h3>
+                    <pre><code># Compare two binary files
+hexdump -C file1.bin > hex1.txt
+hexdump -C file2.bin > hex2.txt
+diff hex1.txt hex2.txt
+
+# Find differences at specific offsets
+hexdump -C -s 1024 -n 512 file1.bin > section1.txt
+hexdump -C -s 1024 -n 512 file2.bin > section2.txt
+diff -u section1.txt section2.txt
+
+# Automated difference detection
+#!/bin/bash
+for offset in $(seq 0 1024 10240); do
+    if ! cmp -s <(hexdump -C -s $offset -n 1024 file1.bin) <(hexdump -C -s $offset -n 1024 file2.bin); then
+        echo "Difference found at offset $offset"
+    fi
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Pattern Searching</h3>
+                    <pre><code># Search for specific byte patterns
+hexdump -C large_file.bin | grep -n "de ad be ef"
+
+# Find all occurrences of a pattern
+hexdump -C file.bin | grep -o -E "[0-9a-f]{8}: [0-9a-f ]{47}" | grep "pattern"
+
+# Search with context
+hexdump -C file.bin | grep -B5 -A5 "target_pattern"
+
+# Case-insensitive pattern search
+hexdump -C file.bin | grep -i "pattern"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Statistical Analysis</h3>
+                    <pre><code># Byte frequency analysis
+hexdump -C file.bin | awk '{for(i=2;i<=17;i++) if($i!="") print $i}' | sort | uniq -c | sort -nr
+
+# Entropy estimation
+hexdump -C file.bin | awk '{for(i=2;i<=17;i++) if($i!="") print $i}' | sort | uniq -c | awk '{print $2, $1}' | sort
+
+# Find most common patterns
+hexdump -C file.bin | awk '{print $2$3$4$5}' | sort | uniq -c | sort -nr | head -20
+
+# Analyze byte distribution
+hexdump -C file.bin | awk '{for(i=2;i<=17;i++) if($i!="") bytes[$i]++} END {for(b in bytes) print b, bytes[b]}' | sort</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Analysis Script</h3>
+                    <pre><code>#!/bin/bash
+# Comprehensive hexdump analysis script
+
+FILE="$1"
+OUTPUT_DIR="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <file_to_analyze> <output_directory>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Analyzing file: $FILE"
+
+# Basic file information
+echo "=== File Information ===" > "$OUTPUT_DIR/analysis_report.txt"
+file "$FILE" >> "$OUTPUT_DIR/analysis_report.txt"
+ls -lh "$FILE" >> "$OUTPUT_DIR/analysis_report.txt"
+echo "" >> "$OUTPUT_DIR/analysis_report.txt"
+
+# File header analysis
+echo "=== File Header (first 256 bytes) ===" >> "$OUTPUT_DIR/analysis_report.txt"
+hexdump -C -n 256 "$FILE" >> "$OUTPUT_DIR/analysis_report.txt"
+echo "" >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Look for embedded files
+echo "=== Embedded File Signatures ===" >> "$OUTPUT_DIR/analysis_report.txt"
+hexdump -C "$FILE" | grep -E "(4d 5a|50 4b|ff d8 ff|89 50 4e 47)" >> "$OUTPUT_DIR/analysis_report.txt"
+echo "" >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Byte frequency analysis
+echo "=== Byte Frequency Analysis ===" >> "$OUTPUT_DIR/analysis_report.txt"
+hexdump -C "$FILE" | awk '{for(i=2;i<=17;i++) if($i!="") print $i}' | sort | uniq -c | sort -nr | head -20 >> "$OUTPUT_DIR/analysis_report.txt"
+echo "" >> "$OUTPUT_DIR/analysis_report.txt"
+
+# String analysis
+echo "=== Readable Strings ===" >> "$OUTPUT_DIR/analysis_report.txt"
+hexdump -e '16/1 "%_p"' -e '"\n"' "$FILE" | grep -E "[[:print:]]{4,}" | head -50 >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Generate full hex dump
+hexdump -C "$FILE" > "$OUTPUT_DIR/full_hexdump.txt"
+
+echo "Analysis completed. Results saved to $OUTPUT_DIR"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Pattern Extraction Script</h3>
+                    <pre><code>#!/bin/bash
+# Extract specific patterns from binary files
+
+FILE="$1"
+PATTERN="$2"
+OUTPUT_FILE="$3"
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <file> <hex_pattern> <output_file>"
+    echo "Example: $0 file.bin 'de ad be ef' patterns.txt"
+    exit 1
+fi
+
+echo "Searching for pattern: $PATTERN in $FILE"
+echo "=== Pattern Search Results ===" > "$OUTPUT_FILE"
+echo "File: $FILE" >> "$OUTPUT_FILE"
+echo "Pattern: $PATTERN" >> "$OUTPUT_FILE"
+echo "Search Date: $(date)" >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+
+# Search for pattern with context
+hexdump -C "$FILE" | grep -B2 -A2 "$PATTERN" >> "$OUTPUT_FILE"
+
+# Count occurrences
+OCCURRENCES=$(hexdump -C "$FILE" | grep -c "$PATTERN")
+echo "" >> "$OUTPUT_FILE"
+echo "Total occurrences found: $OCCURRENCES" >> "$OUTPUT_FILE"
+
+echo "Pattern search completed. Results saved to $OUTPUT_FILE"</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Strings</h3>
+                    <pre><code># Combine hexdump with strings analysis
+hexdump -C file.bin > hex_output.txt
+strings file.bin > strings_output.txt
+
+# Find string locations in hex dump
+for string in $(strings file.bin | head -10); do
+    echo "Looking for: $string"
+    grep -n "$string" hex_output.txt
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with File Analysis</h3>
+                    <pre><code># Verify file type with hexdump
+file suspicious_file.exe
+hexdump -C -n 64 suspicious_file.exe
+
+# Cross-reference with binwalk
+binwalk suspicious_file.exe
+hexdump -C -s 0x1000 -n 256 suspicious_file.exe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Disassemblers</h3>
+                    <pre><code># Extract code sections for disassembly
+hexdump -C -s 0x1000 -n 512 binary.exe > code_section.hex
+
+# Generate input for disassemblers
+hexdump -e '16/1 "%02x"' -e '"\n"' binary.exe > hex_for_disasm.txt
+
+# Create objdump-compatible format
+hexdump -C binary.exe | awk '{print $1, $2$3$4$5$6$7$8$9$10$11$12$13$14$15$16$17}' > objdump_input.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Large file handling
+# Use -n to limit output
+hexdump -C -n 1024 large_file.bin
+
+# Memory issues with huge files
+# Process in chunks
+split -b 1M large_file.bin chunk_
+for chunk in chunk_*; do
+    hexdump -C "$chunk" > "${chunk}_hex.txt"
+done
+
+# Permission issues
+chmod +r file.bin
+sudo hexdump -C /dev/mem
+
+# Binary file detection
+file unknown_file.bin
+hexdump -C -n 16 unknown_file.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <pre><code># Speed up analysis of large files
+# Limit output length
+hexdump -C -n 10240 file.bin
+
+# Use specific offsets
+hexdump -C -s 1024 -n 512 file.bin
+
+# Pipe to head for quick preview
+hexdump -C file.bin | head -50
+
+# Use grep to filter output
+hexdump -C file.bin | grep "interesting_pattern"</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>File header and signature analysis</li>
+                        <li>Data structure examination</li>
+                        <li>Hidden data detection</li>
+                        <li>File corruption analysis</li>
+                        <li>Evidence integrity verification</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Malware Analysis</h3>
+                    <ul>
+                        <li>Packed executable analysis</li>
+                        <li>Shellcode examination</li>
+                        <li>Obfuscation detection</li>
+                        <li>Embedded payload identification</li>
+                        <li>Anti-analysis technique discovery</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Reverse Engineering</h3>
+                    <ul>
+                        <li>Binary format analysis</li>
+                        <li>Protocol reverse engineering</li>
+                        <li>Data structure mapping</li>
+                        <li>Firmware analysis</li>
+                        <li>File format research</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use canonical format:</strong> -C option provides the most readable output</li>
+                    <li><strong>Limit output size:</strong> Use -n option to avoid overwhelming output</li>
+                    <li><strong>Combine with grep:</strong> Filter output to find specific patterns</li>
+                    <li><strong>Use offsets wisely:</strong> -s option helps focus on specific file sections</li>
+                    <li><strong>Learn common signatures:</strong> Memorize file type magic numbers</li>
+                    <li><strong>Document findings:</strong> Save hex dumps for later reference</li>
+                    <li><strong>Cross-reference tools:</strong> Verify findings with other analysis tools</li>
+                    <li><strong>Understand endianness:</strong> Consider byte order in multi-byte values</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Hexdump should only be used for:</p>
+                    <ul>
+                        <li>Analyzing files you own or have permission to examine</li>
+                        <li>Authorized security research and malware analysis</li>
+                        <li>Digital forensics investigations with proper legal authority</li>
+                        <li>Reverse engineering for interoperability or security purposes</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized analysis of binary files may violate copyright laws, terms of service, and other legal agreements. Always ensure you have proper authorization before analyzing files that don't belong to you. Respect intellectual property rights and comply with applicable laws and regulations. Binary analysis may reveal sensitive information that must be handled appropriately according to privacy laws and data protection requirements.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

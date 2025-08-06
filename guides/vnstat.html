@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vnStat Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>vnStat: Network Statistics Monitor</h1>
+            <p>Master Historical Network Usage Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is vnStat?</h2>
+                <p>vnStat is a console-based network traffic monitor that keeps a log of network traffic for the selected interface(s). It uses the network interface statistics provided by the kernel as information source. This means that vnStat won't actually be sniffing any traffic and also ensures light use of system resources regardless of network traffic rate. vnStat is particularly useful for monitoring long-term network usage patterns, generating historical reports, and tracking bandwidth consumption over time.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install vnStat
+sudo apt update
+sudo apt install vnstat
+
+# Start and enable the daemon
+sudo systemctl start vnstat
+sudo systemctl enable vnstat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Install EPEL repository
+sudo yum install epel-release
+
+# Install vnStat
+sudo yum install vnstat
+
+# Or on newer versions
+sudo dnf install vnstat
+
+# Start and enable the daemon
+sudo systemctl start vnstat
+sudo systemctl enable vnstat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Arch Linux Installation</h3>
+                    <pre><code># Install vnStat
+sudo pacman -S vnstat
+
+# Start and enable the daemon
+sudo systemctl start vnstat
+sudo systemctl enable vnstat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install vnstat
+
+# Note: Daemon setup may require additional configuration</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>From Source</h3>
+                    <pre><code># Download source
+wget https://humdi.net/vnstat/vnstat-2.10.tar.gz
+tar -xzf vnstat-2.10.tar.gz
+cd vnstat-2.10
+
+# Install build dependencies
+sudo apt install build-essential libgd-dev libsqlite3-dev
+
+# Configure and compile
+./configure --sysconfdir=/etc
+make
+sudo make install</code></pre>
+                </div>
+            </section>
+
+            <section id="initial-setup">
+                <h2>Initial Setup & Configuration</h2>
+                <div class="command-block">
+                    <h3>Database Initialization</h3>
+                    <pre><code># Create database for interface
+sudo vnstat -i eth0 --create
+
+# Create database for multiple interfaces
+sudo vnstat -i eth0 --create
+sudo vnstat -i wlan0 --create
+
+# List available interfaces
+vnstat --iflist
+
+# Check database status
+vnstat --dbdir</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Configuration File</h3>
+                    <pre><code># Edit configuration file
+sudo nano /etc/vnstat.conf
+
+# Key configuration options:
+# Interface "eth0"           # Default interface
+# DatabaseDir "/var/lib/vnstat"  # Database directory
+# UpdateInterval 20          # Update interval in seconds
+# PollInterval 5            # Polling interval
+# SaveInterval 5            # Save interval in minutes
+# BootVariation 15          # Boot time variation
+# CheckDiskSpace 1          # Check disk space
+# UseLogging 2              # Logging level</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Daemon Configuration</h3>
+                    <pre><code># Check daemon status
+sudo systemctl status vnstat
+
+# View daemon logs
+sudo journalctl -u vnstat -f
+
+# Restart daemon after configuration changes
+sudo systemctl restart vnstat
+
+# Manual daemon start (for testing)
+sudo vnstatd -n</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Viewing Statistics</h3>
+                    <pre><code># Show statistics for default interface
+vnstat
+
+# Show statistics for specific interface
+vnstat -i eth0
+vnstat -i wlan0
+
+# Show brief summary
+vnstat -s
+
+# Show statistics in different formats
+vnstat --json          # JSON format
+vnstat --xml           # XML format</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Time Period Options</h3>
+                    <pre><code># Hourly statistics
+vnstat -h
+vnstat -h -i eth0
+
+# Daily statistics
+vnstat -d
+vnstat -d -i eth0
+
+# Weekly statistics
+vnstat -w
+vnstat -w -i eth0
+
+# Monthly statistics
+vnstat -m
+vnstat -m -i eth0
+
+# Yearly statistics
+vnstat -y
+vnstat -y -i eth0</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Top Statistics</h3>
+                    <pre><code># Top 10 days
+vnstat -t
+
+# Top 10 days for specific interface
+vnstat -t -i eth0
+
+# Limit number of entries
+vnstat -t 5            # Top 5 days
+vnstat -h 24           # Last 24 hours</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Live Statistics</h3>
+                    <pre><code># Live traffic monitoring
+vnstat -l
+
+# Live monitoring for specific interface
+vnstat -l -i eth0
+
+# Live monitoring with custom interval
+vnstat -l -i eth0 5    # Update every 5 seconds
+
+# Traffic rate monitoring
+vnstat -tr
+vnstat -tr -i eth0</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Data Export and Import</h3>
+                    <pre><code># Export database
+vnstat --exportdb > vnstat_backup.txt
+
+# Import database
+vnstat --importdb < vnstat_backup.txt
+
+# Export specific interface
+vnstat -i eth0 --exportdb > eth0_backup.txt
+
+# Merge databases
+vnstat --mergetime</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Management</h3>
+                    <pre><code># Show database information
+vnstat --dbiflist
+
+# Delete interface from database
+sudo vnstat -i eth0 --delete
+
+# Reset database
+sudo vnstat -i eth0 --reset
+
+# Rebuild database
+sudo vnstat --rebuildtotal
+
+# Check database integrity
+vnstat --verify</code></pre>
+                </div>
+            </section>
+
+            <section id="web-interface">
+                <h2>Web Interface (vnStat PHP)</h2>
+                <div class="command-block">
+                    <h3>Installing vnStat PHP Frontend</h3>
+                    <pre><code># Install web server and PHP
+sudo apt install apache2 php libapache2-mod-php
+
+# Download vnStat PHP frontend
+wget https://github.com/bjd/vnstat-php-frontend/archive/master.zip
+unzip master.zip
+sudo mv vnstat-php-frontend-master /var/www/html/vnstat
+
+# Set permissions
+sudo chown -R www-data:www-data /var/www/html/vnstat
+sudo chmod -R 755 /var/www/html/vnstat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Configuration</h3>
+                    <pre><code># Edit configuration
+sudo nano /var/www/html/vnstat/config.php
+
+# Key settings:
+$vnstat_bin_dir = '/usr/bin/';
+$data_dir = '/var/lib/vnstat/';
+$graph_format = 'svg';
+$page_title = 'Network Traffic Analysis';
+$default_interface = 'eth0';</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Accessing Web Interface</h3>
+                    <pre><code># Access via web browser
+http://localhost/vnstat/
+http://your-server-ip/vnstat/
+
+# Features available:
+# - Graphical traffic charts
+# - Multiple interface support
+# - Historical data visualization
+# - Export capabilities</code></pre>
+                </div>
+            </section>
+
+            <section id="reporting-analysis">
+                <h2>Reporting & Analysis</h2>
+                <div class="command-block">
+                    <h3>Custom Reports</h3>
+                    <pre><code># Generate monthly report
+vnstat -m --json > monthly_report.json
+
+# Generate yearly summary
+vnstat -y --xml > yearly_summary.xml
+
+# Create custom date range report
+vnstat --begin 2024-01-01 --end 2024-12-31
+
+# Generate top usage report
+vnstat -t --json > top_usage.json</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Data Analysis Scripts</h3>
+                    <pre><code>#!/bin/bash
+# Network usage analysis script
+
+INTERFACE="eth0"
+REPORT_DIR="/var/reports/network"
+DATE=$(date +%Y-%m-%d)
+
+# Create report directory
+mkdir -p $REPORT_DIR
+
+# Generate comprehensive report
+echo "Network Usage Report - $DATE" > $REPORT_DIR/network_report_$DATE.txt
+echo "Interface: $INTERFACE" >> $REPORT_DIR/network_report_$DATE.txt
+echo "=================================" >> $REPORT_DIR/network_report_$DATE.txt
+
+# Daily statistics
+echo "Daily Statistics:" >> $REPORT_DIR/network_report_$DATE.txt
+vnstat -d -i $INTERFACE >> $REPORT_DIR/network_report_$DATE.txt
+
+# Monthly statistics
+echo -e "\nMonthly Statistics:" >> $REPORT_DIR/network_report_$DATE.txt
+vnstat -m -i $INTERFACE >> $REPORT_DIR/network_report_$DATE.txt
+
+# Top usage days
+echo -e "\nTop Usage Days:" >> $REPORT_DIR/network_report_$DATE.txt
+vnstat -t -i $INTERFACE >> $REPORT_DIR/network_report_$DATE.txt
+
+echo "Report generated: $REPORT_DIR/network_report_$DATE.txt"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Usage Monitoring Script</h3>
+                    <pre><code>#!/bin/bash
+# Monitor and alert on high usage
+
+INTERFACE="eth0"
+THRESHOLD_GB=50  # 50GB threshold
+ALERT_EMAIL="admin@company.com"
+
+# Get current month usage
+current_usage=$(vnstat -m -i $INTERFACE --json | \
+                jq -r '.interfaces[0].traffic.month[0].rx + .interfaces[0].traffic.month[0].tx')
+
+# Convert to GB (vnstat returns bytes)
+current_gb=$(echo "scale=2; $current_usage / 1024 / 1024 / 1024" | bc)
+
+# Check threshold
+if (( $(echo "$current_gb > $THRESHOLD_GB" | bc -l) )); then
+    echo "High network usage alert: ${current_gb}GB this month on $INTERFACE" | \
+    mail -s "Network Usage Alert" $ALERT_EMAIL
+    
+    # Log the alert
+    echo "$(date): High usage alert - ${current_gb}GB" >> /var/log/vnstat_alerts.log
+fi
+
+echo "Current usage: ${current_gb}GB"</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Backup Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated vnStat database backup
+
+BACKUP_DIR="/var/backups/vnstat"
+DATE=$(date +%Y%m%d_%H%M%S)
+RETENTION_DAYS=30
+
+# Create backup directory
+mkdir -p $BACKUP_DIR
+
+# Export all databases
+vnstat --exportdb > $BACKUP_DIR/vnstat_backup_$DATE.txt
+
+# Compress backup
+gzip $BACKUP_DIR/vnstat_backup_$DATE.txt
+
+# Remove old backups
+find $BACKUP_DIR -name "vnstat_backup_*.txt.gz" -mtime +$RETENTION_DAYS -delete
+
+echo "Backup completed: $BACKUP_DIR/vnstat_backup_$DATE.txt.gz"
+
+# Optional: Upload to remote storage
+# rsync -av $BACKUP_DIR/ user@backup-server:/backups/vnstat/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Capacity Planning Script</h3>
+                    <pre><code>#!/bin/bash
+# Network capacity planning analysis
+
+INTERFACE="eth0"
+MONTHS_TO_ANALYZE=12
+REPORT_FILE="/tmp/capacity_planning_$(date +%Y%m%d).txt"
+
+echo "Network Capacity Planning Report" > $REPORT_FILE
+echo "Generated: $(date)" >> $REPORT_FILE
+echo "Interface: $INTERFACE" >> $REPORT_FILE
+echo "Analysis Period: Last $MONTHS_TO_ANALYZE months" >> $REPORT_FILE
+echo "=================================" >> $REPORT_FILE
+
+# Get monthly data in JSON format
+monthly_data=$(vnstat -m -i $INTERFACE --json)
+
+# Extract and analyze monthly usage
+echo "Monthly Usage Analysis:" >> $REPORT_FILE
+echo "$monthly_data" | jq -r '.interfaces[0].traffic.month[] | 
+    "\(.date.year)-\(.date.month): RX: \(.rx/1024/1024/1024 | floor)GB TX: \(.tx/1024/1024/1024 | floor)GB Total: \((.rx+.tx)/1024/1024/1024 | floor)GB"' | 
+    head -$MONTHS_TO_ANALYZE >> $REPORT_FILE
+
+# Calculate average monthly usage
+avg_monthly=$(echo "$monthly_data" | jq -r '.interfaces[0].traffic.month[0:12] | 
+    map(.rx + .tx) | add / length / 1024 / 1024 / 1024')
+
+echo -e "\nAverage Monthly Usage: ${avg_monthly}GB" >> $REPORT_FILE
+
+# Project future usage (simple linear projection)
+projected_yearly=$(echo "scale=2; $avg_monthly * 12" | bc)
+echo "Projected Yearly Usage: ${projected_yearly}GB" >> $REPORT_FILE
+
+echo "Capacity planning report generated: $REPORT_FILE"</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>SNMP Integration</h3>
+                    <pre><code># Compare vnStat with SNMP data
+#!/bin/bash
+interface="eth0"
+snmp_host="localhost"
+snmp_community="public"
+
+# Get vnStat current data
+vnstat_data=$(vnstat -i $interface --json)
+
+# Get SNMP interface data
+snmp_in=$(snmpget -v2c -c $snmp_community $snmp_host 1.3.6.1.2.1.2.2.1.10.2)
+snmp_out=$(snmpget -v2c -c $snmp_community $snmp_host 1.3.6.1.2.1.2.2.1.16.2)
+
+echo "vnStat vs SNMP Comparison:"
+echo "vnStat data: $vnstat_data"
+echo "SNMP IN: $snmp_in"
+echo "SNMP OUT: $snmp_out"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Monitoring System Integration</h3>
+                    <pre><code># Nagios check script for vnStat
+#!/bin/bash
+# Check monthly bandwidth usage
+
+INTERFACE="$1"
+WARNING_GB="$2"
+CRITICAL_GB="$3"
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <interface> <warning_gb> <critical_gb>"
+    exit 3
+fi
+
+# Get current month usage in GB
+current_usage=$(vnstat -m -i $INTERFACE --json | \
+                jq -r '.interfaces[0].traffic.month[0].rx + .interfaces[0].traffic.month[0].tx' | \
+                awk '{print $1/1024/1024/1024}')
+
+# Compare with thresholds
+if (( $(echo "$current_usage > $CRITICAL_GB" | bc -l) )); then
+    echo "CRITICAL - Monthly usage: ${current_usage}GB | usage=${current_usage}GB;$WARNING_GB;$CRITICAL_GB"
+    exit 2
+elif (( $(echo "$current_usage > $WARNING_GB" | bc -l) )); then
+    echo "WARNING - Monthly usage: ${current_usage}GB | usage=${current_usage}GB;$WARNING_GB;$CRITICAL_GB"
+    exit 1
+else
+    echo "OK - Monthly usage: ${current_usage}GB | usage=${current_usage}GB;$WARNING_GB;$CRITICAL_GB"
+    exit 0
+fi</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Analysis Integration</h3>
+                    <pre><code># Export vnStat data for analysis
+vnstat --json > /var/log/vnstat/vnstat_$(date +%Y%m%d).json
+
+# Parse with jq for specific analysis
+vnstat --json | jq '.interfaces[0].traffic.day[] | select(.date.year == 2024)'
+
+# Integration with ELK stack
+vnstat --json | \
+curl -X POST "localhost:9200/network-stats/_doc" \
+     -H "Content-Type: application/json" \
+     -d @-</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Database not found
+sudo vnstat -i eth0 --create  # Create database
+
+# Daemon not running
+sudo systemctl start vnstat
+sudo systemctl status vnstat
+
+# No data being collected
+sudo journalctl -u vnstat -f  # Check daemon logs
+vnstat --verify               # Verify database integrity</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Issues</h3>
+                    <pre><code># Corrupted database
+sudo vnstat -i eth0 --reset   # Reset database
+sudo vnstat --rebuildtotal    # Rebuild totals
+
+# Missing interface
+vnstat --iflist              # List available interfaces
+sudo vnstat -i new_interface --create  # Add new interface
+
+# Permission issues
+sudo chown -R vnstat:vnstat /var/lib/vnstat
+sudo chmod -R 755 /var/lib/vnstat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Large database files
+# Edit /etc/vnstat.conf
+# Reduce retention periods:
+# MonthRotate 12    # Keep 12 months
+# DayRotate 30      # Keep 30 days
+# HourRotate 24     # Keep 24 hours
+
+# High CPU usage
+# Increase update intervals in /etc/vnstat.conf:
+# UpdateInterval 30
+# SaveInterval 10
+
+# Disk space issues
+du -sh /var/lib/vnstat/*      # Check database sizes
+vnstat --cleartop             # Clear top statistics</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>ISP and Service Providers</h3>
+                    <ul>
+                        <li>Customer bandwidth usage tracking</li>
+                        <li>Billing and quota management</li>
+                        <li>Long-term capacity planning</li>
+                        <li>SLA compliance monitoring</li>
+                        <li>Historical usage reporting</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Enterprise Networks</h3>
+                    <ul>
+                        <li>Monthly/yearly usage reporting</li>
+                        <li>Cost allocation and chargeback</li>
+                        <li>Trend analysis and forecasting</li>
+                        <li>Compliance and audit reporting</li>
+                        <li>Network growth planning</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Home and Small Office</h3>
+                    <ul>
+                        <li>Internet usage monitoring</li>
+                        <li>Data cap management</li>
+                        <li>Historical usage tracking</li>
+                        <li>Performance baseline establishment</li>
+                        <li>Cost optimization</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Regular backups:</strong> Export database regularly for disaster recovery</li>
+                    <li><strong>Monitor daemon:</strong> Ensure vnstatd is running for continuous data collection</li>
+                    <li><strong>Use JSON output:</strong> Easier to parse and integrate with other tools</li>
+                    <li><strong>Set up web interface:</strong> Provides visual graphs and easier access</li>
+                    <li><strong>Configure retention:</strong> Adjust data retention based on storage capacity</li>
+                    <li><strong>Automate reports:</strong> Set up cron jobs for regular reporting</li>
+                    <li><strong>Monitor multiple interfaces:</strong> Track all network interfaces</li>
+                    <li><strong>Integrate with monitoring:</strong> Use with Nagios, Zabbix for alerting</li>
+                </ul>
+            </section>
+
+            <section id="alternatives">
+                <h2>Alternatives & Similar Tools</h2>
+                <div class="command-block">
+                    <h3>Similar Tools</h3>
+                    <ul>
+                        <li><strong>MRTG:</strong> Multi Router Traffic Grapher</li>
+                        <li><strong>Cacti:</strong> Network graphing solution</li>
+                        <li><strong>LibreNMS:</strong> Network monitoring system</li>
+                        <li><strong>Zabbix:</strong> Enterprise monitoring solution</li>
+                        <li><strong>PRTG:</strong> Commercial network monitoring</li>
+                        <li><strong>SolarWinds:</strong> Enterprise network management</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use vnStat</h3>
+                    <ul>
+                        <li>Need long-term historical data</li>
+                        <li>Want lightweight monitoring solution</li>
+                        <li>Require accurate usage statistics</li>
+                        <li>Need command-line interface</li>
+                        <li>Want minimal system resource usage</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> vnStat should only be used for:</p>
+                    <ul>
+                        <li>Monitoring your own networks and systems</li>
+                        <li>Authorized network administration and monitoring</li>
+                        <li>Legitimate business purposes with proper authorization</li>
+                        <li>Compliance with organizational policies and regulations</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>While vnStat monitors interface statistics that are generally accessible to system administrators, network monitoring should still be conducted responsibly and with appropriate authorization. Always ensure compliance with organizational policies and applicable laws when collecting and storing network usage data. Be aware of data retention requirements and privacy implications in your jurisdiction.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

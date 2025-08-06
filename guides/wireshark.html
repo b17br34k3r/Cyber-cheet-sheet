@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireshark Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Wireshark: The World's Foremost Network Protocol Analyzer</h1>
+            <p>Master Network Traffic Analysis and Troubleshooting</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Wireshark?</h2>
+                <p>Wireshark is a free and open-source packet analyzer used for network troubleshooting, analysis, software and communications protocol development, and education. It captures and interactively browses the traffic running on a computer network. It has a rich feature set which includes deep inspection of hundreds of protocols, live capture and offline analysis, standard three-pane packet browser, multi-platform support, and powerful display filters.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from https://www.wireshark.org/download.html
+# Run the installer as Administrator
+# Install WinPcap/Npcap when prompted (required for packet capture)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install wireshark
+
+# CentOS/RHEL
+sudo yum install wireshark
+
+# Add user to wireshark group to capture without sudo
+sudo usermod -a -G wireshark $USER</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Interface</h2>
+                <div class="command-block">
+                    <h3>Starting a Capture</h3>
+                    <p>1. Launch Wireshark</p>
+                    <p>2. Select the network interface you want to monitor</p>
+                    <p>3. Click the shark fin icon or press Ctrl+E to start capturing</p>
+                    <p>4. Click the red square to stop capturing</p>
+                </div>
+                <div class="command-block">
+                    <h3>Interface Overview</h3>
+                    <ul>
+                        <li><strong>Packet List Pane:</strong> Shows summary of each packet</li>
+                        <li><strong>Packet Details Pane:</strong> Shows detailed protocol information</li>
+                        <li><strong>Packet Bytes Pane:</strong> Shows raw packet data in hex and ASCII</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="display-filters">
+                <h2>Essential Display Filters</h2>
+                <div class="command-block">
+                    <h3>Protocol Filters</h3>
+                    <pre><code># HTTP traffic only
+http
+
+# HTTPS/TLS traffic
+tls or ssl
+
+# DNS queries
+dns
+
+# TCP traffic on specific port
+tcp.port == 80
+
+# UDP traffic
+udp</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>IP Address Filters</h3>
+                    <pre><code># Traffic to/from specific IP
+ip.addr == 192.168.1.1
+
+# Traffic from specific source
+ip.src == 192.168.1.100
+
+# Traffic to specific destination
+ip.dst == 8.8.8.8
+
+# Subnet filtering
+ip.addr == 192.168.1.0/24</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Filters</h3>
+                    <pre><code># HTTP GET requests
+http.request.method == "GET"
+
+# HTTP responses with specific status
+http.response.code == 404
+
+# TCP SYN packets
+tcp.flags.syn == 1
+
+# Large packets (over 1000 bytes)
+frame.len > 1000
+
+# Combine filters with AND/OR
+http and ip.addr == 192.168.1.1
+tcp.port == 80 or tcp.port == 443</code></pre>
+                </div>
+            </section>
+
+            <section id="capture-filters">
+                <h2>Capture Filters (BPF Syntax)</h2>
+                <div class="command-block">
+                    <h3>Common Capture Filters</h3>
+                    <pre><code># Capture only HTTP traffic
+port 80
+
+# Capture traffic to/from specific host
+host 192.168.1.1
+
+# Capture traffic on specific network
+net 192.168.1.0/24
+
+# Capture only TCP traffic
+tcp
+
+# Capture traffic on multiple ports
+port 80 or port 443 or port 22
+
+# Exclude specific traffic
+not port 22</code></pre>
+                </div>
+            </section>
+
+            <section id="analysis-techniques">
+                <h2>Analysis Techniques</h2>
+                <div class="command-block">
+                    <h3>Following TCP Streams</h3>
+                    <p>Right-click on any TCP packet → Follow → TCP Stream</p>
+                    <p>This shows the complete conversation between client and server, useful for analyzing HTTP requests, email communications, etc.</p>
+                </div>
+                <div class="command-block">
+                    <h3>Statistics and Analysis</h3>
+                    <ul>
+                        <li><strong>Statistics → Protocol Hierarchy:</strong> Shows breakdown of protocols</li>
+                        <li><strong>Statistics → Conversations:</strong> Shows communication between endpoints</li>
+                        <li><strong>Statistics → I/O Graphs:</strong> Visual representation of traffic over time</li>
+                        <li><strong>Analyze → Expert Information:</strong> Shows warnings and errors</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="forensics-tips">
+                <h2>Network Forensics Tips</h2>
+                <div class="command-block">
+                    <h3>Malware Analysis</h3>
+                    <pre><code># Look for suspicious DNS queries
+dns and dns.flags.response == 0
+
+# Find HTTP POST requests (potential data exfiltration)
+http.request.method == "POST"
+
+# Identify non-standard ports
+tcp.port > 1024 and tcp.port < 65535
+
+# Look for base64 encoded data
+frame contains "base64"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Security Analysis</h3>
+                    <ul>
+                        <li><strong>Unencrypted credentials:</strong> Look for HTTP authentication, FTP, Telnet</li>
+                        <li><strong>Suspicious file transfers:</strong> Filter for FTP, HTTP file downloads</li>
+                        <li><strong>Port scanning detection:</strong> Look for TCP SYN packets to multiple ports</li>
+                        <li><strong>DDoS analysis:</strong> Check packet rates and source IPs</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips</h2>
+                <ul>
+                    <li><strong>Use Capture Filters:</strong> Apply filters before capturing to reduce file size and improve performance</li>
+                    <li><strong>Save Frequently:</strong> Large capture files can consume significant memory</li>
+                    <li><strong>Color Rules:</strong> Customize packet coloring for easier analysis (View → Coloring Rules)</li>
+                    <li><strong>Time Display:</strong> Change time format (View → Time Display Format) for better analysis</li>
+                    <li><strong>Export Objects:</strong> File → Export Objects to extract files from HTTP traffic</li>
+                    <li><strong>Decrypt TLS:</strong> If you have private keys, you can decrypt HTTPS traffic</li>
+                </ul>
+            </section>
+
+            <section id="common-use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Troubleshooting</h3>
+                    <ul>
+                        <li>Identify network bottlenecks and performance issues</li>
+                        <li>Diagnose connectivity problems</li>
+                        <li>Analyze application behavior</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Analysis</h3>
+                    <ul>
+                        <li>Detect malware communication</li>
+                        <li>Analyze attack patterns</li>
+                        <li>Investigate security incidents</li>
+                        <li>Monitor for data exfiltration</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

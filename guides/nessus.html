@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nessus Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Nessus: The Vulnerability Scanner</h1>
+            <p>A Guide to Automated Vulnerability Assessment</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Nessus?</h2>
+                <p>Nessus is one of the most widely used vulnerability scanners in the industry. Developed by Tenable, it allows you to scan a wide range of devices on your network—including servers, virtual machines, and personal computers—to identify vulnerabilities, misconfigurations, and malware. Nessus provides detailed reports that help prioritize remediation efforts based on vulnerability severity.</p>
+            </section>
+
+            <section id="setup">
+                <h2>Getting Started with Nessus Essentials</h2>
+                <p>Nessus Essentials is the free version, perfect for educators, students, and individuals starting their cybersecurity careers. It allows you to scan up to 16 IPs.</p>
+                <div class="command-block">
+                    <h3>Step 1: Download and Install</h3>
+                    <p>Visit the Tenable website, register for Nessus Essentials to get a free activation code, and download the installer for your operating system.</p>
+                </div>
+                <div class="command-block">
+                    <h3>Step 2: Initial Configuration</h3>
+                    <p>After installation, access the Nessus web interface, which typically runs on <code>https://localhost:8834</code>. You will be prompted to create an administrator account and enter the activation code you received via email.</p>
+                </div>
+                 <div class="command-block">
+                    <h3>Step 3: Plugin Compilation</h3>
+                    <p>Nessus will then download and compile its plugins. This is a one-time process that can take a significant amount of time, so be patient. These plugins contain the definitions for all the vulnerabilities Nessus can detect.</p>
+                </div>
+            </section>
+
+            <section id="running-a-scan">
+                <h2>How to Run a Basic Scan</h2>
+                <p>Once set up, running a scan is straightforward through the web UI.</p>
+
+                <div class="command-block">
+                    <h3>Step 1: Create a New Scan</h3>
+                    <p>From the main dashboard, click the <strong>New Scan</strong> button.</p>
+                </div>
+
+                <div class="command-block">
+                    <h3>Step 2: Select a Scan Template</h3>
+                    <p>Nessus provides numerous templates. For a general-purpose scan, the <strong>Basic Network Scan</strong> is an excellent starting point. It checks for a wide range of common vulnerabilities.</p>
+                </div>
+
+                <div class="command-block">
+                    <h3>Step 3: Configure the Scan</h3>
+                    <p>In the settings, give your scan a name and description. Most importantly, enter the target(s) you have permission to scan in the <strong>Targets</strong> field. This can be a single IP address, a comma-separated list, or a network range in CIDR notation (e.g., <code>192.168.1.0/24</code>).</p>
+                </div>
+
+                <div class="command-block">
+                    <h3>Step 4: Launch and Analyze</h3>
+                    <p>Save and launch the scan. Nessus will begin probing the targets. You can monitor the progress in real-time. Once complete, click on the scan results to view the discovered vulnerabilities, which are categorized by severity (Critical, High, Medium, Low, Info).</p>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Tips for Beginners</h2>
+                <ul>
+                    <li><strong>Scan with Credentials:</strong> For the most accurate results, perform an authenticated (credentialed) scan. This allows Nessus to log in to the target system and perform a much deeper analysis, reducing false positives.</li>
+                    <li><strong>Understand the Report:</strong> Don't just look at the criticals. Read the description and solution for each finding to understand the risk and how to fix it.</li>
+                    <li><strong>Schedule Regular Scans:</strong> Vulnerabilities are discovered daily. Set up scheduled scans to continuously monitor your network's security posture.</li>
+                    <li><strong>Stay Updated:</strong> Always ensure your Nessus scanner and its plugins are up to date to detect the latest threats.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

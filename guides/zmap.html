@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZMap Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>ZMap: Internet-Wide Network Scanner</h1>
+            <p>Master Large-Scale Network Research and Discovery</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is ZMap?</h2>
+                <p>ZMap is a fast single-port network scanner designed for Internet-wide network surveys. It can scan the entire IPv4 address space in under 45 minutes on a gigabit network connection, from a single machine. ZMap is specifically designed for researchers and is optimized for scanning large address spaces quickly and efficiently.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install zmap
+
+# From source
+git clone https://github.com/zmap/zmap.git
+cd zmap
+cmake .
+make -j4
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Dependencies</h3>
+                    <pre><code># Required packages for building from source
+sudo apt install build-essential cmake libgmp3-dev gengetopt libpcap-dev flex byacc libjson-c-dev pkg-config libunistring-dev
+
+# For JSON output support
+sudo apt install libjson-c-dev</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+sudo zmap [options] [target specification]
+
+# Scan single port across IPv4 space
+sudo zmap -p 80
+
+# Scan specific network
+sudo zmap -p 80 192.168.1.0/24
+
+# Scan with rate limiting
+sudo zmap -p 80 -r 1000 192.168.1.0/24</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Target Specification</h3>
+                    <pre><code># Scan entire IPv4 space (default)
+sudo zmap -p 80
+
+# Scan specific subnet
+sudo zmap -p 80 10.0.0.0/8
+
+# Scan multiple subnets from file
+sudo zmap -p 80 -w whitelist.txt
+
+# Exclude addresses from file
+sudo zmap -p 80 -b blacklist.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="scanning-options">
+                <h2>Scanning Options</h2>
+                <div class="command-block">
+                    <h3>Port and Protocol</h3>
+                    <pre><code># TCP port scanning (default)
+sudo zmap -p 80
+
+# UDP scanning
+sudo zmap --probe-module=udp -p 53
+
+# ICMP scanning
+sudo zmap --probe-module=icmp_echoscan
+
+# Multiple probe modules available
+zmap --list-probe-modules</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Rate Control</h3>
+                    <pre><code># Set scan rate (packets per second)
+sudo zmap -p 80 -r 10000
+
+# Bandwidth limiting (bits per second)
+sudo zmap -p 80 -B 10M
+
+# Conservative rate for stealth
+sudo zmap -p 80 -r 100
+
+# Maximum rate (limited by hardware)
+sudo zmap -p 80 -r 1000000</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output Options</h2>
+                <div class="command-block">
+                    <h3>Output Formats</h3>
+                    <pre><code># Default output (IP addresses)
+sudo zmap -p 80
+
+# CSV output
+sudo zmap -p 80 -f csv
+
+# JSON output
+sudo zmap -p 80 -f json
+
+# Extended output with additional fields
+sudo zmap -p 80 -f csv -O extended</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Control</h3>
+                    <pre><code># Save to file
+sudo zmap -p 80 -o results.txt
+
+# Limit number of results
+sudo zmap -p 80 -n 1000
+
+# Output fields selection
+sudo zmap -p 80 -f csv --output-fields=saddr,daddr,sport,dport
+
+# Quiet mode (no progress)
+sudo zmap -p 80 -q</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Configuration</h2>
+                <div class="command-block">
+                    <h3>Network Interface</h3>
+                    <pre><code># Specify interface
+sudo zmap -p 80 -i eth0
+
+# Source IP address
+sudo zmap -p 80 -S 192.168.1.100
+
+# Gateway MAC address
+sudo zmap -p 80 -G 00:11:22:33:44:55
+
+# Source port range
+sudo zmap -p 80 --source-port=40000-50000</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Packet Customization</h3>
+                    <pre><code># Custom TTL
+sudo zmap -p 80 --ttl=64
+
+# Custom TCP window size
+sudo zmap -p 80 --tcp-window-size=65535
+
+# Packet payload
+sudo zmap -p 80 --payload-file=payload.txt
+
+# Custom probe arguments
+sudo zmap --probe-module=tcp_synscan --probe-args=window:65535</code></pre>
+                </div>
+            </section>
+
+            <section id="probe-modules">
+                <h2>Probe Modules</h2>
+                <div class="command-block">
+                    <h3>Available Modules</h3>
+                    <pre><code># List all probe modules
+zmap --list-probe-modules
+
+# TCP SYN scan (default)
+sudo zmap --probe-module=tcp_synscan -p 80
+
+# UDP scan
+sudo zmap --probe-module=udp -p 53
+
+# ICMP Echo scan
+sudo zmap --probe-module=icmp_echoscan
+
+# DNS scan
+sudo zmap --probe-module=dns -p 53</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Module-Specific Options</h3>
+                    <pre><code># TCP with custom flags
+sudo zmap --probe-module=tcp_synscan --probe-args=tcp_flags:2
+
+# UDP with payload
+sudo zmap --probe-module=udp -p 161 --probe-args=file:snmp_payload.txt
+
+# ICMP with custom type
+sudo zmap --probe-module=icmp_echoscan --probe-args=icmp_type:8</code></pre>
+                </div>
+            </section>
+
+            <section id="filtering">
+                <h2>Target Filtering</h2>
+                <div class="command-block">
+                    <h3>Whitelist/Blacklist</h3>
+                    <pre><code># Use whitelist file
+sudo zmap -p 80 -w targets.txt
+
+# Use blacklist file
+sudo zmap -p 80 -b exclude.txt
+
+# Combine whitelist and blacklist
+sudo zmap -p 80 -w targets.txt -b exclude.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Formats</h3>
+                    <pre><code># Whitelist file format (targets.txt)
+192.168.1.0/24
+10.0.0.0/8
+172.16.0.0/12
+
+# Blacklist file format (exclude.txt)
+192.168.1.1
+10.0.0.1/32
+172.16.1.0/24</code></pre>
+                </div>
+            </section>
+
+            <section id="practical-examples">
+                <h2>Practical Examples</h2>
+                <div class="command-block">
+                    <h3>Web Server Discovery</h3>
+                    <pre><code># Find HTTP servers globally
+sudo zmap -p 80 -r 10000 -o http_servers.txt
+
+# Find HTTPS servers
+sudo zmap -p 443 -r 10000 -o https_servers.txt
+
+# Find web servers on specific networks
+sudo zmap -p 80 -w corporate_networks.txt -o internal_web.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Service Discovery</h3>
+                    <pre><code># Find SSH servers
+sudo zmap -p 22 -r 5000 -o ssh_servers.txt
+
+# Find DNS servers
+sudo zmap --probe-module=udp -p 53 -r 10000 -o dns_servers.txt
+
+# Find SMTP servers
+sudo zmap -p 25 -r 5000 -o smtp_servers.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Research Scanning</h3>
+                    <pre><code># Internet-wide HTTP scan with metadata
+sudo zmap -p 80 -f json -O extended -o http_scan.json
+
+# Regional scanning (example: US IP ranges)
+sudo zmap -p 80 -w us_ip_ranges.txt -r 50000 -o us_http.txt
+
+# Time-based scanning
+sudo zmap -p 80 -r 10000 --max-runtime=3600 -o one_hour_scan.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>ZGrab Integration</h3>
+                    <pre><code># Scan with ZMap, then banner grab with ZGrab
+sudo zmap -p 80 -o http_hosts.txt
+cat http_hosts.txt | zgrab --port 80 --http="/" --output-file=banners.json</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Pipeline Processing</h3>
+                    <pre><code># Real-time processing
+sudo zmap -p 80 -r 10000 | while read ip; do
+    echo "Found HTTP server: $ip"
+    # Additional processing here
+done
+
+# Filter and process results
+sudo zmap -p 80 -f csv | awk -F',' '{print $1}' | sort -u > unique_ips.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-tuning">
+                <h2>Performance Tuning</h2>
+                <div class="command-block">
+                    <h3>System Optimization</h3>
+                    <pre><code># Increase file descriptor limits
+ulimit -n 65535
+
+# Optimize network buffers
+echo 'net.core.rmem_max = 134217728' >> /etc/sysctl.conf
+echo 'net.core.wmem_max = 134217728' >> /etc/sysctl.conf
+sysctl -p
+
+# Monitor system resources
+sudo zmap -p 80 -r 100000 --monitor-file=monitor.csv</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Considerations</h3>
+                    <pre><code># Check network capacity
+sudo zmap -p 80 -r 1000 --dryrun
+
+# Monitor packet loss
+sudo zmap -p 80 -r 10000 --monitor-file=stats.csv
+
+# Adjust rate based on network conditions
+sudo zmap -p 80 -r 5000 --max-sendto-failures=1000</code></pre>
+                </div>
+            </section>
+
+            <section id="configuration">
+                <h2>Configuration Files</h2>
+                <div class="command-block">
+                    <h3>Configuration File</h3>
+                    <pre><code># Create configuration file (~/.zmap.conf)
+interface = "eth0"
+source-ip = "192.168.1.100"
+gateway-mac = "00:11:22:33:44:55"
+rate = 10000
+output-file = "/tmp/zmap_results.txt"
+blacklist-file = "/etc/zmap/blacklist.conf"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Using Configuration</h3>
+                    <pre><code># Use configuration file
+sudo zmap -p 80 -c ~/.zmap.conf
+
+# Override configuration options
+sudo zmap -p 80 -c ~/.zmap.conf -r 20000</code></pre>
+                </div>
+            </section>
+
+            <section id="monitoring">
+                <h2>Monitoring & Statistics</h2>
+                <div class="command-block">
+                    <h3>Progress Monitoring</h3>
+                    <pre><code># Enable progress updates
+sudo zmap -p 80 -r 10000 --progress-updates
+
+# Monitor file output
+sudo zmap -p 80 -r 10000 --monitor-file=progress.csv
+
+# Status updates file
+sudo zmap -p 80 -r 10000 --status-updates-file=status.log</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Statistics Analysis</h3>
+                    <pre><code># View scan statistics
+tail -f progress.csv
+
+# Calculate hit rate
+awk -F',' 'END {print "Hit rate:", $8/$7*100"%"}' progress.csv
+
+# Monitor in real-time
+watch -n 1 'tail -1 progress.csv'</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with small scans:</strong> Test configuration on small networks first</li>
+                    <li><strong>Use appropriate rates:</strong> Don't overwhelm your network infrastructure</li>
+                    <li><strong>Monitor system resources:</strong> Watch CPU, memory, and network utilization</li>
+                    <li><strong>Use blacklists:</strong> Exclude sensitive or protected networks</li>
+                    <li><strong>Coordinate with network admins:</strong> Inform them of large-scale scans</li>
+                    <li><strong>Save configurations:</strong> Use config files for repeatable scans</li>
+                    <li><strong>Process results efficiently:</strong> Use streaming processing for large datasets</li>
+                    <li><strong>Respect rate limits:</strong> Some networks have intrusion detection systems</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Common Issues & Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Permission Issues</h3>
+                    <pre><code># Run with sudo for raw sockets
+sudo zmap -p 80
+
+# Check capabilities
+sudo setcap cap_net_raw+ep /usr/local/bin/zmap</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Issues</h3>
+                    <pre><code># Check interface configuration
+ip addr show
+
+# Verify routing
+ip route show
+
+# Test with dry run
+sudo zmap -p 80 --dryrun</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Check system limits
+ulimit -a
+
+# Monitor packet drops
+sudo zmap -p 80 -r 1000 --monitor-file=stats.csv
+
+# Reduce rate if experiencing issues
+sudo zmap -p 80 -r 100</code></pre>
+                </div>
+            </section>
+
+            <section id="ethical-considerations">
+                <h2>Ethical Considerations</h2>
+                <div class="command-block">
+                    <p><strong>Research Ethics:</strong></p>
+                    <ul>
+                        <li><strong>Minimize impact:</strong> Use appropriate scan rates</li>
+                        <li><strong>Respect robots.txt:</strong> Follow web crawling etiquette</li>
+                        <li><strong>Data handling:</strong> Secure and anonymize collected data</li>
+                        <li><strong>Publication:</strong> Follow responsible disclosure practices</li>
+                        <li><strong>Coordination:</strong> Work with network operators when possible</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> ZMap should only be used for:</p>
+                    <ul>
+                        <li>Legitimate security research with proper authorization</li>
+                        <li>Scanning your own networks and systems</li>
+                        <li>Academic research following institutional guidelines</li>
+                        <li>Authorized penetration testing with written permission</li>
+                    </ul>
+                    <p>Internet-wide scanning may violate terms of service, local laws, or international regulations. Large-scale scanning can impact network infrastructure and may be considered a denial of service attack. Always obtain proper authorization and follow responsible research practices.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

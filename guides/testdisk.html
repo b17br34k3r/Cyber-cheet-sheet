@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TestDisk Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>TestDisk: Powerful Data Recovery Tool</h1>
+            <p>Recover Lost Partitions, Repair Boot Sectors, and Restore Data with Ease</p>
+            <a href="../index.html" class="back-link">← Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is TestDisk?</h2>
+                <p>TestDisk is a powerful, free, open-source command-line data recovery tool designed to recover lost partitions, repair boot sectors, and restore deleted files from various filesystems. It supports a wide range of filesystems including FAT, NTFS, ext2/ext3/ext4, and more, making it a go-to tool for IT professionals, forensic analysts, and system administrators. TestDisk is particularly effective for recovering data from damaged or non-booting disks and fixing partition table issues.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Install via package manager (Ubuntu/Debian)
+sudo apt update
+sudo apt install testdisk
+
+# Install via package manager (Fedora)
+sudo dnf install testdisk
+
+# Download from source
+wget https://www.cgsecurity.org/testdisk-7.2.tar.bz2
+tar -xjf testdisk-7.2.tar.bz2
+cd testdisk-7.2
+./configure
+make
+sudo make install
+
+# Verify installation
+testdisk -v</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Install via Homebrew
+brew install testdisk
+
+# Download precompiled binary
+wget https://www.cgsecurity.org/testdisk-7.2.mac.tar.gz
+tar -xzf testdisk-7.2.mac.tar.gz
+sudo mv testdisk /usr/local/bin/
+
+# Verify installation
+testdisk -v</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from official site
+# Visit: https://www.cgsecurity.org/wiki/TestDisk_Download
+# Download testdisk-7.2.win.zip
+
+# Extract and run
+# Unzip to desired folder
+# Run testdisk_win.exe from extracted folder
+
+# Verify installation
+testdisk_win.exe -v</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull unofficial TestDisk Docker image
+docker pull linuxserver/testdisk
+
+# Run TestDisk in Docker
+docker run --rm -it linuxserver/testdisk /bin/bash
+
+# Mount disk for recovery
+docker run --rm -it --device=/dev/sdb linuxserver/testdisk testdisk</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Partition Recovery</h3>
+                    <pre><code># Launch TestDisk
+sudo testdisk
+
+# Select disk (e.g., /dev/sda)
+# Choose [Analyse] to scan for lost partitions
+# Select [Quick Search] or [Deeper Search] for partition recovery
+# Write recovered partition table when prompted
+
+# Command-line partition recovery
+sudo testdisk /dev/sda</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Boot Sector Repair</h3>
+                    <pre><code># Launch TestDisk
+sudo testdisk
+
+# Select disk and filesystem type
+# Choose [Advanced] -> [Boot] for FAT/NTFS
+# Select [Rebuild BS] or [Repair BS] to fix boot sector
+# Write changes to disk
+
+# Command-line boot sector repair
+sudo testdisk /dev/sda /repair-boot</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Recovery</h3>
+                    <pre><code># Launch PhotoRec (included with TestDisk)
+sudo photorec
+
+# Select disk and partition
+# Choose filesystem type (e.g., ext2/ext3, FAT/NTFS)
+# Select destination for recovered files
+# Start recovery process
+
+# Command-line file recovery
+sudo photorec /dev/sda</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Recovery Techniques</h2>
+                <div class="command-block">
+                    <h3>Deep Partition Scanning</h3>
+                    <pre><code># Launch TestDisk for deeper search
+sudo testdisk /dev/sda
+
+# Select [Analyse] -> [Deeper Search]
+# Review all detected partitions
+# Write partition table to recover
+
+# Command-line deep scan
+sudo testdisk /dev/sda /deeper</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Filesystem Repair</h3>
+                    <pre><code># Repair FAT filesystem
+sudo testdisk /dev/sda /advanced /fs /fat
+
+# Repair NTFS filesystem
+sudo testdisk /dev/sda /advanced /fs /ntfs
+
+# Rebuild boot sector
+sudo testdisk /dev/sda /advanced /boot /rebuild</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom File Recovery</h3>
+                    <pre><code># Recover specific file types with PhotoRec
+sudo photorec /dev/sda
+# Select [File Opt] to choose specific file formats (e.g., jpg, pdf)
+# Specify output directory for recovered files
+
+# Command-line custom recovery
+sudo photorec /dev/sda /filetypes jpg,pdf /output /recovered/</code></pre>
+                </div>
+            </section>
+
+            <section id="filtering">
+                <h2>Data Filtering</h2>
+                <div class="command-block">
+                    <h3>File Type Filtering</h3>
+                    <pre><code># Filter file types in PhotoRec
+sudo photorec /dev/sda
+# Select [File Opt] and enable/disable specific file types
+# Save configuration and proceed with recovery
+
+# Command-line file type filtering
+sudo photorec /dev/sda /filetypes doc,pdf,jpg</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Partition Type Filtering</h3>
+                    <pre><code># Filter partitions by type
+sudo testdisk /dev/sda
+# Select [Type] to specify filesystem (e.g., NTFS, ext4)
+# Proceed with analysis
+
+# Command-line partition type
+sudo testdisk /dev/sda /type NTFS</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Size and Date Filtering</h3>
+                    <pre><code># Post-process recovered files
+find /recovered/ -type f -name "*.jpg" -size +1M > large_files.txt
+
+# Filter by modification date
+find /recovered/ -type f -mtime -365 > recent_files.txt
+
+# Combine with grep for specific patterns
+ls /recovered/ | grep -i "document" > document_files.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output and Reporting</h2>
+                <div class="command-block">
+                    <h3>Log Output</h3>
+                    <pre><code># Enable logging in TestDisk
+sudo testdisk /log /dev/sda > testdisk.log
+
+# Enable logging in PhotoRec
+sudo photorec /log /dev/sda > photorec.log
+
+# Save analysis results
+sudo testdisk /dev/sda /list > partition_list.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verbose and Debug Output</h3>
+                    <pre><code># Run TestDisk with debug mode
+sudo testdisk /debug /dev/sda > debug.log
+
+# Run PhotoRec with verbose output
+sudo photorec /debug /verbose /dev/sda
+
+# Save partition details
+sudo testdisk /dev/sda /list /verbose > detailed_list.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="tools">
+                <h2>Key Components of TestDisk</h2>
+                <div class="command-block">
+                    <h3>TestDisk</h3>
+                    <pre><code># Partition recovery and repair
+sudo testdisk /dev/sda
+
+# List partition details
+sudo testdisk /list /dev/sda
+
+# Repair boot sector
+sudo testdisk /advanced /boot /dev/sda</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>PhotoRec</h3>
+                    <pre><code># File recovery
+sudo photorec /dev/sda
+
+# Recover specific file types
+sudo photorec /filetypes jpg,pdf /dev/sda
+
+# Specify output directory
+sudo photorec /dev/sda /output /recovered/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Additional Utilities</h3>
+                    <pre><code># fidentify: Identify file types
+fidentify /recovered/file.bin
+
+# testdisk_static: Static binary for portability
+testdisk_static /dev/sda
+
+# photorec_static: Static binary for file recovery
+photorec_static /dev/sda</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Bash Automation</h3>
+                    <pre><code># Batch process multiple disks
+#!/bin/bash
+disks=("/dev/sdb" "/dev/sdc")
+for disk in "${disks[@]}"; do
+    echo "Recovering partitions on $disk"
+    sudo testdisk /log "$disk" > "$(basename $disk)_recovery.log"
+    sudo photorec /filetypes jpg,pdf "$disk" /output "/recovered_$(basename $disk)/"
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Extract recovered file list
+find /recovered/ -type f > recovered_files.txt
+
+# Filter by file type
+grep "\.pdf$" recovered_files.txt > pdf_files.txt
+
+# Python script for processing recovered files
+import os
+for root, _, files in os.walk('/recovered/'):
+    for file in files:
+        if file.endswith('.jpg'):
+            print(f"Found JPEG: {os.path.join(root, file)}")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Tools</h3>
+                    <pre><code># Chain TestDisk with file analysis
+sudo testdisk /list /dev/sda > partitions.txt
+cat partitions.txt | grep "NTFS" | while read line; do
+    echo "Analyzing partition: $line"
+    fsstat "$line" > partition_details.txt
+done
+
+# Use with forensic tools like Autopsy
+sudo photorec /dev/sda /output /evidence/
+autopsy /evidence/ &</code></pre>
+                </div>
+            </section>
+
+            <section id="specialized-techniques">
+                <h2>Specialized Recovery Techniques</h2>
+                <div class="command-block">
+                    <h3>RAID Recovery</h3>
+                    <pre><code># Recover RAID partitions
+sudo testdisk /dev/md0
+# Select [Analyse] -> [Quick Search] for RAID arrays
+# Rebuild RAID configuration
+
+# Command-line RAID recovery
+sudo testdisk /dev/md0 /advanced /raid</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>MBR and GPT Repair</h3>
+                    <pre><code># Repair MBR
+sudo testdisk /dev/sda /advanced /mbr
+
+# Repair GPT
+sudo testdisk /dev/sda /advanced /gpt
+
+# Backup partition table
+sudo testdisk /dev/sda /backup > partition_backup.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Encrypted Filesystem Recovery</h3>
+                    <pre><code># Recover LUKS-encrypted partitions
+sudo testdisk /dev/sda
+# Select [Advanced] -> [LUKS] to attempt header recovery
+
+# Use with cryptsetup for decryption
+sudo cryptsetup luksOpen /dev/sda1 decrypted
+sudo testdisk /dev/mapper/decrypted</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Verify disk integrity
+md5sum /dev/sda > disk_checksum.txt
+
+# Check disk accessibility
+lsblk -f
+
+# Debug TestDisk
+sudo testdisk /debug /dev/sda > debug.log
+
+# Test single partition
+sudo testdisk /dev/sda1 /list</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Monitor system resources
+top
+
+# Limit CPU usage
+cpulimit -p $(pgrep testdisk) -l 50
+
+# Check disk I/O
+iostat -x 1
+
+# Increase timeout for slow disks
+sudo testdisk /timeout 30 /dev/sda</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Data Recovery</h3>
+                    <ul>
+                        <li>Recover lost or deleted partitions</li>
+                        <li>Restore files from damaged filesystems</li>
+                        <li>Repair corrupted boot sectors</li>
+                        <li>Recover data from formatted drives</li>
+                        <li>Extract files from specific file types</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>System Repair</h3>
+                    <ul>
+                        <li>Fix non-booting disks</li>
+                        <li>Repair MBR or GPT partition tables</li>
+                        <li>Recover RAID configurations</li>
+                        <li>Restore encrypted filesystems</li>
+                        <li>Backup partition tables</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use write protection:</strong> Ensure disks are mounted read-only to preserve evidence</li>
+                    <li><strong>Work on disk images:</strong> Use copies to avoid modifying original data</li>
+                    <li><strong>Validate results:</strong> Cross-check recovered partitions and files</li>
+                    <li><strong>Save logs:</strong> Always enable logging for documentation</li>
+                    <li><strong>Test with small scans:</strong> Start with Quick Search before Deeper Search</li>
+                    <li><strong>Monitor disk health:</strong> Check SMART data before recovery attempts</li>
+                    <li><strong>Backup before writing:</strong> Save partition table backups before changes</li>
+                    <li><strong>Use PhotoRec for files:</strong> Combine TestDisk with PhotoRec for file recovery</li>
+                    <li><strong>Automate repetitive tasks:</strong> Script common recovery tasks for efficiency</li>
+                    <li><strong>Verify recovered files:</strong> Check file integrity after recovery</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> TestDisk should only be used for:</p>
+                    <ul>
+                        <li>Recovering data from systems you own or have explicit permission to access</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Educational purposes in controlled environments</li>
+                        <li>System administration with documented consent</li>
+                        <li>Security research with institutional approval</li>
+                    </ul>
+                    <p>Unauthorized use of TestDisk to access or recover data from systems without permission may violate privacy laws, computer crime laws, or other regulations. Data recovery should only be performed by qualified professionals with proper authorization. Always ensure data integrity and chain of custody during forensic investigations. Improper use of TestDisk can lead to data loss or corruption. Maintain detailed documentation of all recovery activities. Follow responsible disclosure practices for any sensitive data recovered. Be aware that recovery operations may be logged or monitored by systems. Respect data privacy and confidentiality requirements. Ensure compliance with all relevant laws and regulations during recovery operations.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

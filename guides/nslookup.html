@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nslookup Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>nslookup: DNS Lookup Utility</h1>
+            <p>Master DNS Queries and Network Troubleshooting</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is nslookup?</h2>
+                <p>nslookup is a network administration command-line tool for querying the Domain Name System (DNS) to obtain domain name or IP address mapping information. While considered legacy and largely superseded by dig and host commands, nslookup is still widely used for DNS troubleshooting and is available on most operating systems by default.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Availability</h2>
+                <div class="command-block">
+                    <h3>Pre-installed Systems</h3>
+                    <pre><code># Windows (built-in)
+nslookup
+
+# macOS (built-in)
+nslookup
+
+# Most Linux distributions (built-in)
+nslookup</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Installation (if missing)</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install dnsutils
+
+# CentOS/RHEL
+sudo yum install bind-utils
+
+# Arch Linux
+sudo pacman -S bind-tools</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Modes</h2>
+                <div class="command-block">
+                    <h3>Command Line Mode</h3>
+                    <pre><code># Basic syntax
+nslookup [domain] [server]
+
+# Simple A record lookup
+nslookup example.com
+
+# Use specific DNS server
+nslookup example.com 8.8.8.8
+
+# Reverse DNS lookup
+nslookup 8.8.8.8</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Interactive Mode</h3>
+                    <pre><code># Enter interactive mode
+nslookup
+
+# Interactive commands:
+> example.com
+> set type=MX
+> example.com
+> server 8.8.8.8
+> example.com
+> exit</code></pre>
+                </div>
+            </section>
+
+            <section id="record-types">
+                <h2>DNS Record Types</h2>
+                <div class="command-block">
+                    <h3>Common Record Types</h3>
+                    <pre><code># A record (IPv4 address) - default
+nslookup example.com
+
+# AAAA record (IPv6 address)
+nslookup -type=AAAA example.com
+
+# MX record (mail exchange)
+nslookup -type=MX example.com
+
+# NS record (name servers)
+nslookup -type=NS example.com
+
+# TXT record (text records)
+nslookup -type=TXT example.com
+
+# CNAME record (canonical name)
+nslookup -type=CNAME www.example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Interactive Record Type Setting</h3>
+                    <pre><code># In interactive mode
+nslookup
+> set type=A
+> example.com
+> set type=MX
+> example.com
+> set type=NS
+> example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="dns-servers">
+                <h2>DNS Server Configuration</h2>
+                <div class="command-block">
+                    <h3>Specifying DNS Servers</h3>
+                    <pre><code># Google DNS
+nslookup example.com 8.8.8.8
+
+# Cloudflare DNS
+nslookup example.com 1.1.1.1
+
+# Quad9 DNS
+nslookup example.com 9.9.9.9
+
+# Local DNS server
+nslookup example.com 192.168.1.1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Interactive Server Changes</h3>
+                    <pre><code># In interactive mode
+nslookup
+> server 8.8.8.8
+> example.com
+> server 1.1.1.1
+> example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="reverse-lookups">
+                <h2>Reverse DNS Lookups</h2>
+                <div class="command-block">
+                    <h3>PTR Record Queries</h3>
+                    <pre><code># Reverse lookup by IP
+nslookup 8.8.8.8
+
+# Reverse lookup with specific server
+nslookup 8.8.8.8 1.1.1.1
+
+# Multiple reverse lookups
+nslookup 8.8.8.8
+nslookup 1.1.1.1
+nslookup 9.9.9.9</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Interactive Reverse Lookups</h3>
+                    <pre><code># In interactive mode
+nslookup
+> set type=PTR
+> 8.8.8.8.in-addr.arpa
+> 1.1.1.1.in-addr.arpa</code></pre>
+                </div>
+            </section>
+
+            <section id="interactive-commands">
+                <h2>Interactive Mode Commands</h2>
+                <div class="command-block">
+                    <h3>Configuration Commands</h3>
+                    <pre><code># Set record type
+set type=A|AAAA|MX|NS|TXT|CNAME|PTR|SOA|ANY
+
+# Set DNS server
+server [ip_address]
+
+# Set query class
+set class=IN|CH|HS
+
+# Enable/disable debugging
+set debug
+set nodebug
+
+# Set timeout
+set timeout=10
+
+# Set retry count
+set retry=3</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Query Options</h3>
+                    <pre><code># Recursive queries (default)
+set recurse
+
+# Non-recursive queries
+set norecurse
+
+# Use TCP instead of UDP
+set vc
+
+# Use UDP (default)
+set novc
+
+# Show all available options
+set all</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-queries">
+                <h2>Advanced Query Types</h2>
+                <div class="command-block">
+                    <h3>Zone Information</h3>
+                    <pre><code># SOA record (Start of Authority)
+nslookup -type=SOA example.com
+
+# All records (ANY query)
+nslookup -type=ANY example.com
+
+# Authoritative servers
+nslookup -type=NS example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Mail Server Information</h3>
+                    <pre><code># MX records
+nslookup -type=MX example.com
+
+# TXT records (SPF, DMARC, etc.)
+nslookup -type=TXT example.com
+nslookup -type=TXT _dmarc.example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Service Records</h3>
+                    <pre><code># SRV records
+nslookup -type=SRV _sip._tcp.example.com
+nslookup -type=SRV _http._tcp.example.com
+
+# CAA records
+nslookup -type=CAA example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>DNS Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Check if domain resolves
+nslookup example.com
+
+# Test different DNS servers
+nslookup example.com 8.8.8.8
+nslookup example.com 1.1.1.1
+
+# Check authoritative servers
+nslookup -type=NS example.com
+
+# Verify MX records
+nslookup -type=MX example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Debug Mode</h3>
+                    <pre><code># Enable debug mode
+nslookup -debug example.com
+
+# Interactive debug mode
+nslookup
+> set debug
+> example.com
+> set nodebug</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeout and Retry Settings</h3>
+                    <pre><code># Interactive timeout settings
+nslookup
+> set timeout=30
+> set retry=5
+> slow-server.example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="security-testing">
+                <h2>Security Testing Applications</h2>
+                <div class="command-block">
+                    <h3>DNS Enumeration</h3>
+                    <pre><code># Check common subdomains
+nslookup www.example.com
+nslookup mail.example.com
+nslookup ftp.example.com
+nslookup admin.example.com
+
+# Check wildcard DNS
+nslookup randomstring123.example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Zone Transfer Attempts</h3>
+                    <pre><code># Attempt zone transfer (usually fails)
+nslookup
+> set type=AXFR
+> example.com
+> server ns1.example.com
+> example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>DNS Cache Testing</h3>
+                    <pre><code># Compare cached vs authoritative
+nslookup example.com
+nslookup example.com ns1.example.com
+
+# Check TTL differences
+nslookup -debug example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="batch-operations">
+                <h2>Batch Operations & Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch File Processing</h3>
+                    <pre><code># Create domains.txt file
+echo "example.com" > domains.txt
+echo "google.com" >> domains.txt
+echo "github.com" >> domains.txt
+
+# Process batch (Linux/macOS)
+while read domain; do
+    echo "=== $domain ==="
+    nslookup $domain
+done < domains.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Batch Script</h3>
+                    <pre><code>@echo off
+for /f %%i in (domains.txt) do (
+    echo === %%i ===
+    nslookup %%i
+)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>PowerShell Script</h3>
+                    <pre><code># PowerShell DNS lookup script
+$domains = Get-Content "domains.txt"
+foreach ($domain in $domains) {
+    Write-Host "=== $domain ==="
+    nslookup $domain
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="output-analysis">
+                <h2>Output Analysis</h2>
+                <div class="command-block">
+                    <h3>Understanding Output</h3>
+                    <pre><code># Example output:
+# Server:  dns.google
+# Address: 8.8.8.8#53
+#
+# Non-authoritative answer:
+# Name:    example.com
+# Address: 93.184.216.34
+
+# Components:
+# Server: DNS server used
+# Address: DNS server IP and port
+# Non-authoritative: Cached response
+# Name: Domain name
+# Address: IP address</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Error Messages</h3>
+                    <pre><code># Common error messages:
+# ** server can't find domain: NXDOMAIN
+# ;; connection timed out; no servers could be reached
+# ** server can't find domain: SERVFAIL
+# ** server can't find domain: REFUSED</code></pre>
+                </div>
+            </section>
+
+            <section id="comparison-tools">
+                <h2>Comparison with Other Tools</h2>
+                <div class="command-block">
+                    <h3>nslookup vs dig vs host</h3>
+                    <pre><code># nslookup (legacy, interactive)
+nslookup example.com
+
+# dig (modern, flexible)
+dig example.com
+
+# host (simple, clean output)
+host example.com
+
+# Equivalent queries:
+nslookup -type=MX example.com
+dig example.com MX
+host -t MX example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>When to Use nslookup</h3>
+                    <ul>
+                        <li>Windows environments (built-in)</li>
+                        <li>Interactive DNS exploration</li>
+                        <li>Legacy system compatibility</li>
+                        <li>Simple troubleshooting tasks</li>
+                        <li>Educational purposes</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="practical-examples">
+                <h2>Practical Examples</h2>
+                <div class="command-block">
+                    <h3>Email Server Investigation</h3>
+                    <pre><code># Check MX records
+nslookup -type=MX example.com
+
+# Check SPF records
+nslookup -type=TXT example.com
+
+# Check mail server IPs
+nslookup mail.example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Website Troubleshooting</h3>
+                    <pre><code># Check A record
+nslookup www.example.com
+
+# Check CNAME
+nslookup -type=CNAME www.example.com
+
+# Check IPv6
+nslookup -type=AAAA example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Diagnostics</h3>
+                    <pre><code># Check local DNS server
+nslookup example.com
+
+# Test external DNS
+nslookup example.com 8.8.8.8
+
+# Reverse lookup for IP
+nslookup 192.168.1.1</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use interactive mode:</strong> Better for multiple queries</li>
+                    <li><strong>Test multiple DNS servers:</strong> Compare responses</li>
+                    <li><strong>Check both forward and reverse:</strong> Verify DNS consistency</li>
+                    <li><strong>Use debug mode:</strong> For detailed troubleshooting</li>
+                    <li><strong>Consider modern alternatives:</strong> dig and host for scripting</li>
+                    <li><strong>Set appropriate timeouts:</strong> For slow networks</li>
+                    <li><strong>Document findings:</strong> Keep logs of DNS issues</li>
+                    <li><strong>Understand limitations:</strong> nslookup has known quirks</li>
+                </ul>
+            </section>
+
+            <section id="limitations">
+                <h2>Known Limitations</h2>
+                <div class="command-block">
+                    <h3>nslookup Quirks</h3>
+                    <ul>
+                        <li><strong>Inconsistent behavior:</strong> Different implementations vary</li>
+                        <li><strong>Limited output control:</strong> Less flexible than dig</li>
+                        <li><strong>No DNSSEC support:</strong> Cannot validate DNSSEC</li>
+                        <li><strong>Deprecated status:</strong> Considered legacy by some</li>
+                        <li><strong>Platform differences:</strong> Windows vs Unix variations</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Recommended Alternatives</h3>
+                    <pre><code># For scripting and automation
+dig +short example.com
+
+# For simple queries
+host example.com
+
+# For detailed analysis
+dig +trace example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting-guide">
+                <h2>Common Issues & Solutions</h2>
+                <div class="command-block">
+                    <h3>Connection Issues</h3>
+                    <pre><code># Timeout errors
+nslookup
+> set timeout=30
+> set retry=5
+> example.com
+
+# Try different server
+nslookup example.com 8.8.8.8</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Resolution Failures</h3>
+                    <pre><code># NXDOMAIN errors
+# 1. Check domain spelling
+# 2. Try different DNS server
+# 3. Check if domain exists
+
+# SERVFAIL errors
+# 1. Try authoritative server
+# 2. Check DNS server status
+# 3. Wait and retry</code></pre>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>NOTE:</strong> nslookup should be used responsibly for:</p>
+                    <ul>
+                        <li>Legitimate DNS troubleshooting and administration</li>
+                        <li>Network diagnostics and monitoring</li>
+                        <li>Educational purposes and learning</li>
+                        <li>Authorized security testing and research</li>
+                    </ul>
+                    <p>DNS queries are generally legal and part of normal Internet operations. However, excessive querying or systematic enumeration may violate terms of service or be considered reconnaissance activities. Always respect DNS server policies and rate limits.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

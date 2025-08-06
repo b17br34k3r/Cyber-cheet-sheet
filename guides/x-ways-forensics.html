@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Ways Forensics Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>X-Ways Forensics: Professional Digital Investigation</h1>
+            <p>Master Advanced Digital Forensics and Evidence Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is X-Ways Forensics?</h2>
+                <p>X-Ways Forensics is a comprehensive digital forensics software suite designed for professional investigators, law enforcement, and corporate security teams. It provides advanced capabilities for disk imaging, file system analysis, data recovery, timeline reconstruction, and evidence examination. X-Ways Forensics is known for its powerful search capabilities, extensive file format support, and efficient handling of large datasets. The software includes features for registry analysis, email examination, internet artifact analysis, and comprehensive reporting for legal proceedings.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>System Requirements</h3>
+                    <pre><code># Minimum Requirements:
+# - Windows 7 or later (64-bit recommended)
+# - 4 GB RAM (16 GB+ recommended)
+# - 1 GB free disk space
+# - Administrator privileges
+
+# Recommended Configuration:
+# - Windows 10/11 Professional
+# - 32 GB+ RAM for large cases
+# - SSD storage for performance
+# - Multiple monitors for workflow efficiency</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Installation Process</h3>
+                    <pre><code># Purchase and download from:
+# https://www.x-ways.net/forensics/
+
+# Run installer as Administrator
+# Enter license key during installation
+# Configure default settings
+
+# Verify installation
+# Launch X-Ways Forensics
+# Check Help > About for version info</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Initial Configuration</h3>
+                    <pre><code># Configure general options
+# Options > General Options
+# Set temporary directory
+# Configure memory usage
+# Set default case directory
+
+# Configure viewer components
+# Options > Viewer Programs
+# Set external viewers for file types
+# Configure hex editor settings</code></pre>
+                </div>
+            </section>
+
+            <section id="case-management">
+                <h2>Case Management</h2>
+                <div class="command-block">
+                    <h3>Creating New Case</h3>
+                    <pre><code># Create new case
+# File > New Case
+# Enter case information:
+#   - Case name and number
+#   - Examiner details
+#   - Case description
+#   - Evidence custodian
+
+# Set case directory structure
+# Configure hash database settings
+# Set up case-specific options</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Evidence Management</h3>
+                    <pre><code># Add evidence items
+# File > Add Evidence
+# Select evidence type:
+#   - Physical drive
+#   - Logical drive
+#   - Image file
+#   - Directory
+
+# Configure evidence properties
+# Set evidence description
+# Record acquisition details
+# Verify hash values</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Case Documentation</h3>
+                    <pre><code># Case notes and comments
+# Use Comments tab for each evidence item
+# Document analysis steps
+# Record findings and observations
+
+# Generate case reports
+# File > Generate Report
+# Select report components
+# Export to various formats</code></pre>
+                </div>
+            </section>
+
+            <section id="evidence-processing">
+                <h2>Evidence Processing</h2>
+                <div class="command-block">
+                    <h3>Volume Snapshot Refinement</h3>
+                    <pre><code># Refine volume snapshot
+# Right-click evidence > Refine Volume Snapshot
+# Select refinement options:
+#   - Compute hash values
+#   - Extract metadata
+#   - Carve files
+#   - Create file index
+
+# Configure refinement settings
+# Set hash algorithms (MD5, SHA-1, SHA-256)
+# Enable file signature verification
+# Set up file categorization</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File System Analysis</h3>
+                    <pre><code># Analyze file system structure
+# View partition table
+# Examine boot sectors
+# Analyze file allocation tables
+
+# Recover deleted files
+# View deleted files in red
+# Right-click > Recover/Copy
+# Examine file slack space</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeline Analysis</h3>
+                    <pre><code># Create timeline
+# Specialist > Create Timeline
+# Select timestamp types:
+#   - Creation time
+#   - Modification time
+#   - Access time
+#   - MFT entry time
+
+# Filter timeline events
+# Set date/time ranges
+# Filter by file types
+# Export timeline data</code></pre>
+                </div>
+            </section>
+
+            <section id="search-analysis">
+                <h2>Search and Analysis</h2>
+                <div class="command-block">
+                    <h3>Keyword Searching</h3>
+                    <pre><code># Simultaneous search
+# Search > Simultaneous Search
+# Add search terms
+# Configure search options:
+#   - Case sensitivity
+#   - Whole words only
+#   - Regular expressions
+#   - Unicode support
+
+# Index search
+# Search > Index Search
+# Create search index
+# Perform fast text searches
+# Export search results</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Signature Analysis</h3>
+                    <pre><code># File type verification
+# Specialist > File Type Signatures
+# Verify file headers
+# Detect file type mismatches
+# Identify renamed files
+
+# Custom signatures
+# Options > File Type Signatures
+# Add custom file signatures
+# Import signature databases</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Hash Analysis</h3>
+                    <pre><code># Hash database comparison
+# Specialist > Hash Database
+# Import hash sets (NSRL, custom)
+# Flag known files
+# Identify contraband material
+
+# Duplicate file detection
+# Specialist > Duplicate Files
+# Find identical files
+# Group by hash values
+# Optimize storage analysis</code></pre>
+                </div>
+            </section>
+
+            <section id="registry-analysis">
+                <h2>Registry Analysis</h2>
+                <div class="command-block">
+                    <h3>Registry Examination</h3>
+                    <pre><code># Open registry hives
+# Navigate to Windows\System32\config
+# Double-click registry hive files
+# View registry structure
+
+# Registry viewer
+# Use built-in registry viewer
+# Navigate registry keys
+# Export registry data</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Registry Artifacts</h3>
+                    <pre><code># User activity analysis
+# NTUSER.DAT examination
+# Recent documents
+# Run/RunOnce entries
+# User Assist data
+
+# System configuration
+# SYSTEM hive analysis
+# Services information
+# Network configuration
+# Hardware information</code></pre>
+                </div>
+            </section>
+
+            <section id="email-analysis">
+                <h2>Email Analysis</h2>
+                <div class="command-block">
+                    <h3>Email Processing</h3>
+                    <pre><code># Email file detection
+# Automatic detection of email files
+# PST, OST, EML, MSG formats
+# Thunderbird, Outlook Express
+
+# Email extraction
+# Specialist > Extract Email
+# Parse email containers
+# Extract attachments
+# Create email index</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Email Investigation</h3>
+                    <pre><code># Email metadata analysis
+# View email headers
+# Analyze routing information
+# Check timestamps
+# Examine attachments
+
+# Email search
+# Search email content
+# Filter by sender/recipient
+# Date range filtering
+# Attachment analysis</code></pre>
+                </div>
+            </section>
+
+            <section id="internet-artifacts">
+                <h2>Internet Artifacts</h2>
+                <div class="command-block">
+                    <h3>Browser Analysis</h3>
+                    <pre><code># Browser history extraction
+# Automatic browser detection
+# Chrome, Firefox, Edge, Safari
+# History, cookies, downloads
+
+# Cache analysis
+# Browser cache examination
+# Temporary internet files
+# Cached images and documents</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Web Artifacts</h3>
+                    <pre><code># URL analysis
+# Extract visited URLs
+# Analyze search terms
+# Social media activity
+# Online communication</code></pre>
+                </div>
+            </section>
+
+            <section id="mobile-forensics">
+                <h2>Mobile Device Forensics</h2>
+                <div class="command-block">
+                    <h3>Mobile Image Analysis</h3>
+                    <pre><code># Import mobile images
+# Support for various formats
+# Android, iOS images
+# Physical and logical dumps
+
+# Mobile artifact extraction
+# Contacts, messages, call logs
+# Application data
+# Location information</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Application Analysis</h3>
+                    <pre><code># App data examination
+# SQLite database analysis
+# Social media apps
+# Messaging applications
+# Browser data</code></pre>
+                </div>
+            </section>
+
+            <section id="reporting">
+                <h2>Reporting and Documentation</h2>
+                <div class="command-block">
+                    <h3>Report Generation</h3>
+                    <pre><code># Comprehensive reports
+# File > Generate Report
+# Select report sections:
+#   - Case information
+#   - Evidence summary
+#   - File listings
+#   - Search results
+#   - Timeline data
+
+# Custom report templates
+# Create custom templates
+# Include specific data fields
+# Format for court presentation</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Evidence Export</h3>
+                    <pre><code># Export evidence files
+# Right-click files > Copy
+# Maintain metadata
+# Preserve timestamps
+# Generate hash values
+
+# Create evidence packages
+# Export selected items
+# Include documentation
+# Prepare for legal review</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>X-Tensions (Plugins)</h3>
+                    <pre><code># Install X-Tensions
+# Options > X-Tensions
+# Load additional functionality
+# Custom analysis modules
+# Third-party integrations
+
+# Popular X-Tensions:
+# - Registry analysis
+# - Email processing
+# - Mobile forensics
+# - Malware detection</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Batch Processing</h3>
+                    <pre><code># Automated processing
+# Create processing templates
+# Batch evidence processing
+# Scheduled analysis tasks
+# Unattended operations</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Disk Editor</h3>
+                    <pre><code># Low-level disk analysis
+# Hex editor functionality
+# Sector-by-sector examination
+# Boot sector analysis
+# Partition table editing</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Recovery</h3>
+                    <pre><code># Advanced file carving
+# Signature-based recovery
+# Fragmented file recovery
+# Custom carving rules
+# Damaged file reconstruction</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Encryption Support</h3>
+                    <pre><code># Encrypted volume handling
+# BitLocker support
+# TrueCrypt/VeraCrypt
+# Password recovery
+# Key file analysis</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>External Tool Integration</h3>
+                    <pre><code># Configure external viewers
+# Options > Viewer Programs
+# Set applications for file types
+# Integrate with analysis tools
+
+# Export to other formats
+# Export for other forensic tools
+# Standard format compatibility
+# Data interchange</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Integration</h3>
+                    <pre><code># Hash database support
+# NSRL integration
+# Custom hash databases
+# Contraband detection
+# Known file filtering</code></pre>
+                </div>
+            </section>
+
+            <section id="performance">
+                <h2>Performance Optimization</h2>
+                <div class="command-block">
+                    <h3>Memory Management</h3>
+                    <pre><code># Configure memory usage
+# Options > General Options
+# Set RAM allocation
+# Optimize for large cases
+# Manage temporary files</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Processing Optimization</h3>
+                    <pre><code># Multi-threading support
+# Parallel processing
+# Background operations
+# Efficient indexing
+# Smart caching</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># License activation problems
+# Check internet connection
+# Verify license key
+# Contact support if needed
+
+# Performance issues
+# Increase RAM allocation
+# Use SSD storage
+# Close unnecessary applications
+# Optimize Windows settings</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Error Resolution</h3>
+                    <pre><code># Corrupted evidence handling
+# Use error recovery options
+# Skip bad sectors
+# Partial image analysis
+# Document limitations</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Law Enforcement</h3>
+                    <ul>
+                        <li>Criminal investigation evidence analysis</li>
+                        <li>Child exploitation case processing</li>
+                        <li>Financial crime investigation</li>
+                        <li>Cybercrime evidence examination</li>
+                        <li>Court-ready report generation</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Corporate Security</h3>
+                    <ul>
+                        <li>Internal investigation support</li>
+                        <li>Data breach analysis</li>
+                        <li>Employee misconduct investigation</li>
+                        <li>Intellectual property theft cases</li>
+                        <li>Compliance auditing</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Legal Support</h3>
+                    <ul>
+                        <li>Civil litigation support</li>
+                        <li>eDiscovery processing</li>
+                        <li>Expert witness preparation</li>
+                        <li>Evidence authentication</li>
+                        <li>Data preservation</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Plan case structure:</strong> Organize cases systematically from the start</li>
+                    <li><strong>Use refinement wisely:</strong> Configure appropriate refinement options for case type</li>
+                    <li><strong>Leverage automation:</strong> Use X-Tensions and batch processing for efficiency</li>
+                    <li><strong>Document thoroughly:</strong> Maintain detailed case notes and comments</li>
+                    <li><strong>Verify evidence integrity:</strong> Always check hash values and file signatures</li>
+                    <li><strong>Optimize performance:</strong> Configure memory and processing settings appropriately</li>
+                    <li><strong>Stay updated:</strong> Keep software and signature databases current</li>
+                    <li><strong>Practice regularly:</strong> Maintain proficiency through regular use and training</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> X-Ways Forensics should only be used for:</p>
+                    <ul>
+                        <li>Analyzing systems and data you own or have explicit legal authority to examine</li>
+                        <li>Authorized forensic investigations with proper court orders or warrants</li>
+                        <li>Corporate investigations with appropriate authorization and legal guidance</li>
+                        <li>Academic research with proper institutional approval and ethical oversight</li>
+                        <li>Professional training in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized digital forensics analysis may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority and training. X-Ways Forensics can access and analyze sensitive personal information, confidential business data, and private communications that must be handled according to applicable privacy laws and data protection requirements. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper chain of custody documentation for any evidence that may be used in legal proceedings. Professional forensic analysis requires adherence to established procedures and industry standards to ensure admissibility in court and ethical handling of sensitive information.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sleuth Kit Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>The Sleuth Kit: Digital Investigation Tools</h1>
+            <p>Master Command-Line Digital Forensics</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is The Sleuth Kit?</h2>
+                <p>The Sleuth Kit (TSK) is a collection of command-line digital forensics tools that allows investigators to analyze disk images and recover files from various file systems. It supports analysis of DOS partitions, BSD partitions, Mac partitions, Sun slices, and GPT disks. TSK can analyze NTFS, FAT, ExFAT, HFS+, Ext2/3/4, UFS, YAFFS2, and ISO 9660 file systems. It's the foundation for many GUI forensics tools including Autopsy, and provides powerful command-line capabilities for detailed file system analysis.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install sleuthkit
+
+# CentOS/RHEL/Fedora
+sudo yum install sleuthkit
+# or
+sudo dnf install sleuthkit
+
+# Arch Linux
+sudo pacman -S sleuthkit
+
+# From source
+wget https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.12.1/sleuthkit-4.12.1.tar.gz
+tar -xzf sleuthkit-4.12.1.tar.gz
+cd sleuthkit-4.12.1
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download Windows binaries from:
+# https://github.com/sleuthkit/sleuthkit/releases
+
+# Extract to desired location
+# Add to PATH environment variable
+
+# Verify installation
+tsk_version.exe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install sleuthkit
+
+# Using MacPorts
+sudo port install sleuthkit
+
+# Verify installation
+tsk_version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check TSK version
+tsk_version
+
+# List available tools
+ls /usr/bin/*tsk* /usr/bin/f* /usr/bin/i* | grep -E "(fls|icat|mmls|fsstat)"
+
+# Test basic functionality
+mmls --help
+fls --help</code></pre>
+                </div>
+            </section>
+
+            <section id="disk-analysis">
+                <h2>Disk and Partition Analysis</h2>
+                <div class="command-block">
+                    <h3>Partition Analysis with mmls</h3>
+                    <pre><code># Display partition layout
+mmls disk_image.dd
+
+# Show partition table with detailed info
+mmls -t dos disk_image.dd
+mmls -t gpt disk_image.dd
+mmls -t mac disk_image.dd
+mmls -t bsd disk_image.dd
+
+# Display in different units
+mmls -B disk_image.dd  # Display in bytes
+mmls -K disk_image.dd  # Display in KB
+mmls -M disk_image.dd  # Display in MB
+
+# Example output interpretation:
+# DOS Partition Table
+# Offset Sector: 0
+# Units are in 512-byte sectors
+#
+#      Slot      Start        End          Length       Description
+# 000:  Meta      0000000000   0000000000   0000000001   Primary Table (#0)
+# 001:  -------   0000000000   0000000062   0000000063   Unallocated
+# 002:  000:000   0000000063   0000204862   0000204800   NTFS / exFAT (0x07)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File System Analysis with fsstat</h3>
+                    <pre><code># Analyze file system structure
+fsstat disk_image.dd
+
+# Analyze specific partition (offset in sectors)
+fsstat -o 63 disk_image.dd
+
+# Display file system statistics
+fsstat -f ntfs disk_image.dd
+fsstat -f fat32 disk_image.dd
+fsstat -f ext4 disk_image.dd
+
+# Example NTFS output includes:
+# - File system type and version
+# - Sector and cluster sizes
+# - Total clusters and free space
+# - MFT location and size
+# - Boot sector information</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Volume Analysis</h3>
+                    <pre><code># Analyze volume system
+vsstat disk_image.dd
+
+# Display volume information
+img_stat disk_image.dd
+
+# Check image integrity
+img_cat disk_image.dd | md5sum</code></pre>
+                </div>
+            </section>
+
+            <section id="file-system-analysis">
+                <h2>File System Analysis</h2>
+                <div class="command-block">
+                    <h3>File Listing with fls</h3>
+                    <pre><code># List files in root directory
+fls disk_image.dd
+
+# List files with specific partition offset
+fls -o 63 disk_image.dd
+
+# Recursive listing
+fls -r disk_image.dd
+
+# Show deleted files
+fls -d disk_image.dd
+
+# Show all files (allocated and deleted)
+fls -a disk_image.dd
+
+# List specific directory by inode
+fls disk_image.dd 5  # List contents of inode 5
+
+# Long format with timestamps
+fls -l disk_image.dd
+
+# Show file paths
+fls -p disk_image.dd
+
+# Filter by file type
+fls -m / disk_image.dd  # Show only directories</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Inode Analysis with ils</h3>
+                    <pre><code># List all inodes
+ils disk_image.dd
+
+# List deleted inodes only
+ils -e disk_image.dd
+
+# List specific inode range
+ils -s 100-200 disk_image.dd
+
+# Show inode details
+ils -m disk_image.dd
+
+# List unallocated inodes
+ils -z disk_image.dd
+
+# Output in different formats
+ils -f linux disk_image.dd  # Linux format
+ils -f openbsd disk_image.dd  # OpenBSD format</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Content Extraction with icat</h3>
+                    <pre><code># Extract file by inode number
+icat disk_image.dd 1234 > extracted_file.txt
+
+# Extract with partition offset
+icat -o 63 disk_image.dd 1234 > file.dat
+
+# Extract specific data unit
+icat -u disk_image.dd 1234 > file_unallocated.dat
+
+# Extract file slack space
+icat -s disk_image.dd 1234 > file_slack.dat
+
+# Recover deleted file
+icat disk_image.dd 5678 > recovered_file.doc</code></pre>
+                </div>
+            </section>
+
+            <section id="timeline-analysis">
+                <h2>Timeline Analysis</h2>
+                <div class="command-block">
+                    <h3>Creating Timelines with fls</h3>
+                    <pre><code># Create timeline in body format
+fls -r -m / disk_image.dd > timeline.body
+
+# Create timeline with specific time zone
+TZ=UTC fls -r -m / disk_image.dd > timeline_utc.body
+
+# Include deleted files in timeline
+fls -r -a -m / disk_image.dd > timeline_all.body
+
+# Timeline for specific directory
+fls -r -m /path/to/dir disk_image.dd > dir_timeline.body</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Processing Timelines with mactime</h3>
+                    <pre><code># Convert body file to readable timeline
+mactime -b timeline.body > readable_timeline.txt
+
+# Timeline for specific date range
+mactime -b timeline.body -d 2023-01-01..2023-12-31 > year_timeline.txt
+
+# Timeline in CSV format
+mactime -b timeline.body -d > timeline.csv
+
+# Group by hour
+mactime -b timeline.body -g > hourly_timeline.txt
+
+# Filter by specific time
+mactime -b timeline.body 2023-06-15 > daily_timeline.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Timeline Analysis</h3>
+                    <pre><code># Combine multiple sources
+cat filesystem.body registry.body > combined.body
+mactime -b combined.body > full_timeline.txt
+
+# Timeline with timezone conversion
+mactime -b timeline.body -z EST5EDT > local_timeline.txt
+
+# Filter by file types
+grep -E "\.(exe|dll|bat|cmd|ps1)$" timeline.body | mactime -b - > executables_timeline.txt
+
+# Focus on system directories
+grep -E "(Windows|System32|Program Files)" timeline.body | mactime -b - > system_timeline.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="data-recovery">
+                <h2>Data Recovery</h2>
+                <div class="command-block">
+                    <h3>Deleted File Recovery</h3>
+                    <pre><code># Find deleted files
+fls -d disk_image.dd
+
+# Recover deleted file by inode
+icat disk_image.dd [deleted_inode] > recovered_file
+
+# Batch recovery of deleted files
+fls -d disk_image.dd | while read line; do
+    inode=$(echo $line | awk '{print $2}' | sed 's/://')
+    filename=$(echo $line | awk '{print $3}')
+    if [[ $inode =~ ^[0-9]+$ ]]; then
+        icat disk_image.dd $inode > "recovered_$filename"
+    fi
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Unallocated Space Analysis</h3>
+                    <pre><code># Extract unallocated space
+blkls disk_image.dd > unallocated_space.dd
+
+# Extract specific block range
+blkls -s 1000-2000 disk_image.dd > block_range.dd
+
+# Search unallocated space for strings
+strings unallocated_space.dd | grep -i "password"
+
+# Carve files from unallocated space
+foremost -i unallocated_space.dd -o carved_files/
+scalpel -b -o carved_files/ unallocated_space.dd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Carving with tsk_recover</h3>
+                    <pre><code># Recover all possible files
+tsk_recover disk_image.dd recovered_files/
+
+# Recover with partition offset
+tsk_recover -o 63 disk_image.dd recovered_files/
+
+# Recover only deleted files
+tsk_recover -e disk_image.dd recovered_files/
+
+# Recover files from specific directory
+tsk_recover -d 5 disk_image.dd recovered_files/</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-analysis">
+                <h2>Advanced Analysis Techniques</h2>
+                <div class="command-block">
+                    <h3>Metadata Analysis</h3>
+                    <pre><code># Analyze file metadata
+istat disk_image.dd 1234
+
+# Show detailed inode information
+istat -f ntfs disk_image.dd 1234
+
+# Analyze directory metadata
+istat disk_image.dd 5  # Typically root directory
+
+# Check file allocation status
+istat disk_image.dd 1234 | grep -i allocated</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Block Analysis</h3>
+                    <pre><code># Display block contents
+blkcat disk_image.dd 1000
+
+# Show block allocation status
+blkstat disk_image.dd 1000
+
+# Calculate block address from file offset
+blkcalc disk_image.dd 12345
+
+# Find which file uses a block
+ifind disk_image.dd -d 1000</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Hash Analysis</h3>
+                    <pre><code># Calculate file hash by inode
+icat disk_image.dd 1234 | md5sum
+icat disk_image.dd 1234 | sha1sum
+icat disk_image.dd 1234 | sha256sum
+
+# Hash all files for comparison
+fls -r disk_image.dd | while read line; do
+    inode=$(echo $line | awk '{print $2}' | sed 's/://')
+    filename=$(echo $line | awk '{print $3}')
+    if [[ $inode =~ ^[0-9]+$ ]] && [[ $filename != *"/" ]]; then
+        hash=$(icat disk_image.dd $inode 2>/dev/null | md5sum | cut -d' ' -f1)
+        echo "$hash  $filename  (inode: $inode)"
+    fi
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="ntfs-analysis">
+                <h2>NTFS-Specific Analysis</h2>
+                <div class="command-block">
+                    <h3>MFT Analysis</h3>
+                    <pre><code># Extract Master File Table
+icat disk_image.dd 0 > mft.raw
+
+# Analyze MFT entries
+analyzeMFT.py -f mft.raw -o mft_analysis.csv
+
+# Find specific MFT entry
+istat disk_image.dd 0  # MFT itself
+istat disk_image.dd 5  # Root directory</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>NTFS Attributes</h3>
+                    <pre><code># Show file attributes
+istat disk_image.dd 1234
+
+# Extract alternate data streams
+icat -a disk_image.dd 1234  # List attributes
+icat -a 128-1 disk_image.dd 1234 > ads_content.txt
+
+# Analyze $LogFile
+icat disk_image.dd 2 > logfile.raw
+
+# Extract $UsnJrnl
+icat disk_image.dd 36 > usnjrnl.raw</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Analysis Script</h3>
+                    <pre><code>#!/bin/bash
+# TSK Automated Analysis Script
+
+IMAGE="$1"
+OUTPUT_DIR="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <disk_image> <output_directory>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Starting TSK analysis of $IMAGE"
+
+# Partition analysis
+echo "=== Partition Analysis ===" > "$OUTPUT_DIR/analysis_report.txt"
+mmls "$IMAGE" >> "$OUTPUT_DIR/analysis_report.txt" 2>&1
+
+# File system analysis
+echo "=== File System Analysis ===" >> "$OUTPUT_DIR/analysis_report.txt"
+fsstat "$IMAGE" >> "$OUTPUT_DIR/analysis_report.txt" 2>&1
+
+# Create timeline
+echo "Creating timeline..."
+fls -r -m / "$IMAGE" > "$OUTPUT_DIR/timeline.body"
+mactime -b "$OUTPUT_DIR/timeline.body" > "$OUTPUT_DIR/timeline.txt"
+
+# List all files
+echo "Listing all files..."
+fls -r -a "$IMAGE" > "$OUTPUT_DIR/all_files.txt"
+
+# Find deleted files
+echo "Finding deleted files..."
+fls -d -r "$IMAGE" > "$OUTPUT_DIR/deleted_files.txt"
+
+# Extract unallocated space
+echo "Extracting unallocated space..."
+blkls "$IMAGE" > "$OUTPUT_DIR/unallocated.dd"
+
+echo "Analysis completed. Results in $OUTPUT_DIR"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Recovery Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated file recovery script
+
+IMAGE="$1"
+RECOVERY_DIR="$2"
+
+mkdir -p "$RECOVERY_DIR"
+
+# Find and recover deleted files
+fls -d -r "$IMAGE" | while IFS= read -r line; do
+    # Parse fls output
+    inode=$(echo "$line" | awk '{print $2}' | sed 's/://')
+    filename=$(echo "$line" | awk '{for(i=3;i<=NF;i++) printf "%s ", $i; print ""}' | sed 's/ $//')
+    
+    if [[ $inode =~ ^[0-9]+$ ]] && [[ -n "$filename" ]]; then
+        # Clean filename for filesystem
+        clean_filename=$(echo "$filename" | tr '/' '_' | tr ' ' '_')
+        
+        # Recover file
+        echo "Recovering: $filename (inode: $inode)"
+        icat "$IMAGE" "$inode" > "$RECOVERY_DIR/recovered_${inode}_${clean_filename}" 2>/dev/null
+        
+        if [ $? -eq 0 ]; then
+            echo "Successfully recovered: $filename"
+        else
+            echo "Failed to recover: $filename"
+        fi
+    fi
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Autopsy</h3>
+                    <ul>
+                        <li>TSK provides the backend for Autopsy's analysis</li>
+                        <li>Command-line TSK can supplement GUI analysis</li>
+                        <li>Use TSK for batch processing and automation</li>
+                        <li>Export Autopsy results for TSK timeline analysis</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Forensics Tools</h3>
+                    <pre><code># Combine with Volatility for memory analysis
+vol -f memory.dmp windows.filescan > memory_files.txt
+# Cross-reference with TSK file system analysis
+
+# Use with file carving tools
+blkls disk_image.dd | foremost -i - -o carved/
+blkls disk_image.dd | scalpel -b -o carved/ -
+
+# Integration with log analysis
+fls -r disk_image.dd | grep -E "\.(log|evt|evtx)$" > log_files.txt
+# Extract and analyze log files</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Image format not recognized
+file disk_image.dd  # Check file type
+mmls -t dos disk_image.dd  # Try specific partition type
+
+# Partition offset issues
+mmls disk_image.dd  # Get correct offset
+fsstat -o [offset] disk_image.dd
+
+# File system not supported
+fsstat disk_image.dd  # Check file system type
+tsk_version  # Check TSK version and supported file systems
+
+# Permission issues
+sudo chown $USER:$USER disk_image.dd
+chmod 644 disk_image.dd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <ul>
+                        <li>Use SSD storage for image files</li>
+                        <li>Increase system RAM for large images</li>
+                        <li>Process images in smaller chunks when possible</li>
+                        <li>Use specific partition offsets to avoid full disk scanning</li>
+                        <li>Limit recursive operations to specific directories</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Criminal investigations</li>
+                        <li>Corporate incident response</li>
+                        <li>Data breach analysis</li>
+                        <li>Employee misconduct investigations</li>
+                        <li>Intellectual property theft cases</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Data Recovery</h3>
+                    <ul>
+                        <li>Accidental file deletion recovery</li>
+                        <li>Corrupted file system repair</li>
+                        <li>Hardware failure data extraction</li>
+                        <li>Formatted drive recovery</li>
+                        <li>Partition table corruption recovery</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Analysis</h3>
+                    <ul>
+                        <li>Malware artifact analysis</li>
+                        <li>System compromise investigation</li>
+                        <li>Timeline reconstruction</li>
+                        <li>Evidence correlation</li>
+                        <li>Attack vector identification</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Always work with copies:</strong> Never analyze original evidence</li>
+                    <li><strong>Document everything:</strong> Keep detailed logs of all commands used</li>
+                    <li><strong>Verify integrity:</strong> Hash images before and after analysis</li>
+                    <li><strong>Use appropriate offsets:</strong> Always specify partition offsets when needed</li>
+                    <li><strong>Combine techniques:</strong> Use multiple TSK tools for comprehensive analysis</li>
+                    <li><strong>Automate repetitive tasks:</strong> Create scripts for common workflows</li>
+                    <li><strong>Understand file systems:</strong> Learn the specifics of target file systems</li>
+                    <li><strong>Practice regularly:</strong> Maintain proficiency with hands-on exercises</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> The Sleuth Kit should only be used for:</p>
+                    <ul>
+                        <li>Analyzing disk images from your own systems</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Corporate investigations with appropriate authorization</li>
+                        <li>Data recovery on systems you own or have permission to analyze</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized analysis of computer systems or data may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper chain of custody and documentation for any evidence that may be used in legal proceedings. Be aware of privacy rights and data protection requirements in your jurisdiction.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

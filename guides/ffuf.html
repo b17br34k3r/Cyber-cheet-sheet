@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ffuf Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>ffuf: Fast Web Fuzzer</h1>
+            <p>Master High-Speed Web Application Fuzzing and Discovery</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is ffuf?</h2>
+                <p>ffuf (Fuzz Faster U Fool) is a fast web fuzzer written in Go. It's designed to be simple, fast, and flexible for discovering hidden files, directories, parameters, and other web application components. ffuf excels at high-speed fuzzing with customizable wordlists, multiple fuzzing modes, and advanced filtering capabilities. It's particularly popular among bug bounty hunters and penetration testers for its speed and versatility in web application security testing.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Download from GitHub releases
+wget https://github.com/ffuf/ffuf/releases/download/v2.1.0/ffuf_2.1.0_linux_amd64.tar.gz
+tar -xzf ffuf_2.1.0_linux_amd64.tar.gz
+sudo mv ffuf /usr/local/bin/
+
+# Build from source
+git clone https://github.com/ffuf/ffuf.git
+cd ffuf
+go build
+sudo mv ffuf /usr/local/bin/
+
+# Verify installation
+ffuf -V</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install ffuf
+
+# From GitHub releases
+wget https://github.com/ffuf/ffuf/releases/download/v2.1.0/ffuf_2.1.0_darwin_amd64.tar.gz
+tar -xzf ffuf_2.1.0_darwin_amd64.tar.gz
+sudo mv ffuf /usr/local/bin/
+
+# Verify installation
+ffuf -V</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from GitHub releases
+# https://github.com/ffuf/ffuf/releases/download/v2.1.0/ffuf_2.1.0_windows_amd64.zip
+
+# Extract and add to PATH
+# Or run directly: ffuf.exe
+
+# Verify installation
+ffuf.exe -V</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull ffuf Docker image
+docker pull ffuf/ffuf
+
+# Run directory fuzzing
+docker run --rm ffuf/ffuf -u http://example.com/FUZZ -w /wordlists/common.txt
+
+# Run with custom wordlist
+docker run --rm -v $(pwd):/wordlists ffuf/ffuf -u http://example.com/FUZZ -w /wordlists/custom.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Directory Fuzzing</h3>
+                    <pre><code># Basic directory fuzzing
+ffuf -u http://example.com/FUZZ -w /usr/share/wordlists/dirb/common.txt
+
+# Fuzz with file extensions
+ffuf -u http://example.com/FUZZ -w wordlist.txt -e .php,.html,.txt,.js
+
+# Recursive fuzzing
+ffuf -u http://example.com/FUZZ -w wordlist.txt -recursion -recursion-depth 2
+
+# Multiple wordlists
+ffuf -u http://example.com/FUZZ -w wordlist1.txt:W1,wordlist2.txt:W2</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Parameter Fuzzing</h3>
+                    <pre><code># GET parameter fuzzing
+ffuf -u "http://example.com/search?FUZZ=test" -w parameters.txt
+
+# POST parameter fuzzing
+ffuf -u http://example.com/login -w parameters.txt -X POST -d "FUZZ=value"
+
+# Multiple parameter fuzzing
+ffuf -u "http://example.com/api?param1=FUZZ&param2=W2" -w values1.txt:FUZZ,values2.txt:W2
+
+# Header fuzzing
+ffuf -u http://example.com -w headers.txt -H "FUZZ: value"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Subdomain Fuzzing</h3>
+                    <pre><code># Subdomain enumeration
+ffuf -u http://FUZZ.example.com -w subdomains.txt
+
+# With custom Host header
+ffuf -u http://example.com -w subdomains.txt -H "Host: FUZZ.example.com"
+
+# HTTPS subdomain fuzzing
+ffuf -u https://FUZZ.example.com -w subdomains.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Fuzzing Techniques</h2>
+                <div class="command-block">
+                    <h3>Multiple Fuzzing Points</h3>
+                    <pre><code># Multiple FUZZ keywords
+ffuf -u http://example.com/W1/W2 -w dirs.txt:W1,files.txt:W2
+
+# Complex URL fuzzing
+ffuf -u "http://FUZZ.example.com/W2?param=W3" -w subdomains.txt:FUZZ,paths.txt:W2,values.txt:W3
+
+# Method and path fuzzing
+ffuf -u http://example.com/FUZZ -w paths.txt -X W2 -w methods.txt:W2</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Request Customization</h3>
+                    <pre><code># Custom headers
+ffuf -u http://example.com/FUZZ -w wordlist.txt -H "Authorization: Bearer token" -H "User-Agent: ffuf"
+
+# Custom cookies
+ffuf -u http://example.com/FUZZ -w wordlist.txt -b "sessionid=abc123; token=xyz789"
+
+# Custom data and content type
+ffuf -u http://example.com/api -w payloads.txt -X POST -d "FUZZ" -H "Content-Type: application/json"
+
+# Proxy usage
+ffuf -u http://example.com/FUZZ -w wordlist.txt -x http://127.0.0.1:8080</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Tuning</h3>
+                    <pre><code># Increase threads
+ffuf -u http://example.com/FUZZ -w wordlist.txt -t 100
+
+# Add delays
+ffuf -u http://example.com/FUZZ -w wordlist.txt -p 0.1-2.0
+
+# Set timeout
+ffuf -u http://example.com/FUZZ -w wordlist.txt -timeout 10
+
+# Rate limiting
+ffuf -u http://example.com/FUZZ -w wordlist.txt -rate 50</code></pre>
+                </div>
+            </section>
+
+            <section id="filtering">
+                <h2>Response Filtering</h2>
+                <div class="command-block">
+                    <h3>Status Code Filtering</h3>
+                    <pre><code># Filter by status codes
+ffuf -u http://example.com/FUZZ -w wordlist.txt -fc 404,403
+
+# Match specific status codes
+ffuf -u http://example.com/FUZZ -w wordlist.txt -mc 200,301,302
+
+# Filter ranges
+ffuf -u http://example.com/FUZZ -w wordlist.txt -fc 400-499</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Size and Content Filtering</h3>
+                    <pre><code># Filter by response size
+ffuf -u http://example.com/FUZZ -w wordlist.txt -fs 1234
+
+# Match specific sizes
+ffuf -u http://example.com/FUZZ -w wordlist.txt -ms 5000-10000
+
+# Filter by word count
+ffuf -u http://example.com/FUZZ -w wordlist.txt -fw 100
+
+# Filter by line count
+ffuf -u http://example.com/FUZZ -w wordlist.txt -fl 50</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Content-Based Filtering</h3>
+                    <pre><code># Filter by regex pattern
+ffuf -u http://example.com/FUZZ -w wordlist.txt -fr "error|not found"
+
+# Match regex pattern
+ffuf -u http://example.com/FUZZ -w wordlist.txt -mr "admin|login"
+
+# Filter by response time
+ffuf -u http://example.com/FUZZ -w wordlist.txt -ft 5000</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output and Reporting</h2>
+                <div class="command-block">
+                    <h3>Output Formats</h3>
+                    <pre><code># JSON output
+ffuf -u http://example.com/FUZZ -w wordlist.txt -o results.json -of json
+
+# CSV output
+ffuf -u http://example.com/FUZZ -w wordlist.txt -o results.csv -of csv
+
+# HTML output
+ffuf -u http://example.com/FUZZ -w wordlist.txt -o results.html -of html
+
+# Multiple formats
+ffuf -u http://example.com/FUZZ -w wordlist.txt -o results -of json,csv,html</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verbose and Debug Output</h3>
+                    <pre><code># Verbose output
+ffuf -u http://example.com/FUZZ -w wordlist.txt -v
+
+# Silent mode
+ffuf -u http://example.com/FUZZ -w wordlist.txt -s
+
+# Debug mode
+ffuf -u http://example.com/FUZZ -w wordlist.txt -debug-log debug.log
+
+# Show redirects
+ffuf -u http://example.com/FUZZ -w wordlist.txt -r</code></pre>
+                </div>
+            </section>
+
+            <section id="wordlists">
+                <h2>Wordlists and Payloads</h2>
+                <div class="command-block">
+                    <h3>Common Wordlists</h3>
+                    <pre><code># SecLists wordlists
+git clone https://github.com/danielmiessler/SecLists.git
+
+# Directory wordlists
+SecLists/Discovery/Web-Content/directory-list-2.3-medium.txt
+SecLists/Discovery/Web-Content/common.txt
+SecLists/Discovery/Web-Content/big.txt
+
+# Parameter wordlists
+SecLists/Discovery/Web-Content/burp-parameter-names.txt
+SecLists/Fuzzing/LFI/LFI-gracefulsecurity-linux.txt
+
+# Subdomain wordlists
+SecLists/Discovery/DNS/subdomains-top1million-5000.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Wordlist Creation</h3>
+                    <pre><code># Generate numeric wordlist
+seq 1 1000 > numbers.txt
+
+# Generate date-based wordlist
+for year in {2020..2024}; do
+    for month in {01..12}; do
+        echo "$year$month" >> dates.txt
+    done
+done
+
+# Combine wordlists
+cat wordlist1.txt wordlist2.txt | sort -u > combined.txt
+
+# Filter wordlist by length
+awk 'length($0) >= 3 && length($0) <= 15' wordlist.txt > filtered.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Bash Automation</h3>
+                    <pre><code># Multi-target fuzzing script
+#!/bin/bash
+targets=("http://example1.com" "http://example2.com")
+wordlist="/path/to/wordlist.txt"
+
+for target in "${targets[@]}"; do
+    echo "Fuzzing $target"
+    ffuf -u "$target/FUZZ" -w "$wordlist" -o "$(echo $target | sed 's|http://||' | sed 's|/|_|g').json" -of json
+    sleep 2
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Extract URLs from JSON output
+jq -r '.results[] | .url' results.json > found_urls.txt
+
+# Filter by status code
+jq -r '.results[] | select(.status == 200) | .url' results.json > status_200.txt
+
+# Python script for processing
+import json
+
+with open('results.json', 'r') as f:
+    data = json.load(f)
+
+for result in data['results']:
+    if result['status'] in [200, 301, 302]:
+        print(f"Found: {result['url']} (Status: {result['status']}, Size: {result['length']})")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Tools</h3>
+                    <pre><code># Chain with other tools
+ffuf -u http://example.com/FUZZ -w wordlist.txt -mc 200 -o found.json -of json
+jq -r '.results[] | .url' found.json | while read url; do
+    echo "Checking $url with curl"
+    curl -s "$url" | grep -i "admin\|login\|password"
+done
+
+# Integration with Burp Suite
+ffuf -u http://example.com/FUZZ -w wordlist.txt -x http://127.0.0.1:8080</code></pre>
+                </div>
+            </section>
+
+            <section id="specialized-techniques">
+                <h2>Specialized Fuzzing Techniques</h2>
+                <div class="command-block">
+                    <h3>API Fuzzing</h3>
+                    <pre><code># REST API endpoint fuzzing
+ffuf -u http://api.example.com/v1/FUZZ -w api_endpoints.txt -H "Authorization: Bearer token"
+
+# API version fuzzing
+ffuf -u http://api.example.com/FUZZ/users -w versions.txt
+
+# JSON parameter fuzzing
+ffuf -u http://api.example.com/users -w params.txt -X POST -d '{"FUZZ":"value"}' -H "Content-Type: application/json"
+
+# GraphQL fuzzing
+ffuf -u http://example.com/graphql -w graphql_queries.txt -X POST -d 'query=FUZZ' -H "Content-Type: application/x-www-form-urlencoded"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Virtual Host Fuzzing</h3>
+                    <pre><code># Virtual host discovery
+ffuf -u http://example.com -w vhosts.txt -H "Host: FUZZ.example.com"
+
+# IP-based virtual host fuzzing
+ffuf -u http://192.168.1.100 -w domains.txt -H "Host: FUZZ"
+
+# Port-based virtual host fuzzing
+ffuf -u http://FUZZ.example.com:8080 -w subdomains.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Authentication Bypass</h3>
+                    <pre><code># HTTP method fuzzing
+ffuf -u http://example.com/admin -w methods.txt -X FUZZ
+
+# User-Agent fuzzing
+ffuf -u http://example.com/restricted -w user_agents.txt -H "User-Agent: FUZZ"
+
+# IP whitelist bypass
+ffuf -u http://example.com/admin -w ip_headers.txt -H "FUZZ: 127.0.0.1"</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Debug connection issues
+ffuf -u http://example.com/FUZZ -w wordlist.txt -debug-log debug.log
+
+# Test with single request
+ffuf -u http://example.com/test -w /dev/null -v
+
+# Check DNS resolution
+nslookup example.com
+
+# Verify SSL certificates
+ffuf -u https://example.com/FUZZ -w wordlist.txt -ignore-cert</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Reduce threads for stability
+ffuf -u http://example.com/FUZZ -w wordlist.txt -t 10
+
+# Add delays to avoid rate limiting
+ffuf -u http://example.com/FUZZ -w wordlist.txt -p 1.0
+
+# Increase timeout for slow servers
+ffuf -u http://example.com/FUZZ -w wordlist.txt -timeout 30
+
+# Monitor system resources
+top -p $(pgrep ffuf)</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Web Application Security Testing</h3>
+                    <ul>
+                        <li>Hidden directory and file discovery</li>
+                        <li>API endpoint enumeration and testing</li>
+                        <li>Parameter fuzzing for injection vulnerabilities</li>
+                        <li>Virtual host and subdomain discovery</li>
+                        <li>Authentication bypass testing</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Bug Bounty and Penetration Testing</h3>
+                    <ul>
+                        <li>High-speed content discovery</li>
+                        <li>Custom payload testing</li>
+                        <li>Multi-target reconnaissance</li>
+                        <li>Advanced filtering for noise reduction</li>
+                        <li>Integration with other security tools</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with small wordlists:</strong> Test with small lists before using large ones</li>
+                    <li><strong>Use appropriate filtering:</strong> Filter out noise to focus on interesting results</li>
+                    <li><strong>Tune performance:</strong> Adjust threads and delays based on target response</li>
+                    <li><strong>Save results:</strong> Always output results to files for later analysis</li>
+                    <li><strong>Use multiple fuzzing points:</strong> Combine different fuzzing techniques</li>
+                    <li><strong>Monitor target response:</strong> Watch for rate limiting or blocking</li>
+                    <li><strong>Validate findings:</strong> Manually verify interesting discoveries</li>
+                    <li><strong>Use recursion carefully:</strong> Recursive fuzzing can generate many requests</li>
+                    <li><strong>Customize for target:</strong> Adapt wordlists and techniques to specific applications</li>
+                    <li><strong>Combine with manual testing:</strong> Use ffuf results to guide manual exploration</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> ffuf should only be used for:</p>
+                    <ul>
+                        <li>Testing web applications you own or have explicit permission to test</li>
+                        <li>Authorized penetration testing with proper legal agreements</li>
+                        <li>Bug bounty programs with defined scope and rules</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Security research with appropriate institutional approval</li>
+                    </ul>
+                    <p>Unauthorized web application fuzzing may violate computer crime laws, terms of service, and other regulations. Web application security testing should only be performed by qualified professionals with proper authorization and legal agreements. ffuf can generate significant traffic and may impact server performance, trigger security controls, or cause service disruption. Always ensure you have explicit written permission before fuzzing any web application. High-speed fuzzing can be particularly intrusive and may overwhelm target systems. Maintain proper documentation of testing activities and findings. Follow responsible disclosure practices for any vulnerabilities discovered. Be aware that fuzzing activities may be logged and monitored by target systems. Respect rate limits and implement appropriate delays to minimize impact on target systems. Some fuzzing techniques may trigger automated security responses or blocking mechanisms.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

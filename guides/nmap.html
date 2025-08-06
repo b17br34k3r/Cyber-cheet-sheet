@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nmap Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Nmap: The Network Mapper</h1>
+            <p>A Comprehensive Guide to Scanning and Discovery</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Nmap?</h2>
+                <p>Nmap (Network Mapper) is a free and open-source utility for network discovery and security auditing. It is an indispensable tool for network administrators, penetration testers, and security professionals. Nmap uses raw IP packets in novel ways to determine what hosts are available on the network, what services (application name and version) those hosts are offering, what operating systems (and OS versions) they are running, what type of packet filters/firewalls are in use, and dozens of other characteristics.</p>
+            </section>
+
+            <section id="common-commands">
+                <h2>Common Commands & Examples</h2>
+                <p>Here are some of the most common Nmap commands, broken down by function. The target can be a single IP, a hostname, or a network range (e.g., <code>192.168.1.0/24</code>).</p>
+
+                <div class="command-block">
+                    <h3>Basic Scans</h3>
+                    <p>These are the simplest scans to get started with.</p>
+                    <pre><code># Ping Scan - Discovers which hosts are online
+nmap -sn [target]</code></pre>
+                    <pre><code># Basic Port Scan - Scans the 1,000 most common ports
+nmap [target]</code></pre>
+                </div>
+
+                <div class="command-block">
+                    <h3>Port Scanning Techniques</h3>
+                    <p>Control how Nmap scans for ports.</p>
+                    <pre><code># Scan specific ports
+nmap -p 80,443 [target]</code></pre>
+                    <pre><code># Scan a range of ports
+nmap -p 1-100 [target]</code></pre>
+                    <pre><code># Scan all 65535 ports
+nmap -p- [target]</code></pre>
+                     <pre><code># Fast Scan - Scans fewer ports than the default scan
+nmap -F [target]</code></pre>
+                </div>
+
+                <div class="command-block">
+                    <h3>Service and Version Detection</h3>
+                    <p>Identify the software and version running on open ports.</p>
+                    <pre><code># Service Version Detection
+nmap -sV [target]</code></pre>
+                </div>
+
+                <div class="command-block">
+                    <h3>OS Detection</h3>
+                    <p>Attempt to identify the operating system of the target host.</p>
+                    <pre><code># Operating System Detection
+nmap -O [target]</code></pre>
+                </div>
+
+                <div class="command-block">
+                    <h3>Aggressive Scan (All-in-One)</h3>
+                    <p>An aggressive scan enables OS detection, version detection, script scanning, and traceroute.</p>
+                    <pre><code># Aggressive Scan
+nmap -A [target]</code></pre>
+                </div>
+
+                 <div class="command-block">
+                    <h3>Nmap Scripting Engine (NSE)</h3>
+                    <p>Use Nmap's powerful scripting engine to automate tasks.</p>
+                    <pre><code># Run default safe scripts
+nmap -sC [target]</code></pre>
+                    <pre><code># Run a specific script (e.g., http-title)
+nmap -p 80 --script http-title [target]</code></pre>
+                     <pre><code># Get help for a script
+nmap --script-help 'http-*'</code></pre>
+                </div>
+
+                <div class="command-block">
+                    <h3>Output Formats</h3>
+                    <p>Save your scan results to a file.</p>
+                    <pre><code># Save output to a text file
+nmap -oN output.txt [target]</code></pre>
+                    <pre><code># Save output to an XML file
+nmap -oX output.xml [target]</code></pre>
+                    <pre><code># Save in all major formats
+nmap -oA output_basename [target]</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Tips for Beginners</h2>
+                <ul>
+                    <li><strong>Be Ethical:</strong> Only scan networks and hosts that you have explicit permission to test. Unauthorized scanning is illegal.</li>
+                    <li><strong>Start Simple:</strong> Begin with basic scans like <code>nmap [target]</code> before moving to more complex options.</li>
+                    <li><strong>Understand the Output:</strong> Learn what 'open', 'closed', and 'filtered' mean in the context of a port scan.</li>
+                    <li><strong>Use <code>-v</code> for Verbosity:</strong> Add the <code>-v</code> (or <code>-vv</code> for more detail) flag to your commands to see more information about what Nmap is doing in real-time.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

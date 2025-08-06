@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Extractor Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Bulk Extractor: Digital Forensics Feature Extraction</h1>
+            <p>Master Automated Evidence Discovery and Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Bulk Extractor?</h2>
+                <p>Bulk Extractor is a computer forensics tool that scans a disk image, file, or directory of files and extracts useful information without parsing the file system or file system structures. It can extract features such as email addresses, credit card numbers, URLs, and other types of personally identifiable information, even from compressed files, Microsoft Office documents, and other encoded data. The program is useful both for law enforcement and for privacy compliance testing.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install bulk-extractor
+
+# CentOS/RHEL/Fedora
+sudo yum install bulk-extractor
+# or
+sudo dnf install bulk-extractor
+
+# From source
+git clone https://github.com/simsong/bulk_extractor.git
+cd bulk_extractor
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download Windows binaries from:
+# https://github.com/simsong/bulk_extractor/releases
+
+# Extract to desired location
+# Add to PATH environment variable
+
+# Verify installation
+bulk_extractor.exe -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install bulk-extractor
+
+# From source
+git clone https://github.com/simsong/bulk_extractor.git
+cd bulk_extractor
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check installation
+bulk_extractor -V
+
+# List available scanners
+bulk_extractor -h | grep -A 20 "Available scanners"</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Command Syntax</h3>
+                    <pre><code># Basic syntax
+bulk_extractor [options] image_file
+
+# Common options:
+# -o output_dir    : Output directory
+# -j threads       : Number of threads
+# -q               : Quiet mode
+# -v               : Verbose mode
+# -R               : Recursive processing</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Simple Analysis</h3>
+                    <pre><code># Analyze disk image
+bulk_extractor -o output_dir disk_image.dd
+
+# Analyze directory
+bulk_extractor -R -o output_dir /path/to/directory/
+
+# Analyze single file
+bulk_extractor -o output_dir suspicious_file.bin
+
+# Multi-threaded analysis
+bulk_extractor -j 4 -o output_dir disk_image.dd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Files</h3>
+                    <pre><code># Common output files:
+# email.txt        - Email addresses
+# url.txt          - URLs
+# ccn.txt          - Credit card numbers
+# telephone.txt    - Phone numbers
+# ip.txt           - IP addresses
+# domain.txt       - Domain names
+# rfc822.txt       - Email messages
+# exif.txt         - EXIF data from images</code></pre>
+                </div>
+            </section>
+
+            <section id="feature-extraction">
+                <h2>Feature Extraction</h2>
+                <div class="command-block">
+                    <h3>Email and Communication</h3>
+                    <pre><code># Extract email addresses
+bulk_extractor -o output -E email disk_image.dd
+
+# Extract email messages
+bulk_extractor -o output -E rfc822 disk_image.dd
+
+# Extract instant messages
+bulk_extractor -o output -E msxml disk_image.dd
+
+# View extracted emails
+cat output/email.txt | head -20
+cat output/rfc822.txt | less</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Artifacts</h3>
+                    <pre><code># Extract URLs
+bulk_extractor -o output -E url disk_image.dd
+
+# Extract IP addresses
+bulk_extractor -o output -E ip disk_image.dd
+
+# Extract domain names
+bulk_extractor -o output -E domain disk_image.dd
+
+# Extract network packets
+bulk_extractor -o output -E net disk_image.dd
+
+# View network artifacts
+cat output/url.txt | sort | uniq
+cat output/ip.txt | sort | uniq</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Personal Information</h3>
+                    <pre><code># Extract credit card numbers
+bulk_extractor -o output -E ccn disk_image.dd
+
+# Extract phone numbers
+bulk_extractor -o output -E telephone disk_image.dd
+
+# Extract social security numbers
+bulk_extractor -o output -E ssn disk_image.dd
+
+# Extract GPS coordinates
+bulk_extractor -o output -E gps disk_image.dd
+
+# View PII data
+cat output/ccn.txt
+cat output/telephone.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-analysis">
+                <h2>Advanced Analysis</h2>
+                <div class="command-block">
+                    <h3>Specific Scanner Usage</h3>
+                    <pre><code># Use only specific scanners
+bulk_extractor -o output -E email -E url -E ccn disk_image.dd
+
+# Disable specific scanners
+bulk_extractor -o output -x base64 -x zip disk_image.dd
+
+# List all available scanners
+bulk_extractor -h | grep -A 50 "Available scanners"
+
+# Custom scanner configuration
+bulk_extractor -o output -S scanner_config.txt disk_image.dd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <pre><code># Multi-threaded processing
+bulk_extractor -j 8 -o output disk_image.dd
+
+# Memory optimization
+bulk_extractor -M 2048 -o output disk_image.dd
+
+# Page size optimization
+bulk_extractor -G 16777216 -o output disk_image.dd
+
+# Sampling mode (faster, less thorough)
+bulk_extractor -s 1000 -o output disk_image.dd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Formatting</h3>
+                    <pre><code># Generate histogram
+bulk_extractor -o output -H disk_image.dd
+
+# Create feature files
+bulk_extractor -o output -F disk_image.dd
+
+# Generate XML output
+bulk_extractor -o output -X disk_image.dd
+
+# Create SQLite database
+bulk_extractor -o output -SQL disk_image.dd</code></pre>
+                </div>
+            </section>
+
+            <section id="forensic-workflows">
+                <h2>Forensic Workflows</h2>
+                <div class="command-block">
+                    <h3>Initial Triage</h3>
+                    <pre><code># Quick triage scan
+bulk_extractor -q -j 4 -o triage_output \
+  -E email -E url -E ccn -E telephone \
+  disk_image.dd
+
+# Generate summary report
+echo "=== Bulk Extractor Triage Report ===" > triage_report.txt
+echo "Analysis Date: $(date)" >> triage_report.txt
+echo "" >> triage_report.txt
+
+echo "Email Addresses Found:" >> triage_report.txt
+wc -l triage_output/email.txt >> triage_report.txt
+
+echo "URLs Found:" >> triage_report.txt
+wc -l triage_output/url.txt >> triage_report.txt
+
+echo "Credit Cards Found:" >> triage_report.txt
+wc -l triage_output/ccn.txt >> triage_report.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Comprehensive Analysis</h3>
+                    <pre><code># Full feature extraction
+bulk_extractor -o full_analysis \
+  -j 8 -H -F \
+  disk_image.dd
+
+# Post-processing analysis
+cd full_analysis
+
+# Analyze email patterns
+cat email.txt | cut -d'@' -f2 | sort | uniq -c | sort -nr > email_domains.txt
+
+# Analyze URL patterns
+cat url.txt | grep -E "https?://" | cut -d'/' -f3 | sort | uniq -c | sort -nr > url_domains.txt
+
+# Find suspicious patterns
+grep -i "password\|login\|admin" url.txt > suspicious_urls.txt
+grep -E "[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}" ccn.txt > potential_ccn.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <pre><code># Focus on IOCs
+bulk_extractor -o ioc_analysis \
+  -E email -E url -E ip -E domain \
+  -j 4 \
+  compromised_system.dd
+
+# Extract potential C2 communications
+grep -E "(http|https|ftp)://[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" \
+  ioc_analysis/url.txt > potential_c2.txt
+
+# Find suspicious domains
+grep -E "\.(tk|ml|ga|cf)$" ioc_analysis/domain.txt > suspicious_domains.txt
+
+# Extract email communications
+grep -i "confidential\|urgent\|payment" ioc_analysis/rfc822.txt > suspicious_emails.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="data-recovery">
+                <h2>Data Recovery & Carving</h2>
+                <div class="command-block">
+                    <h3>File Carving</h3>
+                    <pre><code># Extract JPEG images
+bulk_extractor -o carved_data -E jpeg disk_image.dd
+
+# Extract ZIP files
+bulk_extractor -o carved_data -E zip disk_image.dd
+
+# Extract PDF documents
+bulk_extractor -o carved_data -E pdf disk_image.dd
+
+# Extract Microsoft Office documents
+bulk_extractor -o carved_data -E msxml disk_image.dd
+
+# View carved files
+ls -la carved_data/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Metadata Extraction</h3>
+                    <pre><code># Extract EXIF data from images
+bulk_extractor -o metadata -E exif disk_image.dd
+
+# Extract GPS coordinates
+bulk_extractor -o metadata -E gps disk_image.dd
+
+# Extract Windows registry data
+bulk_extractor -o metadata -E winpe disk_image.dd
+
+# Analyze metadata
+cat metadata/exif.txt | grep -i "camera\|gps\|timestamp"
+cat metadata/gps.txt | head -20</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Processing Script</h3>
+                    <pre><code>#!/bin/bash
+# Bulk Extractor batch processing script
+
+INPUT_DIR="$1"
+OUTPUT_BASE="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <input_directory> <output_base_directory>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_BASE"
+
+# Process all disk images
+for image in "$INPUT_DIR"/*.{dd,img,raw,e01}; do
+    if [ -f "$image" ]; then
+        basename=$(basename "$image")
+        output_dir="$OUTPUT_BASE/${basename}_analysis"
+        
+        echo "Processing $image..."
+        bulk_extractor -q -j 4 -o "$output_dir" "$image"
+        
+        # Generate summary
+        echo "=== Analysis Summary for $basename ===" > "$output_dir/summary.txt"
+        echo "Processing Date: $(date)" >> "$output_dir/summary.txt"
+        echo "" >> "$output_dir/summary.txt"
+        
+        for feature_file in "$output_dir"/*.txt; do
+            if [ -f "$feature_file" ]; then
+                feature_name=$(basename "$feature_file" .txt)
+                count=$(wc -l < "$feature_file")
+                echo "$feature_name: $count entries" >> "$output_dir/summary.txt"
+            fi
+        done
+    fi
+done
+
+echo "Batch processing completed."</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Python Integration</h3>
+                    <pre><code>#!/usr/bin/env python3
+import subprocess
+import os
+import sys
+from pathlib import Path
+
+def run_bulk_extractor(image_path, output_dir, scanners=None):
+    """Run bulk_extractor with specified parameters"""
+    cmd = ['bulk_extractor', '-o', output_dir]
+    
+    if scanners:
+        for scanner in scanners:
+            cmd.extend(['-E', scanner])
+    
+    cmd.append(image_path)
+    
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        return result.returncode == 0, result.stdout, result.stderr
+    except Exception as e:
+        return False, "", str(e)
+
+def analyze_results(output_dir):
+    """Analyze bulk_extractor results"""
+    results = {}
+    
+    for txt_file in Path(output_dir).glob('*.txt'):
+        feature_name = txt_file.stem
+        try:
+            with open(txt_file, 'r', encoding='utf-8', errors='ignore') as f:
+                lines = f.readlines()
+                results[feature_name] = len(lines)
+        except Exception as e:
+            results[feature_name] = f"Error: {e}"
+    
+    return results
+
+def main():
+    if len(sys.argv) != 3:
+        print("Usage: python3 bulk_extractor_wrapper.py <image_file> <output_dir>")
+        sys.exit(1)
+    
+    image_file = sys.argv[1]
+    output_dir = sys.argv[2]
+    
+    # Key scanners for forensic analysis
+    scanners = ['email', 'url', 'ccn', 'telephone', 'ip', 'domain']
+    
+    print(f"Running bulk_extractor on {image_file}...")
+    success, stdout, stderr = run_bulk_extractor(image_file, output_dir, scanners)
+    
+    if success:
+        print("Analysis completed successfully.")
+        results = analyze_results(output_dir)
+        
+        print("\n=== Results Summary ===")
+        for feature, count in results.items():
+            print(f"{feature}: {count}")
+    else:
+        print(f"Analysis failed: {stderr}")
+
+if __name__ == "__main__":
+    main()</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Autopsy</h3>
+                    <pre><code># Export data from Autopsy
+# Use Autopsy's export feature to create disk image
+
+# Run bulk_extractor on exported image
+bulk_extractor -o autopsy_bulk_analysis exported_image.dd
+
+# Import results back into Autopsy
+# Create text files with extracted features for Autopsy ingestion</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Sleuth Kit</h3>
+                    <pre><code># Create timeline with TSK
+fls -r -m / disk_image.dd > timeline.body
+mactime -b timeline.body > timeline.txt
+
+# Run bulk_extractor
+bulk_extractor -o bulk_analysis disk_image.dd
+
+# Correlate timeline with bulk_extractor results
+# Cross-reference timestamps with extracted features</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Volatility</h3>
+                    <pre><code># Extract memory dump features
+bulk_extractor -o memory_analysis memory_dump.raw
+
+# Compare with Volatility results
+vol -f memory_dump.raw --profile=Win7SP1x64 netscan
+vol -f memory_dump.raw --profile=Win7SP1x64 filescan
+
+# Correlate network artifacts
+grep -f memory_analysis/ip.txt volatility_netscan.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Memory issues with large images
+bulk_extractor -M 1024 -o output disk_image.dd
+
+# Slow processing
+bulk_extractor -j 1 -s 1000 -o output disk_image.dd
+
+# Corrupted image files
+bulk_extractor -I -o output corrupted_image.dd
+
+# Permission issues
+sudo bulk_extractor -o output disk_image.dd
+
+# Encoding issues
+bulk_extractor -C UTF-8 -o output disk_image.dd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Tuning</h3>
+                    <pre><code># Optimize for speed
+bulk_extractor -j $(nproc) -G 33554432 -o output disk_image.dd
+
+# Optimize for memory usage
+bulk_extractor -M 512 -G 1048576 -o output disk_image.dd
+
+# Skip certain scanners for speed
+bulk_extractor -x base64 -x zip -x rar -o output disk_image.dd
+
+# Use sampling for large images
+bulk_extractor -s 10000 -o output large_image.dd</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Evidence discovery and extraction</li>
+                        <li>Data recovery from damaged media</li>
+                        <li>Timeline reconstruction</li>
+                        <li>Communication analysis</li>
+                        <li>Financial fraud investigation</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>IOC extraction and analysis</li>
+                        <li>Malware communication detection</li>
+                        <li>Data exfiltration investigation</li>
+                        <li>Compromise assessment</li>
+                        <li>Attribution analysis</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Privacy Compliance</h3>
+                    <ul>
+                        <li>PII discovery and classification</li>
+                        <li>Data breach assessment</li>
+                        <li>Compliance auditing</li>
+                        <li>Data sanitization verification</li>
+                        <li>Privacy impact assessment</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use appropriate threading:</strong> Match thread count to available CPU cores</li>
+                    <li><strong>Monitor memory usage:</strong> Adjust memory settings for large images</li>
+                    <li><strong>Validate results:</strong> Cross-check extracted features with other tools</li>
+                    <li><strong>Document methodology:</strong> Keep detailed records of analysis parameters</li>
+                    <li><strong>Use sampling wisely:</strong> Balance speed vs. thoroughness based on case needs</li>
+                    <li><strong>Post-process results:</strong> Filter and analyze extracted features systematically</li>
+                    <li><strong>Combine with other tools:</strong> Use bulk_extractor as part of comprehensive analysis</li>
+                    <li><strong>Regular updates:</strong> Keep bulk_extractor current for latest features</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Bulk Extractor should only be used for:</p>
+                    <ul>
+                        <li>Analyzing data you own or have explicit permission to examine</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Corporate incident response with appropriate authorization</li>
+                        <li>Privacy compliance testing on organizational data</li>
+                        <li>Academic research with proper institutional approval</li>
+                    </ul>
+                    <p>Unauthorized data extraction and analysis may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority. Bulk Extractor can extract sensitive personal information including credit card numbers, social security numbers, and private communications. This data must be handled according to applicable privacy laws and data protection requirements. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper chain of custody documentation for any evidence that may be used in legal proceedings.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

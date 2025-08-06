@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekall Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Rekall: Advanced Memory Forensics Framework</h1>
+            <p>Master Memory Analysis and Digital Forensics</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Rekall?</h2>
+                <p>Rekall is an advanced memory analysis framework that provides a complete platform for memory forensics. Originally forked from Volatility, Rekall has evolved into a powerful tool with enhanced capabilities for analyzing memory dumps from various operating systems. It features a modular architecture, improved performance, and advanced analysis capabilities including live memory analysis, timeline reconstruction, and comprehensive artifact extraction. Rekall is particularly useful for incident response, malware analysis, and digital forensics investigations.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Install dependencies
+sudo apt update
+sudo apt install python-dev python-pip python-virtualenv
+
+# Create virtual environment
+virtualenv rekall_env
+source rekall_env/bin/activate
+
+# Install Rekall
+pip install rekall-agent rekall
+
+# Verify installation
+rekall --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Install Python 2.7 (required for Rekall)
+# Download from: https://www.python.org/downloads/
+
+# Install pip
+python -m pip install --upgrade pip
+
+# Install Rekall
+pip install rekall-agent rekall
+
+# Verify installation
+rekall --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Install Homebrew if not already installed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Python 2.7
+brew install python@2
+
+# Install Rekall
+pip install rekall-agent rekall
+
+# Verify installation
+rekall --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull Rekall Docker image
+docker pull remnux/rekall
+
+# Run Rekall in Docker
+docker run -it -v /path/to/memory/dumps:/data remnux/rekall
+
+# Interactive Rekall session
+docker run -it -v $(pwd):/data remnux/rekall rekall -f /data/memory.dmp</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Command Line Interface</h3>
+                    <pre><code># Basic syntax
+rekall -f memory_dump.dmp
+
+# Specify profile manually
+rekall -f memory_dump.dmp --profile Win7SP1x64
+
+# Interactive mode
+rekall -f memory_dump.dmp --interactive
+
+# Run specific plugin
+rekall -f memory_dump.dmp pslist</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Profile Detection</h3>
+                    <pre><code># Auto-detect profile
+rekall -f memory_dump.dmp imageinfo
+
+# List available profiles
+rekall --profile-path /path/to/profiles --list-profiles
+
+# Use specific profile
+rekall -f memory_dump.dmp --profile Win10x64_19041</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Basic Analysis Commands</h3>
+                    <pre><code># List running processes
+rekall -f memory_dump.dmp pslist
+
+# Show process tree
+rekall -f memory_dump.dmp pstree
+
+# List network connections
+rekall -f memory_dump.dmp netstat
+
+# Show loaded modules
+rekall -f memory_dump.dmp modules
+
+# Display system information
+rekall -f memory_dump.dmp info</code></pre>
+                </div>
+            </section>
+
+            <section id="process-analysis">
+                <h2>Process Analysis</h2>
+                <div class="command-block">
+                    <h3>Process Investigation</h3>
+                    <pre><code># List all processes
+rekall -f memory_dump.dmp pslist
+
+# Show process details
+rekall -f memory_dump.dmp pslist --pid 1234
+
+# Process tree view
+rekall -f memory_dump.dmp pstree
+
+# Hidden/terminated processes
+rekall -f memory_dump.dmp psscan
+
+# Process command lines
+rekall -f memory_dump.dmp cmdline</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Process Memory Analysis</h3>
+                    <pre><code># Dump process memory
+rekall -f memory_dump.dmp memdump --pid 1234 --dump-dir ./output/
+
+# Process virtual address space
+rekall -f memory_dump.dmp vadinfo --pid 1234
+
+# Process handles
+rekall -f memory_dump.dmp handles --pid 1234
+
+# Process DLLs
+rekall -f memory_dump.dmp dlllist --pid 1234
+
+# Process privileges
+rekall -f memory_dump.dmp privs --pid 1234</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Malware Process Detection</h3>
+                    <pre><code># Detect process hollowing
+rekall -f memory_dump.dmp hollowfind
+
+# Check for code injection
+rekall -f memory_dump.dmp malfind
+
+# Suspicious processes
+rekall -f memory_dump.dmp psxview
+
+# Process anomalies
+rekall -f memory_dump.dmp threads --pid 1234</code></pre>
+                </div>
+            </section>
+
+            <section id="network-analysis">
+                <h2>Network Analysis</h2>
+                <div class="command-block">
+                    <h3>Network Connections</h3>
+                    <pre><code># Active network connections
+rekall -f memory_dump.dmp netstat
+
+# Network connection scan
+rekall -f memory_dump.dmp netscan
+
+# Connection details
+rekall -f memory_dump.dmp connscan
+
+# Socket information
+rekall -f memory_dump.dmp sockets</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Artifacts</h3>
+                    <pre><code># DNS cache
+rekall -f memory_dump.dmp dns_cache
+
+# ARP table
+rekall -f memory_dump.dmp arp
+
+# Network interfaces
+rekall -f memory_dump.dmp ifconfig
+
+# Routing table
+rekall -f memory_dump.dmp route_table</code></pre>
+                </div>
+            </section>
+
+            <section id="registry-analysis">
+                <h2>Registry Analysis</h2>
+                <div class="command-block">
+                    <h3>Registry Investigation</h3>
+                    <pre><code># List registry hives
+rekall -f memory_dump.dmp hivelist
+
+# Print registry key
+rekall -f memory_dump.dmp printkey --key "Microsoft\\Windows\\CurrentVersion\\Run"
+
+# Registry scan
+rekall -f memory_dump.dmp hivedump --hive-offset 0x12345678
+
+# User registry analysis
+rekall -f memory_dump.dmp userassist</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Registry Artifacts</h3>
+                    <pre><code># Shimcache analysis
+rekall -f memory_dump.dmp shimcache
+
+# Recently accessed files
+rekall -f memory_dump.dmp mru
+
+# Installed software
+rekall -f memory_dump.dmp uninstall
+
+# Services information
+rekall -f memory_dump.dmp svcscan</code></pre>
+                </div>
+            </section>
+
+            <section id="file-analysis">
+                <h2>File System Analysis</h2>
+                <div class="command-block">
+                    <h3>File Investigation</h3>
+                    <pre><code># List open files
+rekall -f memory_dump.dmp filescan
+
+# File handles
+rekall -f memory_dump.dmp handles --object-type File
+
+# Dump specific file
+rekall -f memory_dump.dmp dumpfiles --regex "suspicious\.exe" --dump-dir ./output/
+
+# MFT analysis
+rekall -f memory_dump.dmp mftparser</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Artifacts</h3>
+                    <pre><code># Prefetch analysis
+rekall -f memory_dump.dmp prefetch
+
+# Recent documents
+rekall -f memory_dump.dmp shellbags
+
+# File system timeline
+rekall -f memory_dump.dmp timeliner</code></pre>
+                </div>
+            </section>
+
+            <section id="malware-analysis">
+                <h2>Malware Analysis</h2>
+                <div class="command-block">
+                    <h3>Malware Detection</h3>
+                    <pre><code># Detect injected code
+rekall -f memory_dump.dmp malfind
+
+# YARA scanning
+rekall -f memory_dump.dmp yarascan --yara-rules /path/to/rules.yar
+
+# Rootkit detection
+rekall -f memory_dump.dmp psxview
+
+# Hook detection
+rekall -f memory_dump.dmp apihooks
+
+# Driver analysis
+rekall -f memory_dump.dmp driverscan</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Malware Analysis</h3>
+                    <pre><code># Kernel callbacks
+rekall -f memory_dump.dmp callbacks
+
+# System call hooks
+rekall -f memory_dump.dmp ssdt
+
+# Interrupt descriptor table
+rekall -f memory_dump.dmp idt
+
+# Global descriptor table
+rekall -f memory_dump.dmp gdt
+
+# Kernel modules
+rekall -f memory_dump.dmp modscan</code></pre>
+                </div>
+            </section>
+
+            <section id="timeline-analysis">
+                <h2>Timeline Analysis</h2>
+                <div class="command-block">
+                    <h3>Timeline Creation</h3>
+                    <pre><code># Generate comprehensive timeline
+rekall -f memory_dump.dmp timeliner --output timeline.csv
+
+# Process-specific timeline
+rekall -f memory_dump.dmp timeliner --pid 1234
+
+# Registry timeline
+rekall -f memory_dump.dmp timeliner --type registry
+
+# File system timeline
+rekall -f memory_dump.dmp timeliner --type filesystem</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeline Analysis</h3>
+                    <pre><code># Filter timeline by date
+rekall -f memory_dump.dmp timeliner --after "2023-06-01" --before "2023-06-30"
+
+# Timeline with specific artifacts
+rekall -f memory_dump.dmp timeliner --include-types "process,network,registry"
+
+# Export timeline to different formats
+rekall -f memory_dump.dmp timeliner --format json --output timeline.json</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Analysis Script</h3>
+                    <pre><code>#!/bin/bash
+# Rekall batch analysis script
+
+MEMORY_DUMP="$1"
+OUTPUT_DIR="$2"
+CASE_NAME="$3"
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <memory_dump> <output_directory> <case_name>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Starting Rekall analysis for case: $CASE_NAME"
+echo "Memory dump: $MEMORY_DUMP"
+echo "Output directory: $OUTPUT_DIR"
+
+# Basic system information
+echo "Extracting system information..."
+rekall -f "$MEMORY_DUMP" info > "$OUTPUT_DIR/${CASE_NAME}_system_info.txt"
+
+# Process analysis
+echo "Analyzing processes..."
+rekall -f "$MEMORY_DUMP" pslist > "$OUTPUT_DIR/${CASE_NAME}_processes.txt"
+rekall -f "$MEMORY_DUMP" pstree > "$OUTPUT_DIR/${CASE_NAME}_process_tree.txt"
+rekall -f "$MEMORY_DUMP" cmdline > "$OUTPUT_DIR/${CASE_NAME}_command_lines.txt"
+
+# Network analysis
+echo "Analyzing network connections..."
+rekall -f "$MEMORY_DUMP" netstat > "$OUTPUT_DIR/${CASE_NAME}_network.txt"
+rekall -f "$MEMORY_DUMP" netscan > "$OUTPUT_DIR/${CASE_NAME}_network_scan.txt"
+
+# Registry analysis
+echo "Analyzing registry..."
+rekall -f "$MEMORY_DUMP" hivelist > "$OUTPUT_DIR/${CASE_NAME}_registry_hives.txt"
+rekall -f "$MEMORY_DUMP" userassist > "$OUTPUT_DIR/${CASE_NAME}_user_assist.txt"
+
+# File system analysis
+echo "Analyzing file system..."
+rekall -f "$MEMORY_DUMP" filescan > "$OUTPUT_DIR/${CASE_NAME}_files.txt"
+
+# Malware detection
+echo "Scanning for malware..."
+rekall -f "$MEMORY_DUMP" malfind > "$OUTPUT_DIR/${CASE_NAME}_malware_scan.txt"
+rekall -f "$MEMORY_DUMP" psxview > "$OUTPUT_DIR/${CASE_NAME}_rootkit_scan.txt"
+
+# Timeline generation
+echo "Generating timeline..."
+rekall -f "$MEMORY_DUMP" timeliner --output "$OUTPUT_DIR/${CASE_NAME}_timeline.csv"
+
+# Generate summary report
+echo "=== Rekall Analysis Report ===" > "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+echo "Case: $CASE_NAME" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+echo "Analysis Date: $(date)" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+echo "Memory Dump: $MEMORY_DUMP" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+echo "" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+
+# Count artifacts in each analysis
+for txt_file in "$OUTPUT_DIR"/*.txt; do
+    if [ -f "$txt_file" ]; then
+        filename=$(basename "$txt_file")
+        lines=$(wc -l < "$txt_file")
+        echo "$filename: $lines lines" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+    fi
+done
+
+echo "Rekall analysis completed for case: $CASE_NAME"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Python Integration</h3>
+                    <pre><code>#!/usr/bin/env python3
+import subprocess
+import json
+import sys
+import os
+
+def run_rekall_command(memory_dump, command, output_format="text"):
+    """Run a Rekall command and return results"""
+    cmd = ['rekall', '-f', memory_dump]
+    
+    if output_format == "json":
+        cmd.extend(['--format', 'json'])
+    
+    cmd.extend(command.split())
+    
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        return result.returncode == 0, result.stdout, result.stderr
+    except Exception as e:
+        return False, "", str(e)
+
+def analyze_processes(memory_dump):
+    """Analyze processes in memory dump"""
+    processes = []
+    
+    success, stdout, stderr = run_rekall_command(memory_dump, "pslist", "json")
+    
+    if success:
+        try:
+            for line in stdout.strip().split('\n'):
+                if line.strip():
+                    data = json.loads(line)
+                    if 'pid' in data:
+                        processes.append({
+                            'pid': data.get('pid'),
+                            'name': data.get('name'),
+                            'ppid': data.get('ppid'),
+                            'create_time': data.get('create_time')
+                        })
+        except json.JSONDecodeError:
+            pass
+    
+    return processes
+
+def detect_malware(memory_dump):
+    """Detect potential malware in memory dump"""
+    malware_indicators = []
+    
+    # Run malfind
+    success, stdout, stderr = run_rekall_command(memory_dump, "malfind")
+    if success and stdout.strip():
+        malware_indicators.append("Code injection detected (malfind)")
+    
+    # Run psxview
+    success, stdout, stderr = run_rekall_command(memory_dump, "psxview")
+    if success:
+        lines = stdout.strip().split('\n')
+        for line in lines:
+            if 'False' in line:  # Hidden processes
+                malware_indicators.append("Hidden process detected")
+    
+    return malware_indicators
+
+def main():
+    if len(sys.argv) != 3:
+        print("Usage: python3 rekall_analyzer.py <memory_dump> <output_dir>")
+        sys.exit(1)
+    
+    memory_dump = sys.argv[1]
+    output_dir = sys.argv[2]
+    
+    os.makedirs(output_dir, exist_ok=True)
+    
+    print(f"Analyzing memory dump: {memory_dump}")
+    
+    # Analyze processes
+    print("Analyzing processes...")
+    processes = analyze_processes(memory_dump)
+    
+    with open(os.path.join(output_dir, "processes.json"), 'w') as f:
+        json.dump(processes, f, indent=2)
+    
+    # Detect malware
+    print("Detecting malware...")
+    malware_indicators = detect_malware(memory_dump)
+    
+    # Generate report
+    report = {
+        'memory_dump': memory_dump,
+        'analysis_date': str(subprocess.run(['date'], capture_output=True, text=True).stdout.strip()),
+        'process_count': len(processes),
+        'malware_indicators': malware_indicators
+    }
+    
+    with open(os.path.join(output_dir, "analysis_report.json"), 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    print(f"Analysis completed. Results saved to {output_dir}")
+    print(f"Processes found: {len(processes)}")
+    print(f"Malware indicators: {len(malware_indicators)}")
+
+if __name__ == "__main__":
+    main()</code></pre>
+                </div>
+            </section>
+
+            <section id="live-analysis">
+                <h2>Live Memory Analysis</h2>
+                <div class="command-block">
+                    <h3>Live System Analysis</h3>
+                    <pre><code># Analyze live system (Linux)
+sudo rekall --live Memory
+
+# Live analysis with specific profile
+sudo rekall --live Memory --profile Linux64
+
+# Live process analysis
+sudo rekall --live Memory pslist
+
+# Live network analysis
+sudo rekall --live Memory netstat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Remote Analysis</h3>
+                    <pre><code># Connect to remote system
+rekall --live HTTPMemory --url http://target-system:8080/
+
+# Remote analysis with authentication
+rekall --live HTTPMemory --url https://target:8080/ --username user --password pass</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Volatility</h3>
+                    <pre><code># Compare Rekall and Volatility results
+rekall -f memory.dmp pslist > rekall_processes.txt
+vol -f memory.dmp --profile=Win7SP1x64 pslist > volatility_processes.txt
+
+# Cross-validate findings
+diff rekall_processes.txt volatility_processes.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with YARA</h3>
+                    <pre><code># Use YARA rules with Rekall
+rekall -f memory.dmp yarascan --yara-rules malware_rules.yar
+
+# Scan specific process with YARA
+rekall -f memory.dmp yarascan --pid 1234 --yara-rules rules.yar</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Timeline Tools</h3>
+                    <pre><code># Export timeline for other tools
+rekall -f memory.dmp timeliner --format csv --output timeline.csv
+
+# Convert to other timeline formats
+# Process CSV with custom scripts for timeline visualization</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Profile detection issues
+rekall -f memory.dmp imageinfo
+rekall -f memory.dmp --profile Win7SP1x64
+
+# Memory issues with large dumps
+rekall -f memory.dmp --cache-dir /tmp/rekall_cache
+
+# Python version compatibility
+# Ensure Python 2.7 is used for Rekall
+
+# Permission issues (Linux)
+sudo rekall -f memory.dmp
+
+# Corrupted memory dumps
+rekall -f memory.dmp --verify</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <pre><code># Use caching for better performance
+rekall -f memory.dmp --cache-dir /fast/storage/cache
+
+# Limit output for large results
+rekall -f memory.dmp pslist --limit 100
+
+# Use specific plugins only
+rekall -f memory.dmp --plugin pslist,netstat,filescan</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Memory dump analysis for criminal investigations</li>
+                        <li>Evidence extraction and preservation</li>
+                        <li>Timeline reconstruction from memory artifacts</li>
+                        <li>Data recovery from volatile memory</li>
+                        <li>System state analysis at time of incident</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Live memory analysis during active incidents</li>
+                        <li>Malware detection and analysis</li>
+                        <li>Network connection analysis</li>
+                        <li>Process and thread analysis</li>
+                        <li>Rootkit and stealth malware detection</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Malware Analysis</h3>
+                    <ul>
+                        <li>Dynamic malware behavior analysis</li>
+                        <li>Code injection detection</li>
+                        <li>Memory-resident malware analysis</li>
+                        <li>Anti-forensics technique detection</li>
+                        <li>Malware family classification</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Profile selection:</strong> Use correct profiles for accurate analysis results</li>
+                    <li><strong>Cache utilization:</strong> Use caching to improve performance on large dumps</li>
+                    <li><strong>Cross-validation:</strong> Compare results with other memory analysis tools</li>
+                    <li><strong>Live analysis:</strong> Use live analysis capabilities for real-time investigations</li>
+                    <li><strong>Timeline correlation:</strong> Combine memory timeline with disk-based timelines</li>
+                    <li><strong>Documentation:</strong> Keep detailed records of analysis methodology</li>
+                    <li><strong>Regular updates:</strong> Keep Rekall updated for latest features and profiles</li>
+                    <li><strong>Memory preservation:</strong> Ensure proper memory dump acquisition procedures</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Rekall should only be used for:</p>
+                    <ul>
+                        <li>Analyzing memory dumps from systems you own or have explicit permission to examine</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Corporate incident response with appropriate authorization</li>
+                        <li>Academic research with proper institutional approval</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized memory analysis may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority. Memory dumps may contain sensitive personal information, passwords, encryption keys, and private communications that must be handled according to applicable privacy laws and data protection requirements. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper chain of custody documentation for any evidence that may be used in legal proceedings. Live memory analysis should only be performed on systems with proper authorization and may impact system performance.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

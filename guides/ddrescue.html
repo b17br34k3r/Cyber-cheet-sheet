@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dd Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>dd: Data Duplication Tool</h1>
+            <p>Master Disk Imaging and Data Copying</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is dd?</h2>
+                <p>dd (data duplicator) is a command-line utility for Unix-like operating systems that copies and converts files and raw data. In digital forensics and cybersecurity, dd is essential for creating bit-for-bit copies of storage devices, creating disk images, and performing low-level data operations. It's often called the "Swiss Army knife" of data copying because of its versatility in handling various data sources and destinations, making it indispensable for evidence preservation, system backup, and forensic analysis.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># dd is pre-installed on virtually all Linux distributions
+dd --version
+
+# If somehow missing (very rare):
+# Ubuntu/Debian
+sudo apt update
+sudo apt install coreutils
+
+# CentOS/RHEL/Fedora
+sudo yum install coreutils
+# or
+sudo dnf install coreutils</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Option 1: Windows Subsystem for Linux (WSL)
+# Install Ubuntu on WSL, dd is included
+
+# Option 2: Git for Windows
+# Includes dd utility in Git Bash
+
+# Option 3: MSYS2/MinGW
+# Install MSYS2, then:
+pacman -S coreutils
+
+# Option 4: Native Windows dd
+# Download dd for Windows from:
+# http://www.chrysocome.net/dd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Pre-installed on macOS
+dd --version
+
+# Enhanced version via Homebrew (optional)
+brew install coreutils
+# This installs GNU dd as 'gdd'</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check installation
+dd --version
+
+# Display help
+dd --help
+
+# Test basic functionality
+echo "test" | dd of=test.txt
+cat test.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Basic Syntax</h3>
+                    <pre><code># Basic dd syntax
+dd if=input_file of=output_file [options]
+
+# Key parameters:
+# if=FILE    - input file (source)
+# of=FILE    - output file (destination)
+# bs=BYTES   - block size
+# count=N    - copy only N input blocks
+# skip=N     - skip N blocks at start of input
+# seek=N     - skip N blocks at start of output</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Simple File Operations</h3>
+                    <pre><code># Copy a file
+dd if=source.txt of=destination.txt
+
+# Copy with specific block size
+dd if=source.txt of=destination.txt bs=1M
+
+# Copy first 100MB of a file
+dd if=large_file.bin of=first_100mb.bin bs=1M count=100
+
+# Copy file and show progress
+dd if=source.txt of=destination.txt bs=1M status=progress</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Block Size Options</h3>
+                    <pre><code># Common block sizes:
+bs=512      # 512 bytes (traditional disk sector)
+bs=1K       # 1 kilobyte
+bs=1M       # 1 megabyte (good for most operations)
+bs=4M       # 4 megabytes (faster for large files)
+bs=1G       # 1 gigabyte (for very large operations)
+
+# Optimal block size for most forensic work
+dd if=/dev/sda of=disk_image.dd bs=64K</code></pre>
+                </div>
+            </section>
+
+            <section id="disk-imaging">
+                <h2>Disk Imaging</h2>
+                <div class="command-block">
+                    <h3>Complete Disk Imaging</h3>
+                    <pre><code># Create complete disk image
+sudo dd if=/dev/sda of=disk_image.dd bs=64K status=progress
+
+# Image with error handling
+sudo dd if=/dev/sda of=disk_image.dd bs=64K conv=noerror,sync status=progress
+
+# Image specific partition
+sudo dd if=/dev/sda1 of=partition_image.dd bs=64K status=progress
+
+# Image to compressed file
+sudo dd if=/dev/sda bs=64K status=progress | gzip > disk_image.dd.gz</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>USB/Memory Card Imaging</h3>
+                    <pre><code># Image USB drive
+sudo dd if=/dev/sdb of=usb_image.dd bs=1M status=progress
+
+# Image SD card
+sudo dd if=/dev/mmcblk0 of=sdcard_image.dd bs=1M status=progress
+
+# Image with verification
+sudo dd if=/dev/sdb of=usb_image.dd bs=1M status=progress
+sudo dd if=usb_image.dd of=/dev/null bs=1M status=progress  # Verify read</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Imaging</h3>
+                    <pre><code># Image over network using netcat
+# On receiving machine:
+nc -l -p 8080 | dd of=remote_disk_image.dd bs=1M
+
+# On source machine:
+sudo dd if=/dev/sda bs=1M | nc target_ip 8080
+
+# Image over SSH
+sudo dd if=/dev/sda bs=1M | ssh user@remote_host "dd of=disk_image.dd bs=1M"</code></pre>
+                </div>
+            </section>
+
+            <section id="forensic-imaging">
+                <h2>Forensic Imaging</h2>
+                <div class="command-block">
+                    <h3>Forensically Sound Imaging</h3>
+                    <pre><code># Forensic disk imaging with error handling
+sudo dd if=/dev/sda of=evidence.dd bs=64K conv=noerror,sync status=progress
+
+# Create hash during imaging
+sudo dd if=/dev/sda bs=64K conv=noerror,sync | tee evidence.dd | sha256sum > evidence.dd.sha256
+
+# Image with detailed logging
+sudo dd if=/dev/sda of=evidence.dd bs=64K conv=noerror,sync status=progress 2>&1 | tee imaging.log</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Write Protection Verification</h3>
+                    <pre><code># Verify write protection before imaging
+# Check if device is read-only
+sudo blockdev --getro /dev/sda
+
+# Attempt to set read-only (should fail if hardware write-blocked)
+sudo blockdev --setro /dev/sda
+
+# Verify device information
+sudo fdisk -l /dev/sda
+sudo hdparm -I /dev/sda</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Evidence Integrity</h3>
+                    <pre><code># Create image with simultaneous hashing
+sudo dd if=/dev/sda bs=64K conv=noerror,sync | tee evidence.dd | md5sum > evidence.dd.md5
+sudo dd if=/dev/sda bs=64K conv=noerror,sync | tee evidence.dd | sha1sum > evidence.dd.sha1
+
+# Verify image integrity
+md5sum -c evidence.dd.md5
+sha1sum -c evidence.dd.sha1
+
+# Compare original and image
+sudo dd if=/dev/sda bs=64K | md5sum
+md5sum evidence.dd</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-operations">
+                <h2>Advanced Operations</h2>
+                <div class="command-block">
+                    <h3>Partial Imaging</h3>
+                    <pre><code># Skip first 1GB and copy next 5GB
+dd if=/dev/sda of=partial_image.dd bs=1M skip=1024 count=5120
+
+# Copy specific sectors
+dd if=/dev/sda of=boot_sector.dd bs=512 count=1
+
+# Copy Master Boot Record (first 512 bytes)
+sudo dd if=/dev/sda of=mbr_backup.dd bs=512 count=1
+
+# Copy partition table only
+sudo dd if=/dev/sda of=partition_table.dd bs=1 skip=446 count=64</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Data Wiping</h3>
+                    <pre><code># Securely wipe disk with zeros
+sudo dd if=/dev/zero of=/dev/sda bs=1M status=progress
+
+# Wipe with random data
+sudo dd if=/dev/urandom of=/dev/sda bs=1M status=progress
+
+# DoD 5220.22-M standard wipe (3 passes)
+sudo dd if=/dev/zero of=/dev/sda bs=1M status=progress
+sudo dd if=/dev/urandom of=/dev/sda bs=1M status=progress
+sudo dd if=/dev/zero of=/dev/sda bs=1M status=progress
+
+# Wipe specific partition
+sudo dd if=/dev/zero of=/dev/sda1 bs=1M status=progress</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Memory Imaging</h3>
+                    <pre><code># Image physical memory (requires root)
+sudo dd if=/dev/mem of=memory_dump.dd bs=1M
+
+# Image specific memory range
+sudo dd if=/dev/mem of=memory_range.dd bs=1M skip=256 count=512
+
+# Image kernel memory
+sudo dd if=/proc/kcore of=kernel_memory.dd bs=1M count=1024</code></pre>
+                </div>
+            </section>
+
+            <section id="error-handling">
+                <h2>Error Handling</h2>
+                <div class="command-block">
+                    <h3>Handling Bad Sectors</h3>
+                    <pre><code># Continue on read errors
+dd if=/dev/sda of=image.dd bs=64K conv=noerror
+
+# Sync blocks on errors (pad with zeros)
+dd if=/dev/sda of=image.dd bs=64K conv=noerror,sync
+
+# Combined error handling
+dd if=/dev/sda of=image.dd bs=64K conv=noerror,sync status=progress
+
+# Log errors to file
+dd if=/dev/sda of=image.dd bs=64K conv=noerror,sync status=progress 2>errors.log</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Recovery from Damaged Media</h3>
+                    <pre><code># Use smaller block size for damaged media
+dd if=/dev/sda of=damaged_disk.dd bs=512 conv=noerror,sync
+
+# Multiple passes with different block sizes
+dd if=/dev/sda of=pass1.dd bs=64K conv=noerror,sync
+dd if=/dev/sda of=pass2.dd bs=4K conv=noerror,sync skip=sectors_from_pass1
+
+# Use ddrescue for better recovery (if available)
+sudo apt install gddrescue
+sudo ddrescue /dev/sda recovered_disk.dd recovery.log</code></pre>
+                </div>
+            </section>
+
+            <section id="monitoring-progress">
+                <h2>Monitoring Progress</h2>
+                <div class="command-block">
+                    <h3>Progress Monitoring</h3>
+                    <pre><code># Built-in progress display
+dd if=/dev/sda of=image.dd bs=1M status=progress
+
+# Send USR1 signal to show progress
+sudo dd if=/dev/sda of=image.dd bs=1M &
+# In another terminal:
+sudo kill -USR1 $(pgrep dd)
+
+# Monitor with pv (pipe viewer)
+sudo apt install pv
+sudo dd if=/dev/sda bs=1M | pv -s $(sudo blockdev --getsize64 /dev/sda) | dd of=image.dd bs=1M</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Monitoring</h3>
+                    <pre><code># Monitor I/O performance
+iostat -x 1
+
+# Monitor dd process
+watch -n 1 'ps aux | grep dd'
+
+# Monitor disk usage during imaging
+watch -n 5 'df -h /path/to/output/directory'
+
+# Monitor system resources
+htop</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Imaging Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated forensic imaging script
+
+SOURCE_DEVICE="$1"
+OUTPUT_DIR="$2"
+CASE_ID="$3"
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <source_device> <output_directory> <case_id>"
+    exit 1
+fi
+
+# Verify source device exists
+if [ ! -b "$SOURCE_DEVICE" ]; then
+    echo "Error: Source device $SOURCE_DEVICE not found"
+    exit 1
+fi
+
+# Create output directory
+mkdir -p "$OUTPUT_DIR"
+
+# Generate filenames
+IMAGE_FILE="$OUTPUT_DIR/${CASE_ID}_$(date +%Y%m%d_%H%M%S).dd"
+LOG_FILE="$OUTPUT_DIR/${CASE_ID}_imaging.log"
+HASH_FILE="$OUTPUT_DIR/${CASE_ID}_hashes.txt"
+
+echo "Starting forensic imaging..." | tee "$LOG_FILE"
+echo "Case ID: $CASE_ID" | tee -a "$LOG_FILE"
+echo "Source: $SOURCE_DEVICE" | tee -a "$LOG_FILE"
+echo "Output: $IMAGE_FILE" | tee -a "$LOG_FILE"
+echo "Start Time: $(date)" | tee -a "$LOG_FILE"
+
+# Get device information
+echo "=== Device Information ===" | tee -a "$LOG_FILE"
+sudo fdisk -l "$SOURCE_DEVICE" | tee -a "$LOG_FILE"
+sudo blockdev --getsize64 "$SOURCE_DEVICE" | tee -a "$LOG_FILE"
+
+# Perform imaging with hashing
+echo "=== Starting Imaging ===" | tee -a "$LOG_FILE"
+sudo dd if="$SOURCE_DEVICE" bs=64K conv=noerror,sync status=progress 2>&1 | \
+    tee -a "$LOG_FILE" | \
+    tee "$IMAGE_FILE" | \
+    tee >(md5sum > "$HASH_FILE.md5") | \
+    sha256sum > "$HASH_FILE.sha256"
+
+# Verify image
+echo "=== Verification ===" | tee -a "$LOG_FILE"
+echo "Original device hash:" | tee -a "$LOG_FILE"
+sudo dd if="$SOURCE_DEVICE" bs=64K | md5sum | tee -a "$LOG_FILE"
+
+echo "Image file hash:" | tee -a "$LOG_FILE"
+md5sum "$IMAGE_FILE" | tee -a "$LOG_FILE"
+
+echo "End Time: $(date)" | tee -a "$LOG_FILE"
+echo "Imaging completed successfully." | tee -a "$LOG_FILE"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Batch Imaging Script</h3>
+                    <pre><code>#!/bin/bash
+# Batch imaging for multiple devices
+
+DEVICE_LIST="$1"
+OUTPUT_BASE="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <device_list_file> <output_base_directory>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_BASE"
+
+while IFS= read -r device; do
+    if [ -n "$device" ] && [ ! "$device" = "#*" ]; then
+        device_name=$(basename "$device")
+        output_dir="$OUTPUT_BASE/${device_name}_$(date +%Y%m%d_%H%M%S)"
+        
+        echo "Imaging device: $device"
+        mkdir -p "$output_dir"
+        
+        # Image the device
+        sudo dd if="$device" of="$output_dir/image.dd" bs=64K conv=noerror,sync status=progress 2>&1 | \
+            tee "$output_dir/imaging.log"
+        
+        # Generate hashes
+        md5sum "$output_dir/image.dd" > "$output_dir/image.dd.md5"
+        sha256sum "$output_dir/image.dd" > "$output_dir/image.dd.sha256"
+        
+        echo "Completed: $device -> $output_dir"
+    fi
+done < "$DEVICE_LIST"
+
+echo "Batch imaging completed."</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Forensic Tools</h3>
+                    <pre><code># Create image for Autopsy
+sudo dd if=/dev/sda of=evidence.dd bs=64K conv=noerror,sync status=progress
+
+# Create image for Sleuth Kit analysis
+sudo dd if=/dev/sda of=disk.dd bs=64K conv=noerror,sync
+mmls disk.dd
+fls disk.dd
+
+# Create image for Volatility (memory analysis)
+sudo dd if=/dev/mem of=memory.dd bs=1M count=4096
+volatility -f memory.dd imageinfo</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Compression</h3>
+                    <pre><code># Image with compression
+sudo dd if=/dev/sda bs=64K conv=noerror,sync | gzip > disk_image.dd.gz
+
+# Image with better compression
+sudo dd if=/dev/sda bs=64K conv=noerror,sync | xz -9 > disk_image.dd.xz
+
+# Split large compressed images
+sudo dd if=/dev/sda bs=64K conv=noerror,sync | gzip | split -b 4G - disk_image.dd.gz.</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Encryption</h3>
+                    <pre><code># Image with encryption
+sudo dd if=/dev/sda bs=64K conv=noerror,sync | gpg --cipher-algo AES256 --compress-algo 1 --symmetric > encrypted_image.dd.gpg
+
+# Decrypt and mount
+gpg --decrypt encrypted_image.dd.gpg | sudo dd of=/dev/loop0 bs=64K</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-optimization">
+                <h2>Performance Optimization</h2>
+                <div class="command-block">
+                    <h3>Block Size Optimization</h3>
+                    <pre><code># Test different block sizes for optimal performance
+for bs in 1K 4K 16K 64K 256K 1M 4M; do
+    echo "Testing block size: $bs"
+    time dd if=/dev/zero of=test_file bs=$bs count=10000 2>/dev/null
+    rm test_file
+done
+
+# Typical optimal block sizes:
+# SSDs: 64K - 1M
+# HDDs: 64K - 256K
+# Network: 1M - 4M
+# USB: 1M - 4M</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>System Optimization</h3>
+                    <pre><code># Increase buffer cache
+echo 3 | sudo tee /proc/sys/vm/drop_caches
+
+# Adjust I/O scheduler for imaging
+echo deadline | sudo tee /sys/block/sda/queue/scheduler
+
+# Disable swap during imaging
+sudo swapoff -a
+
+# Set CPU governor to performance
+echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Permission denied
+sudo dd if=/dev/sda of=image.dd bs=64K
+
+# Device busy
+sudo umount /dev/sda1
+sudo dd if=/dev/sda of=image.dd bs=64K
+
+# No space left on device
+df -h  # Check available space
+du -sh image.dd  # Check current image size
+
+# Input/output errors
+dd if=/dev/sda of=image.dd bs=64K conv=noerror,sync
+
+# Process killed (out of memory)
+# Use smaller block size or add swap space
+dd if=/dev/sda of=image.dd bs=4K</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Recovery Techniques</h3>
+                    <pre><code># Resume interrupted imaging
+# Calculate where to resume
+BYTES_COPIED=$(stat -c%s partial_image.dd)
+BLOCK_SIZE=65536
+BLOCKS_TO_SKIP=$((BYTES_COPIED / BLOCK_SIZE))
+
+# Resume imaging
+dd if=/dev/sda of=partial_image.dd bs=64K skip=$BLOCKS_TO_SKIP seek=$BLOCKS_TO_SKIP conv=noerror,sync
+
+# Verify resumed image
+md5sum partial_image.dd
+sudo dd if=/dev/sda bs=64K | md5sum</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Creating forensically sound disk images</li>
+                        <li>Preserving evidence integrity</li>
+                        <li>Imaging damaged or failing drives</li>
+                        <li>Creating working copies for analysis</li>
+                        <li>Memory dump acquisition</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>System Administration</h3>
+                    <ul>
+                        <li>Disk cloning and backup</li>
+                        <li>System migration</li>
+                        <li>Partition table backup</li>
+                        <li>Boot sector recovery</li>
+                        <li>Secure data wiping</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Operations</h3>
+                    <ul>
+                        <li>Incident response evidence collection</li>
+                        <li>Malware analysis sample preparation</li>
+                        <li>Network device firmware extraction</li>
+                        <li>Mobile device imaging</li>
+                        <li>Secure disposal of storage media</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Always use write blockers:</strong> Prevent accidental modification of evidence</li>
+                    <li><strong>Verify integrity:</strong> Always hash original and image for comparison</li>
+                    <li><strong>Use appropriate block sizes:</strong> Balance speed and error recovery</li>
+                    <li><strong>Handle errors gracefully:</strong> Use conv=noerror,sync for damaged media</li>
+                    <li><strong>Monitor progress:</strong> Use status=progress for long operations</li>
+                    <li><strong>Document everything:</strong> Keep detailed logs of all imaging operations</li>
+                    <li><strong>Test your setup:</strong> Verify tools and procedures before critical operations</li>
+                    <li><strong>Plan for storage:</strong> Ensure adequate space for images and working copies</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> dd should only be used for:</p>
+                    <ul>
+                        <li>Imaging your own storage devices and systems</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Corporate IT operations with appropriate authorization</li>
+                        <li>Academic research with proper permissions</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized disk imaging or data copying may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper chain of custody documentation for any evidence that may be used in legal proceedings. Be extremely careful when using dd as it can permanently destroy data if used incorrectly.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plaso Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Plaso: Super Timeline Analysis</h1>
+            <p>Master Digital Forensics Timeline Creation and Analysis</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Plaso?</h2>
+                <p>Plaso (Plaso Langar Að Safna Öllu) is a Python-based engine used by several tools for automatic creation of super timelines. Plaso is designed to extract timestamps from various files found on a typical computer system and create a timeline of events. It can process various file formats and artifact types, making it invaluable for digital forensics investigations, incident response, and timeline analysis. The tool is particularly useful for understanding the sequence of events during security incidents.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Add Plaso repository
+sudo add-apt-repository ppa:gift/stable
+sudo apt update
+
+# Install Plaso
+sudo apt install plaso-tools
+
+# Verify installation
+log2timeline.py --version
+psort.py --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL/Fedora Installation</h3>
+                    <pre><code># Install EPEL repository (CentOS/RHEL)
+sudo yum install epel-release
+
+# Install dependencies
+sudo yum install python3-pip python3-devel
+
+# Install Plaso via pip
+sudo pip3 install plaso
+
+# Verify installation
+log2timeline.py --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download Windows installer from:
+# https://github.com/log2timeline/plaso/releases
+
+# Install Python 3.8+ first
+# Run the Plaso installer
+
+# Verify installation (Command Prompt)
+log2timeline.py --version
+psort.py --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Install using pip
+pip3 install plaso
+
+# Or using Homebrew (if available)
+brew install plaso
+
+# Verify installation
+log2timeline.py --version</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Timeline Creation Process</h3>
+                    <pre><code># Step 1: Extract timeline data (log2timeline.py)
+log2timeline.py timeline.plaso /path/to/evidence
+
+# Step 2: Process and filter timeline (psort.py)
+psort.py -o l2tcsv -w timeline.csv timeline.plaso
+
+# Step 3: Analyze timeline
+# Open timeline.csv in spreadsheet application or text editor</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Basic Timeline Creation</h3>
+                    <pre><code># Create timeline from disk image
+log2timeline.py timeline.plaso disk_image.dd
+
+# Create timeline from directory
+log2timeline.py timeline.plaso /path/to/directory/
+
+# Create timeline from specific files
+log2timeline.py timeline.plaso file1.log file2.evtx
+
+# Multi-threaded processing
+log2timeline.py --workers 4 timeline.plaso disk_image.dd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeline Output Formats</h3>
+                    <pre><code># CSV format (most common)
+psort.py -o l2tcsv -w timeline.csv timeline.plaso
+
+# JSON format
+psort.py -o json -w timeline.json timeline.plaso
+
+# XML format
+psort.py -o xml -w timeline.xml timeline.plaso
+
+# SQLite database
+psort.py -o sqlite -w timeline.db timeline.plaso
+
+# Elasticsearch output
+psort.py -o elastic -w timeline timeline.plaso</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-analysis">
+                <h2>Advanced Timeline Analysis</h2>
+                <div class="command-block">
+                    <h3>Filtering and Searching</h3>
+                    <pre><code># Filter by date range
+psort.py -o l2tcsv -w filtered.csv \
+  --date-filter "2023-06-01,2023-06-30" \
+  timeline.plaso
+
+# Filter by specific parsers
+psort.py -o l2tcsv -w filtered.csv \
+  --parsers "winevtx,prefetch,mft" \
+  timeline.plaso
+
+# Filter by keywords
+psort.py -o l2tcsv -w filtered.csv \
+  --slice "malware" \
+  timeline.plaso
+
+# Filter by source type
+psort.py -o l2tcsv -w filtered.csv \
+  --slice-size 1000 \
+  --source-type "FILE" \
+  timeline.plaso</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Specific Parser Usage</h3>
+                    <pre><code># List available parsers
+log2timeline.py --parsers list
+
+# Use specific parsers only
+log2timeline.py --parsers "winevtx,prefetch,mft" \
+  timeline.plaso disk_image.dd
+
+# Exclude specific parsers
+log2timeline.py --parsers "!syslog,!apache" \
+  timeline.plaso disk_image.dd
+
+# Windows-specific parsers
+log2timeline.py --parsers "winevtx,winreg,prefetch,mft,lnk" \
+  timeline.plaso windows_image.dd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <pre><code># Multi-worker processing
+log2timeline.py --workers 8 timeline.plaso disk_image.dd
+
+# Memory optimization
+log2timeline.py --buffer-size 196608 timeline.plaso disk_image.dd
+
+# Temporary directory
+log2timeline.py --temporary-directory /tmp/plaso \
+  timeline.plaso disk_image.dd
+
+# Process specific partitions
+log2timeline.py --partitions 1,2 timeline.plaso disk_image.dd</code></pre>
+                </div>
+            </section>
+
+            <section id="forensic-workflows">
+                <h2>Forensic Investigation Workflows</h2>
+                <div class="command-block">
+                    <h3>Windows System Analysis</h3>
+                    <pre><code># Comprehensive Windows timeline
+log2timeline.py --parsers "winevtx,winreg,prefetch,mft,lnk,pe,olecf" \
+  --workers 4 \
+  windows_timeline.plaso \
+  windows_image.dd
+
+# Process Windows timeline
+psort.py -o l2tcsv -w windows_timeline.csv windows_timeline.plaso
+
+# Filter for system events
+psort.py -o l2tcsv -w system_events.csv \
+  --slice "System,Security,Application" \
+  windows_timeline.plaso
+
+# Filter for user activity
+psort.py -o l2tcsv -w user_activity.csv \
+  --slice "NTUSER,UsrClass" \
+  windows_timeline.plaso</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux System Analysis</h3>
+                    <pre><code># Linux system timeline
+log2timeline.py --parsers "syslog,utmp,bash_history,sqlite" \
+  --workers 4 \
+  linux_timeline.plaso \
+  linux_image.dd
+
+# Process Linux timeline
+psort.py -o l2tcsv -w linux_timeline.csv linux_timeline.plaso
+
+# Filter for authentication events
+psort.py -o l2tcsv -w auth_events.csv \
+  --slice "auth,secure" \
+  linux_timeline.plaso
+
+# Filter for command history
+psort.py -o l2tcsv -w command_history.csv \
+  --slice "bash_history,zsh_history" \
+  linux_timeline.plaso</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response Timeline</h3>
+                    <pre><code># Create incident timeline
+log2timeline.py --parsers "winevtx,prefetch,mft,lnk,sqlite" \
+  incident_timeline.plaso \
+  /path/to/incident/data/
+
+# Filter by incident timeframe
+psort.py -o l2tcsv -w incident_events.csv \
+  --date-filter "2023-06-15T08:00:00,2023-06-15T18:00:00" \
+  incident_timeline.plaso
+
+# Focus on execution artifacts
+psort.py -o l2tcsv -w execution_timeline.csv \
+  --slice "prefetch,amcache,shimcache" \
+  incident_timeline.plaso
+
+# Network activity timeline
+psort.py -o l2tcsv -w network_timeline.csv \
+  --slice "firewall,dhcp,dns" \
+  incident_timeline.plaso</code></pre>
+                </div>
+            </section>
+
+            <section id="timeline-analysis">
+                <h2>Timeline Analysis Techniques</h2>
+                <div class="command-block">
+                    <h3>Event Correlation</h3>
+                    <pre><code># Create detailed timeline with all metadata
+psort.py -o l2tcsv -w detailed_timeline.csv \
+  --additional-fields "inode,username,hostname" \
+  timeline.plaso
+
+# Sort by specific criteria
+psort.py -o l2tcsv -w sorted_timeline.csv \
+  --slice-size 10000 \
+  --output-time-zone "UTC" \
+  timeline.plaso
+
+# Extract specific time periods
+psort.py -o l2tcsv -w morning_events.csv \
+  --date-filter "2023-06-15T06:00:00,2023-06-15T12:00:00" \
+  timeline.plaso</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Anomaly Detection</h3>
+                    <pre><code># Filter unusual hours activity
+psort.py -o l2tcsv -w after_hours.csv \
+  --date-filter "*T22:00:00,*T06:00:00" \
+  timeline.plaso
+
+# Weekend activity
+psort.py -o l2tcsv -w weekend_activity.csv \
+  --date-filter "2023-06-17,2023-06-18" \
+  timeline.plaso
+
+# High-frequency events
+psort.py -o l2tcsv -w high_frequency.csv \
+  --slice-size 50000 \
+  timeline.plaso</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Processing Script</h3>
+                    <pre><code>#!/bin/bash
+# Plaso batch processing script
+
+EVIDENCE_DIR="$1"
+OUTPUT_DIR="$2"
+CASE_NAME="$3"
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <evidence_directory> <output_directory> <case_name>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Starting Plaso analysis for case: $CASE_NAME"
+echo "Evidence directory: $EVIDENCE_DIR"
+echo "Output directory: $OUTPUT_DIR"
+
+# Create timeline
+echo "Creating timeline..."
+log2timeline.py --workers 4 \
+  --temporary-directory "$OUTPUT_DIR/temp" \
+  "$OUTPUT_DIR/${CASE_NAME}_timeline.plaso" \
+  "$EVIDENCE_DIR"
+
+# Generate CSV output
+echo "Generating CSV timeline..."
+psort.py -o l2tcsv \
+  -w "$OUTPUT_DIR/${CASE_NAME}_timeline.csv" \
+  "$OUTPUT_DIR/${CASE_NAME}_timeline.plaso"
+
+# Generate filtered timelines
+echo "Creating filtered timelines..."
+
+# System events
+psort.py -o l2tcsv \
+  -w "$OUTPUT_DIR/${CASE_NAME}_system_events.csv" \
+  --slice "System,Security,Application" \
+  "$OUTPUT_DIR/${CASE_NAME}_timeline.plaso"
+
+# User activity
+psort.py -o l2tcsv \
+  -w "$OUTPUT_DIR/${CASE_NAME}_user_activity.csv" \
+  --slice "NTUSER,RecentDocs,UserAssist" \
+  "$OUTPUT_DIR/${CASE_NAME}_timeline.plaso"
+
+# Execution artifacts
+psort.py -o l2tcsv \
+  -w "$OUTPUT_DIR/${CASE_NAME}_execution.csv" \
+  --slice "prefetch,amcache,shimcache" \
+  "$OUTPUT_DIR/${CASE_NAME}_timeline.plaso"
+
+# Generate summary report
+echo "=== Plaso Analysis Report ===" > "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+echo "Case: $CASE_NAME" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+echo "Analysis Date: $(date)" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+echo "Evidence: $EVIDENCE_DIR" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+echo "" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+
+# Count events in each timeline
+for csv_file in "$OUTPUT_DIR"/*.csv; do
+    if [ -f "$csv_file" ]; then
+        filename=$(basename "$csv_file")
+        count=$(wc -l < "$csv_file")
+        echo "$filename: $count events" >> "$OUTPUT_DIR/${CASE_NAME}_report.txt"
+    fi
+done
+
+# Cleanup
+rm -rf "$OUTPUT_DIR/temp"
+
+echo "Plaso analysis completed for case: $CASE_NAME"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Python Integration</h3>
+                    <pre><code>#!/usr/bin/env python3
+import subprocess
+import os
+import sys
+import csv
+from datetime import datetime
+
+def run_plaso_extraction(source_path, output_plaso, workers=4):
+    """Run log2timeline.py to extract timeline data"""
+    cmd = [
+        'log2timeline.py',
+        '--workers', str(workers),
+        output_plaso,
+        source_path
+    ]
+    
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        return result.returncode == 0, result.stdout, result.stderr
+    except Exception as e:
+        return False, "", str(e)
+
+def process_timeline(plaso_file, output_csv, date_filter=None, slice_filter=None):
+    """Process timeline with psort.py"""
+    cmd = [
+        'psort.py',
+        '-o', 'l2tcsv',
+        '-w', output_csv
+    ]
+    
+    if date_filter:
+        cmd.extend(['--date-filter', date_filter])
+    
+    if slice_filter:
+        cmd.extend(['--slice', slice_filter])
+    
+    cmd.append(plaso_file)
+    
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        return result.returncode == 0, result.stdout, result.stderr
+    except Exception as e:
+        return False, "", str(e)
+
+def analyze_timeline_csv(csv_file):
+    """Analyze timeline CSV for basic statistics"""
+    stats = {
+        'total_events': 0,
+        'date_range': {'start': None, 'end': None},
+        'sources': {},
+        'event_types': {}
+    }
+    
+    try:
+        with open(csv_file, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                stats['total_events'] += 1
+                
+                # Track date range
+                date_str = row.get('date', '')
+                if date_str:
+                    if not stats['date_range']['start'] or date_str < stats['date_range']['start']:
+                        stats['date_range']['start'] = date_str
+                    if not stats['date_range']['end'] or date_str > stats['date_range']['end']:
+                        stats['date_range']['end'] = date_str
+                
+                # Track sources
+                source = row.get('source', 'Unknown')
+                stats['sources'][source] = stats['sources'].get(source, 0) + 1
+                
+                # Track event types
+                event_type = row.get('message_short', 'Unknown')
+                stats['event_types'][event_type] = stats['event_types'].get(event_type, 0) + 1
+    
+    except Exception as e:
+        print(f"Error analyzing CSV: {e}")
+    
+    return stats
+
+def main():
+    if len(sys.argv) != 4:
+        print("Usage: python3 plaso_analyzer.py <source_path> <output_dir> <case_name>")
+        sys.exit(1)
+    
+    source_path = sys.argv[1]
+    output_dir = sys.argv[2]
+    case_name = sys.argv[3]
+    
+    os.makedirs(output_dir, exist_ok=True)
+    
+    plaso_file = os.path.join(output_dir, f"{case_name}_timeline.plaso")
+    csv_file = os.path.join(output_dir, f"{case_name}_timeline.csv")
+    
+    print(f"Starting Plaso analysis for case: {case_name}")
+    
+    # Extract timeline
+    print("Extracting timeline data...")
+    success, stdout, stderr = run_plaso_extraction(source_path, plaso_file)
+    
+    if not success:
+        print(f"Timeline extraction failed: {stderr}")
+        sys.exit(1)
+    
+    # Process timeline
+    print("Processing timeline...")
+    success, stdout, stderr = process_timeline(plaso_file, csv_file)
+    
+    if not success:
+        print(f"Timeline processing failed: {stderr}")
+        sys.exit(1)
+    
+    # Analyze results
+    print("Analyzing timeline...")
+    stats = analyze_timeline_csv(csv_file)
+    
+    # Generate report
+    report_file = os.path.join(output_dir, f"{case_name}_analysis_report.txt")
+    with open(report_file, 'w') as f:
+        f.write(f"=== Plaso Analysis Report ===\n")
+        f.write(f"Case: {case_name}\n")
+        f.write(f"Analysis Date: {datetime.now()}\n")
+        f.write(f"Source: {source_path}\n")
+        f.write(f"\n=== Statistics ===\n")
+        f.write(f"Total Events: {stats['total_events']}\n")
+        f.write(f"Date Range: {stats['date_range']['start']} to {stats['date_range']['end']}\n")
+        f.write(f"\n=== Top Sources ===\n")
+        
+        for source, count in sorted(stats['sources'].items(), key=lambda x: x[1], reverse=True)[:10]:
+            f.write(f"{source}: {count}\n")
+    
+    print(f"Analysis completed. Results saved to {output_dir}")
+
+if __name__ == "__main__":
+    main()</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Volatility</h3>
+                    <pre><code># Extract timeline from memory dump
+vol -f memory.dmp --profile=Win7SP1x64 timeliner --output-file=volatility_timeline.body
+
+# Convert Volatility timeline to Plaso format
+# Use custom parser or convert manually
+
+# Combine with disk timeline
+log2timeline.py combined_timeline.plaso disk_image.dd
+# Import Volatility timeline data for correlation</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Autopsy</h3>
+                    <pre><code># Export timeline from Autopsy
+# Use Autopsy's timeline export feature
+
+# Create Plaso timeline from same evidence
+log2timeline.py autopsy_timeline.plaso /path/to/autopsy/case/
+
+# Compare and correlate timelines
+psort.py -o l2tcsv -w plaso_timeline.csv autopsy_timeline.plaso</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with ELK Stack</h3>
+                    <pre><code># Output to Elasticsearch
+psort.py -o elastic \
+  --server localhost \
+  --port 9200 \
+  --index-name forensic_timeline \
+  timeline.plaso
+
+# Create Kibana visualizations
+# Import timeline data into Kibana for analysis</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Memory issues with large images
+log2timeline.py --buffer-size 65536 timeline.plaso large_image.dd
+
+# Corrupted or incomplete images
+log2timeline.py --no-vss timeline.plaso corrupted_image.dd
+
+# Parser-specific issues
+log2timeline.py --parsers "!problematic_parser" timeline.plaso image.dd
+
+# Encoding issues
+export PYTHONIOENCODING=utf-8
+log2timeline.py timeline.plaso image.dd
+
+# Permission issues
+sudo log2timeline.py timeline.plaso /dev/sdb1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Optimize worker count
+log2timeline.py --workers $(nproc) timeline.plaso image.dd
+
+# Use faster temporary storage
+log2timeline.py --temporary-directory /tmp/ramdisk timeline.plaso image.dd
+
+# Process specific partitions only
+log2timeline.py --partitions 1 timeline.plaso image.dd
+
+# Skip time-consuming parsers
+log2timeline.py --parsers "!sqlite,!chrome" timeline.plaso image.dd</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Timeline reconstruction for criminal investigations</li>
+                        <li>Event sequence analysis</li>
+                        <li>Evidence correlation across multiple sources</li>
+                        <li>Data exfiltration timeline analysis</li>
+                        <li>User activity reconstruction</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Attack timeline reconstruction</li>
+                        <li>Compromise assessment</li>
+                        <li>Lateral movement analysis</li>
+                        <li>Persistence mechanism detection</li>
+                        <li>Attribution analysis</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Compliance & Auditing</h3>
+                    <ul>
+                        <li>Access control auditing</li>
+                        <li>Data access timeline analysis</li>
+                        <li>Compliance violation detection</li>
+                        <li>Insider threat investigation</li>
+                        <li>Policy violation analysis</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use appropriate parsers:</strong> Select parsers relevant to your investigation</li>
+                    <li><strong>Filter strategically:</strong> Use date and keyword filters to focus analysis</li>
+                    <li><strong>Correlate multiple sources:</strong> Combine different artifact types for complete picture</li>
+                    <li><strong>Document methodology:</strong> Keep detailed records of analysis parameters</li>
+                    <li><strong>Validate timestamps:</strong> Cross-reference timeline events with other evidence</li>
+                    <li><strong>Use visualization tools:</strong> Import timelines into visualization platforms</li>
+                    <li><strong>Regular updates:</strong> Keep Plaso current for latest parser support</li>
+                    <li><strong>Backup timeline files:</strong> Preserve .plaso files for future reprocessing</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Plaso should only be used for:</p>
+                    <ul>
+                        <li>Analyzing systems and data you own or have explicit permission to examine</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Corporate incident response with appropriate authorization</li>
+                        <li>Academic research with proper institutional approval</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized timeline analysis may violate computer crime laws, privacy statutes, and other regulations. Digital forensics should only be performed by qualified professionals with proper legal authority. Timeline data may contain sensitive personal information, communications, and system activities that must be handled according to applicable privacy laws and data protection requirements. Always ensure compliance with applicable laws, regulations, and organizational policies. Maintain proper chain of custody documentation for any evidence that may be used in legal proceedings. Timeline analysis can reveal detailed patterns of user behavior and system activity that must be protected and handled responsibly.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

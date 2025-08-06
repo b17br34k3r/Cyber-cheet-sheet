@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volatility Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Volatility: Memory Forensics Framework</h1>
+            <p>Master Advanced Memory Analysis and Investigation</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Volatility?</h2>
+                <p>Volatility is an open-source memory forensics framework for incident response and malware analysis. It is written in Python and supports Microsoft Windows, Mac OS X, and Linux operating systems. Volatility extracts digital artifacts from volatile memory (RAM) samples and provides a comprehensive suite of plugins for analyzing memory dumps. It's essential for investigating advanced persistent threats, malware infections, and system compromises that leave traces only in memory.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Volatility 3 Installation (Recommended)</h3>
+                    <pre><code># Install via pip
+pip3 install volatility3
+
+# Install from GitHub
+git clone https://github.com/volatilityfoundation/volatility3.git
+cd volatility3
+pip3 install -r requirements.txt
+python3 setup.py install
+
+# Verify installation
+vol -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Volatility 2 Installation (Legacy)</h3>
+                    <pre><code># Install dependencies
+pip2 install pycrypto yara-python distorm3
+
+# Download Volatility 2
+wget http://downloads.volatilityfoundation.org/releases/2.6/volatility_2.6_lin64_standalone.zip
+unzip volatility_2.6_lin64_standalone.zip
+
+# Or install from source
+git clone https://github.com/volatilityfoundation/volatility.git
+cd volatility
+python2 setup.py install
+
+# Verify installation
+python2 vol.py -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download standalone executable from:
+# https://www.volatilityfoundation.org/releases
+
+# Or install with Python
+pip install volatility3
+
+# Install additional dependencies
+pip install yara-python pycryptodome
+
+# Verify installation
+volatility.exe -h</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull Volatility Docker image
+docker pull phocean/volatility
+
+# Run Volatility in container
+docker run --rm -v /path/to/dumps:/dumps phocean/volatility -f /dumps/memory.dmp imageinfo</code></pre>
+                </div>
+            </section>
+
+            <section id="memory-acquisition">
+                <h2>Memory Acquisition</h2>
+                <div class="command-block">
+                    <h3>Windows Memory Acquisition</h3>
+                    <pre><code># Using FTK Imager (GUI tool)
+# 1. Run FTK Imager as Administrator
+# 2. File > Create Disk Image
+# 3. Select "Physical Memory"
+# 4. Choose destination and format
+
+# Using DumpIt (command line)
+DumpIt.exe /OUTPUT C:\memory.dmp
+
+# Using WinPmem
+winpmem_mini_x64.exe memory.raw
+
+# Using Belkasoft RAM Capturer
+RamCapturer64.exe --output memory.mem --format raw</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Memory Acquisition</h3>
+                    <pre><code># Using LiME (Linux Memory Extractor)
+# Compile LiME module
+cd LiME/src
+make
+sudo insmod lime-$(uname -r).ko "path=/tmp/memory.lime format=raw"
+
+# Using dd (if /dev/mem is accessible)
+sudo dd if=/dev/mem of=memory.raw bs=1M
+
+# Using AVML (Azure VM memory acquisition)
+sudo ./avml memory.lime
+
+# Using Volatility's pmem
+sudo python vol.py -f /dev/mem --profile=LinuxUbuntu1804x64 linux_banner</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Memory Acquisition</h3>
+                    <pre><code># Using OSXPMem
+sudo ./osxpmem.app/osxpmem -o memory.aff4
+
+# Using Volafox
+sudo python volafox.py -i /dev/mem -o memory.vmem
+
+# Using MacQuisition
+# GUI-based tool for Mac memory acquisition</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-analysis">
+                <h2>Basic Analysis</h2>
+                <div class="command-block">
+                    <h3>Volatility 3 Basic Commands</h3>
+                    <pre><code># Get basic information about the memory dump
+vol -f memory.dmp windows.info
+
+# List running processes
+vol -f memory.dmp windows.pslist
+
+# Show process tree
+vol -f memory.dmp windows.pstree
+
+# List network connections
+vol -f memory.dmp windows.netstat
+
+# Show loaded modules
+vol -f memory.dmp windows.modules
+
+# List services
+vol -f memory.dmp windows.svcscan</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Volatility 2 Basic Commands</h3>
+                    <pre><code># Identify the operating system profile
+python vol.py -f memory.dmp imageinfo
+
+# Set profile and list processes
+python vol.py -f memory.dmp --profile=Win7SP1x64 pslist
+
+# Show process tree
+python vol.py -f memory.dmp --profile=Win7SP1x64 pstree
+
+# List network connections
+python vol.py -f memory.dmp --profile=Win7SP1x64 netscan
+
+# Show DLLs loaded by processes
+python vol.py -f memory.dmp --profile=Win7SP1x64 dlllist</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Profile Selection</h3>
+                    <pre><code># Volatility 2: Determine correct profile
+python vol.py -f memory.dmp imageinfo
+python vol.py -f memory.dmp kdbgscan
+
+# Common Windows profiles:
+# - WinXPSP2x86, WinXPSP3x86
+# - Win7SP0x86, Win7SP1x86, Win7SP0x64, Win7SP1x64
+# - Win8SP0x86, Win8SP0x64, Win8SP1x86, Win8SP1x64
+# - Win10x86, Win10x64
+
+# Volatility 3: Auto-detection
+# No profile needed, automatically detects OS</code></pre>
+                </div>
+            </section>
+
+            <section id="process-analysis">
+                <h2>Process Analysis</h2>
+                <div class="command-block">
+                    <h3>Process Investigation</h3>
+                    <pre><code># List all processes (Volatility 3)
+vol -f memory.dmp windows.pslist
+
+# Show hidden/terminated processes
+vol -f memory.dmp windows.psscan
+
+# Process tree view
+vol -f memory.dmp windows.pstree
+
+# Get process command line arguments
+vol -f memory.dmp windows.cmdline
+
+# Show process environment variables
+vol -f memory.dmp windows.envars
+
+# List handles opened by processes
+vol -f memory.dmp windows.handles --pid 1234</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Process Memory Dumping</h3>
+                    <pre><code># Dump process memory (Volatility 3)
+vol -f memory.dmp -o /output/dir windows.memmap --dump --pid 1234
+
+# Dump executable from memory
+vol -f memory.dmp -o /output/dir windows.dumpfiles --pid 1234
+
+# Volatility 2 equivalents
+python vol.py -f memory.dmp --profile=Win7SP1x64 memdump -p 1234 --dump-dir=/output/
+python vol.py -f memory.dmp --profile=Win7SP1x64 procdump -p 1234 --dump-dir=/output/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Malicious Process Detection</h3>
+                    <pre><code># Look for suspicious processes
+vol -f memory.dmp windows.pslist | grep -E "(cmd|powershell|wscript|cscript)"
+
+# Check for process hollowing
+vol -f memory.dmp windows.malfind
+
+# Detect code injection
+vol -f memory.dmp windows.hollowfind
+
+# Check for rootkits
+vol -f memory.dmp windows.psxview</code></pre>
+                </div>
+            </section>
+
+            <section id="network-analysis">
+                <h2>Network Analysis</h2>
+                <div class="command-block">
+                    <h3>Network Connections</h3>
+                    <pre><code># Show network connections (Volatility 3)
+vol -f memory.dmp windows.netstat
+
+# Show network artifacts (Volatility 2)
+python vol.py -f memory.dmp --profile=Win7SP1x64 netscan
+python vol.py -f memory.dmp --profile=Win7SP1x64 netstat
+python vol.py -f memory.dmp --profile=Win7SP1x64 connections
+
+# Filter by specific process
+vol -f memory.dmp windows.netstat --pid 1234
+
+# Look for suspicious connections
+vol -f memory.dmp windows.netstat | grep -E "(443|80|8080|4444)"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Analysis Tips</h3>
+                    <ul>
+                        <li><strong>Unusual ports:</strong> Look for non-standard port usage</li>
+                        <li><strong>External connections:</strong> Identify connections to external IPs</li>
+                        <li><strong>Process correlation:</strong> Match connections to processes</li>
+                        <li><strong>Timeline analysis:</strong> Correlate with process start times</li>
+                        <li><strong>Persistence mechanisms:</strong> Check for backdoor connections</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="registry-analysis">
+                <h2>Registry Analysis</h2>
+                <div class="command-block">
+                    <h3>Registry Investigation</h3>
+                    <pre><code># List registry hives (Volatility 3)
+vol -f memory.dmp windows.registry.hivelist
+
+# Print registry keys
+vol -f memory.dmp windows.registry.printkey --key "Software\Microsoft\Windows\CurrentVersion\Run"
+
+# Volatility 2 registry commands
+python vol.py -f memory.dmp --profile=Win7SP1x64 hivelist
+python vol.py -f memory.dmp --profile=Win7SP1x64 printkey -K "Software\Microsoft\Windows\CurrentVersion\Run"
+
+# Dump registry hive
+python vol.py -f memory.dmp --profile=Win7SP1x64 dumpregistry --dump-dir=/output/</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Important Registry Locations</h3>
+                    <pre><code># Autostart locations
+Software\Microsoft\Windows\CurrentVersion\Run
+Software\Microsoft\Windows\CurrentVersion\RunOnce
+Software\Microsoft\Windows NT\CurrentVersion\Winlogon
+
+# Services
+System\CurrentControlSet\Services
+
+# Network settings
+System\CurrentControlSet\Services\Tcpip\Parameters
+
+# USB devices
+System\CurrentControlSet\Enum\USBSTOR
+
+# Recently accessed files
+Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs</code></pre>
+                </div>
+            </section>
+
+            <section id="malware-analysis">
+                <h2>Malware Analysis</h2>
+                <div class="command-block">
+                    <h3>Malware Detection</h3>
+                    <pre><code># Detect injected code
+vol -f memory.dmp windows.malfind
+
+# Check for hooks
+vol -f memory.dmp windows.ssdt
+
+# Scan for YARA rules
+vol -f memory.dmp windows.yarascan --yara-rules /path/to/rules.yar
+
+# Volatility 2 malware plugins
+python vol.py -f memory.dmp --profile=Win7SP1x64 malfind
+python vol.py -f memory.dmp --profile=Win7SP1x64 apihooks
+python vol.py -f memory.dmp --profile=Win7SP1x64 yarascan -y /path/to/rules.yar</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Malware Analysis</h3>
+                    <pre><code># Check for rootkits
+vol -f memory.dmp windows.psxview
+
+# Analyze suspicious processes
+vol -f memory.dmp windows.handles --pid 1234
+vol -f memory.dmp windows.cmdline --pid 1234
+
+# Look for code caves
+vol -f memory.dmp windows.vadinfo --pid 1234
+
+# Check for process hollowing
+vol -f memory.dmp windows.hollowfind</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>YARA Rules Integration</h3>
+                    <pre><code># Create YARA rules file
+rule Suspicious_Strings {
+    strings:
+        $s1 = "cmd.exe" nocase
+        $s2 = "powershell" nocase
+        $s3 = "backdoor" nocase
+    condition:
+        any of them
+}
+
+# Scan memory with YARA
+vol -f memory.dmp windows.yarascan --yara-rules rules.yar
+
+# Scan specific process
+vol -f memory.dmp windows.yarascan --yara-rules rules.yar --pid 1234</code></pre>
+                </div>
+            </section>
+
+            <section id="timeline-analysis">
+                <h2>Timeline Analysis</h2>
+                <div class="command-block">
+                    <h3>Creating Timelines</h3>
+                    <pre><code># Volatility 2 timeline creation
+python vol.py -f memory.dmp --profile=Win7SP1x64 timeliner --output=body --output-file=timeline.body
+
+# Convert to readable format with mactime
+mactime -d -b timeline.body > timeline.csv
+
+# Alternative timeline plugins
+python vol.py -f memory.dmp --profile=Win7SP1x64 mftparser --output=body
+python vol.py -f memory.dmp --profile=Win7SP1x64 shellbags --output=body</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Timeline Analysis Tips</h3>
+                    <ul>
+                        <li><strong>Process start times:</strong> Identify when malware started</li>
+                        <li><strong>File access patterns:</strong> Track file system activity</li>
+                        <li><strong>Network connections:</strong> Correlate with timeline events</li>
+                        <li><strong>Registry modifications:</strong> Track system changes</li>
+                        <li><strong>User activity:</strong> Identify user actions and sessions</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="linux-analysis">
+                <h2>Linux Memory Analysis</h2>
+                <div class="command-block">
+                    <h3>Linux-Specific Plugins</h3>
+                    <pre><code># Volatility 3 Linux analysis
+vol -f memory.lime linux.bash
+vol -f memory.lime linux.check_afinfo
+vol -f memory.lime linux.check_creds
+vol -f memory.lime linux.check_idt
+vol -f memory.lime linux.check_modules
+vol -f memory.lime linux.elfs
+vol -f memory.lime linux.lsmod
+vol -f memory.lime linux.lsof
+vol -f memory.lime linux.malfind
+vol -f memory.lime linux.proc
+vol -f memory.lime linux.pslist</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Profile Creation</h3>
+                    <pre><code># For Volatility 2, create Linux profile
+# 1. Install kernel headers
+sudo apt-get install linux-headers-$(uname -r)
+
+# 2. Create profile
+cd volatility/tools/linux
+make
+sudo zip $(lsb_release -i -s)_$(uname -r)_profile.zip module.dwarf /boot/System.map-$(uname -r)
+
+# 3. Copy profile to Volatility
+cp profile.zip volatility/plugins/overlays/linux/</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Analysis Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated Volatility analysis script
+
+MEMORY_DUMP="$1"
+OUTPUT_DIR="$2"
+PROFILE="$3"
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <memory_dump> <output_dir> <profile>"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Starting automated Volatility analysis..."
+
+# Basic system information
+echo "=== System Information ===" > "$OUTPUT_DIR/analysis_report.txt"
+vol -f "$MEMORY_DUMP" windows.info >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Process analysis
+echo "=== Process List ===" >> "$OUTPUT_DIR/analysis_report.txt"
+vol -f "$MEMORY_DUMP" windows.pslist >> "$OUTPUT_DIR/analysis_report.txt"
+
+echo "=== Process Tree ===" >> "$OUTPUT_DIR/analysis_report.txt"
+vol -f "$MEMORY_DUMP" windows.pstree >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Network analysis
+echo "=== Network Connections ===" >> "$OUTPUT_DIR/analysis_report.txt"
+vol -f "$MEMORY_DUMP" windows.netstat >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Malware detection
+echo "=== Malware Detection ===" >> "$OUTPUT_DIR/analysis_report.txt"
+vol -f "$MEMORY_DUMP" windows.malfind >> "$OUTPUT_DIR/analysis_report.txt"
+
+# Registry analysis
+echo "=== Registry Hives ===" >> "$OUTPUT_DIR/analysis_report.txt"
+vol -f "$MEMORY_DUMP" windows.registry.hivelist >> "$OUTPUT_DIR/analysis_report.txt"
+
+echo "Analysis completed. Results saved to $OUTPUT_DIR"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Python Automation Script</h3>
+                    <pre><code>#!/usr/bin/env python3
+import subprocess
+import sys
+import os
+
+def run_volatility_command(memory_dump, plugin, output_file=None):
+    """Run a Volatility command and return output"""
+    cmd = ['vol', '-f', memory_dump, plugin]
+    
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        output = result.stdout
+        
+        if output_file:
+            with open(output_file, 'w') as f:
+                f.write(output)
+        
+        return output
+    except subprocess.CalledProcessError as e:
+        print(f"Error running {plugin}: {e}")
+        return None
+
+def analyze_memory_dump(memory_dump, output_dir):
+    """Perform comprehensive memory analysis"""
+    os.makedirs(output_dir, exist_ok=True)
+    
+    plugins = [
+        'windows.info',
+        'windows.pslist',
+        'windows.pstree',
+        'windows.netstat',
+        'windows.malfind',
+        'windows.modules',
+        'windows.registry.hivelist'
+    ]
+    
+    for plugin in plugins:
+        print(f"Running {plugin}...")
+        output_file = os.path.join(output_dir, f"{plugin.replace('.', '_')}.txt")
+        run_volatility_command(memory_dump, plugin, output_file)
+    
+    print(f"Analysis completed. Results saved to {output_dir}")
+
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("Usage: python3 analyze.py <memory_dump> <output_dir>")
+        sys.exit(1)
+    
+    memory_dump = sys.argv[1]
+    output_dir = sys.argv[2]
+    
+    analyze_memory_dump(memory_dump, output_dir)</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Techniques</h2>
+                <div class="command-block">
+                    <h3>Custom Plugin Development</h3>
+                    <pre><code># Volatility 3 plugin template
+import volatility3.framework.interfaces.plugins as interfaces
+from volatility3.framework import renderers
+
+class MyPlugin(interfaces.PluginInterface):
+    """Custom Volatility plugin"""
+    
+    _required_framework_version = (2, 0, 0)
+    
+    @classmethod
+    def get_requirements(cls):
+        return [
+            requirements.ModuleRequirement(
+                name='kernel', 
+                description='Windows kernel',
+                architectures=["Intel32", "Intel64"]
+            )
+        ]
+    
+    def run(self):
+        # Plugin logic here
+        return renderers.TreeGrid([
+            ("Column1", str),
+            ("Column2", int)
+        ], self._generator())
+    
+    def _generator(self):
+        # Generate results
+        yield (0, ("Value1", 123))</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Memory Carving</h3>
+                    <pre><code># Extract files from memory
+vol -f memory.dmp -o /output windows.dumpfiles
+
+# Carve specific file types
+vol -f memory.dmp windows.filescan | grep -E "\.(exe|dll|pdf|doc)$"
+
+# Extract registry hives
+vol -f memory.dmp windows.registry.hivelist
+vol -f memory.dmp -o /output windows.registry.hivescan --dump</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Cryptography Analysis</h3>
+                    <pre><code># Look for crypto keys in memory
+vol -f memory.dmp windows.yarascan --yara-rules crypto_keys.yar
+
+# Analyze TrueCrypt/VeraCrypt
+vol -f memory.dmp windows.truecryptsummary
+vol -f memory.dmp windows.truecryptmaster
+
+# BitLocker analysis
+vol -f memory.dmp windows.bitlocker</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Profile detection issues (Volatility 2)
+python vol.py -f memory.dmp imageinfo
+python vol.py -f memory.dmp kdbgscan
+
+# Memory corruption
+vol -f memory.dmp windows.info --verbose
+
+# Plugin errors
+vol -f memory.dmp --help  # List available plugins
+vol -f memory.dmp windows.pslist --help  # Plugin-specific help
+
+# Performance issues
+# Use --pid to limit scope
+# Process smaller memory dumps
+# Increase system RAM</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Debug Mode</h3>
+                    <pre><code># Enable verbose output
+vol -f memory.dmp -vv windows.pslist
+
+# Debug specific issues
+vol -f memory.dmp --debug windows.malfind
+
+# Check plugin compatibility
+vol --list-plugins</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Malware analysis and detection</li>
+                        <li>Rootkit identification</li>
+                        <li>Process injection analysis</li>
+                        <li>Network connection investigation</li>
+                        <li>Timeline reconstruction</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Evidence collection from memory</li>
+                        <li>Deleted file recovery</li>
+                        <li>Password and key extraction</li>
+                        <li>User activity analysis</li>
+                        <li>System state reconstruction</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Research</h3>
+                    <ul>
+                        <li>Malware behavior analysis</li>
+                        <li>Exploit development and testing</li>
+                        <li>Vulnerability research</li>
+                        <li>Reverse engineering</li>
+                        <li>Security tool development</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use Volatility 3:</strong> Newer version with better performance and features</li>
+                    <li><strong>Acquire memory properly:</strong> Use appropriate tools and techniques</li>
+                    <li><strong>Verify integrity:</strong> Hash memory dumps before analysis</li>
+                    <li><strong>Document everything:</strong> Keep detailed notes of analysis steps</li>
+                    <li><strong>Use multiple plugins:</strong> Cross-validate findings with different techniques</li>
+                    <li><strong>Automate repetitive tasks:</strong> Create scripts for common analysis workflows</li>
+                    <li><strong>Stay updated:</strong> Keep Volatility and plugins current</li>
+                    <li><strong>Practice regularly:</strong> Maintain and improve analysis skills</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Volatility should only be used for:</p>
+                    <ul>
+                        <li>Analyzing memory dumps from your own systems</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Incident response activities with appropriate authorization</li>
+                        <li>Security research in controlled environments</li>
+                        <li>Educational purposes with proper permissions</li>
+                    </ul>
+                    <p>Unauthorized memory analysis may violate computer crime laws, privacy statutes, and other regulations. Memory forensics should only be performed by qualified professionals with proper legal authority. Always ensure compliance with applicable laws, regulations, and organizational policies. Memory dumps may contain sensitive information including passwords, personal data, and confidential business information. Handle all evidence with appropriate care and maintain proper chain of custody documentation.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

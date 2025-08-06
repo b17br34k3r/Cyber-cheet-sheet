@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log2Timeline/Plaso Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Log2Timeline/Plaso: Timeline Analysis Tool</h1>
+            <p>Extract and Aggregate Timestamps for Comprehensive Event Correlation</p>
+            <a href="../index.html" class="back-link">← Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Log2Timeline/Plaso?</h2>
+                <p>Log2Timeline, part of the Plaso (Plaso Langar Að Safna Öllu) framework, is an open-source command-line tool designed to extract timestamps from various file types on a computer system and create a "super timeline" for forensic analysis. It aggregates events from logs, file metadata, browser history, and other sources, enabling investigators to correlate events across multiple data sources. Plaso is widely used in digital forensics and incident response for its ability to process diverse data formats and generate detailed timelines for investigations.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Add Plaso repository
+sudo add-apt-repository ppa:gift/stable
+sudo apt update
+sudo apt install plaso
+
+# Install via pip
+pip install plaso
+
+# Verify installation
+log2timeline.py --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Install via Homebrew
+brew install plaso
+
+# Install via pip
+pip install plaso
+
+# Verify installation
+log2timeline.py --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from GitHub releases
+# Visit: https://github.com/log2timeline/plaso/releases
+# Download plaso-x.x.x-win64.zip
+
+# Extract and add to PATH
+# Unzip to desired folder
+# Add plaso directory to system PATH
+# Run: log2timeline.exe --version
+
+# Install via pip (requires Python)
+pip install plaso
+
+# Verify installation
+log2timeline.py --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull Plaso Docker image
+docker pull log2timeline/plaso
+
+# Run Plaso in Docker
+docker run --rm -it -v /path/to/evidence:/evidence log2timeline/plaso /bin/bash
+
+# Run log2timeline
+log2timeline.py /evidence/timeline.plaso /evidence/disk.img</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Create a Super Timeline</h3>
+                    <pre><code># Process disk image
+log2timeline.py --partition all /evidence/timeline.plaso /evidence/disk.img
+
+# Process directory of files
+log2timeline.py /evidence/timeline.plaso /evidence/logs/
+
+# Process specific file
+log2timeline.py /evidence/timeline.plaso /evidence/system.evtx</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Timeline</h3>
+                    <pre><code># Export to CSV
+psort.py -o csv /evidence/timeline.plaso > timeline.csv
+
+# Export to JSON
+psort.py -o json /evidence/timeline.plaso > timeline.json
+
+# View in terminal
+psort.py -o l2tcsv /evidence/timeline.plaso</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Analyze Timeline</h3>
+                    <pre><code># Use pinfo to inspect Plaso file
+pinfo.py /evidence/timeline.plaso
+
+# Generate summary of events
+psort.py -o l2tcsv /evidence/timeline.plaso | grep -i "error"</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Analysis Techniques</h2>
+                <div class="command-block">
+                    <h3>Custom Parser Selection</h3>
+                    <pre><code># List available parsers
+log2timeline.py --info
+
+# Process with specific parsers
+log2timeline.py --parsers "winreg,firefox_cache" /evidence/timeline.plaso /evidence/disk.img
+
+# Exclude parsers
+log2timeline.py --parsers "!sqlite" /evidence/timeline.plaso /evidence/disk.img</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Hash-Based Analysis</h3>
+                    <pre><code># Generate hashes for files
+log2timeline.py --hashers md5,sha1 /evidence/timeline.plaso /evidence/disk.img
+
+# Filter events by hash
+psort.py -o csv /evidence/timeline.plaso --filter "md5='d41d8cd98f00b204e9800998ecf8427e'" > hash_matches.csv</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Event Tagging</h3>
+                    <pre><code># Tag events with custom rules
+log2timeline.py --tagging-file /path/to/rules.yaml /evidence/timeline.plaso /evidence/disk.img
+
+# View tagged events
+psort.py -o csv /evidence/timeline.plaso --filter "tag='malware'" > tagged_events.csv</code></pre>
+                </div>
+            </section>
+
+            <section id="filtering">
+                <h2>Event Filtering</h2>
+                <div class="command-block">
+                    <h3>Time-Based Filtering</h3>
+                    <pre><code># Filter by date range
+psort.py -o csv /evidence/timeline.plaso --slice "2023-01-01 00:00:00 to 2023-12-31 23:59:59" > filtered_timeline.csv
+
+# Filter by specific date
+psort.py -o csv /evidence/timeline.plaso --filter "date=='2023-01-01'" > day_events.csv</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Event Type Filtering</h3>
+                    <pre><code># Filter by parser
+psort.py -o csv /evidence/timeline.plaso --filter "parser='winreg'" > registry_events.csv
+
+# Filter by source type
+psort.py -o csv /evidence/timeline.plaso --filter "source_type='FILE'" > file_events.csv</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Keyword Search</h3>
+                    <pre><code># Filter by keyword
+psort.py -o csv /evidence/timeline.plaso --filter "description_long contains 'password'" > keyword_events.csv
+
+# Case-insensitive search
+psort.py -o csv /evidence/timeline.plaso --filter "description_long icontains 'login'" > login_events.csv</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output and Reporting</h2>
+                <div class="command-block">
+                    <h3>Output Formats</h3>
+                    <pre><code># Export to CSV
+psort.py -o csv /evidence/timeline.plaso > timeline.csv
+
+# Export to JSON
+psort.py -o json /evidence/timeline.plaso > timeline.json
+
+# Export to ElasticSearch
+psort.py -o elasticsearch /evidence/timeline.plaso --server localhost --index_name forensic_timeline</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verbose and Debug Output</h3>
+                    <pre><code># Run with verbose logging
+log2timeline.py --log-file log2timeline.log --verbose /evidence/timeline.plaso /evidence/disk.img
+
+# Debug mode
+log2timeline.py --debug /evidence/timeline.plaso /evidence/disk.img
+
+# Save detailed event output
+psort.py -o l2tcsv /evidence/timeline.plaso > detailed_timeline.csv</code></pre>
+                </div>
+            </section>
+
+            <section id="tools">
+                <h2>Key Components of Plaso</h2>
+                <div class="command-block">
+                    <h3>log2timeline.py</h3>
+                    <pre><code># Generate timeline
+log2timeline.py /evidence/timeline.plaso /evidence/disk.img
+
+# Specify parsers
+log2timeline.py --parsers "chrome,firefox" /evidence/timeline.plaso /evidence/browser/
+
+# Process with hashers
+log2timeline.py --hashers md5 /evidence/timeline.plaso /evidence/disk.img</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>psort.py</h3>
+                    <pre><code># Sort and output timeline
+psort.py -o csv /evidence/timeline.plaso > timeline.csv
+
+# Filter events
+psort.py -o csv /evidence/timeline.plaso --filter "parser='syslog'" > syslog_events.csv
+
+# Export to ElasticSearch
+psort.py -o elasticsearch /evidence/timeline.plaso --server localhost</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>pinfo.py</h3>
+                    <pre><code># Inspect Plaso storage file
+pinfo.py /evidence/timeline.plaso
+
+# View specific metadata
+pinfo.py /evidence/timeline.plaso --sections storage_counters</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Bash Automation</h3>
+                    <pre><code>#!/bin/bash
+evidences=("/evidence/disk1.img" "/evidence/disk2.img")
+for evidence in "${evidences[@]}"; do
+    echo "Processing $evidence"
+    log2timeline.py "$(basename $evidence .img).plaso" "$evidence"
+    psort.py -o csv "$(basename $evidence .img).plaso" > "$(basename $evidence .img).csv"
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Filter CSV output
+awk -F',' '/malware/ {print $1,$5}' timeline.csv > malware_events.txt
+
+# Python script for parsing JSON output
+import json
+with open('timeline.json', 'r') as f:
+    data = json.load(f)
+for event in data:
+    if 'malware' in event['message'].lower():
+        print(f"Event: {event['timestamp']} - {event['message']}")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Tools</h3>
+                    <pre><code># Chain with Autopsy
+log2timeline.py /evidence/timeline.plaso /evidence/disk.img
+autopsy /evidence/ &
+
+# Export to ElasticSearch for visualization
+psort.py -o elasticsearch /evidence/timeline.plaso --server localhost --index_name forensic_timeline</code></pre>
+                </div>
+            </section>
+
+            <section id="specialized-techniques">
+                <h2>Specialized Analysis Techniques</h2>
+                <div class="command-block">
+                    <h3>Browser History Analysis</h3>
+                    <pre><code># Process browser history
+log2timeline.py --parsers "chrome_history,firefox_history" /evidence/timeline.plaso /evidence/browser/
+
+# Filter browser events
+psort.py -o csv /evidence/timeline.plaso --filter "parser contains 'history'" > browser_events.csv</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log File Analysis</h3>
+                    <pre><code># Process system logs
+log2timeline.py --parsers "syslog,win_evt" /evidence/timeline.plaso /evidence/logs/
+
+# Filter log events
+psort.py -o csv /evidence/timeline.plaso --filter "source_type='LOG'" > log_events.csv</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Metadata Analysis</h3>
+                    <pre><code># Extract file metadata
+log2timeline.py --parsers "filestat" /evidence/timeline.plaso /evidence/disk.img
+
+# Filter by file type
+psort.py -o csv /evidence/timeline.plaso --filter "filename contains '.exe'" > exe_events.csv</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Check file integrity
+md5sum /evidence/disk.img
+
+# Debug Plaso
+log2timeline.py --debug /evidence/timeline.plaso /evidence/disk.img > debug.log
+
+# Verify storage file
+pinfo.py /evidence/timeline.plaso
+
+# Check parser compatibility
+log2timeline.py --info</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Monitor system resources
+top
+
+# Limit CPU usage
+cpulimit -p $(pgrep log2timeline) -l 50
+
+# Process in chunks
+log2timeline.py --slice-size 1000 /evidence/timeline.plaso /evidence/disk.img
+
+# Increase swap space
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Generate super timelines for event correlation</li>
+                        <li>Analyze browser history and downloads</li>
+                        <li>Process system and application logs</li>
+                        <li>Extract file metadata</li>
+                        <li>Investigate malware infections</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Identify unauthorized access events</li>
+                        <li>Correlate network and file activity</li>
+                        <li>Track user actions via timelines</li>
+                        <li>Detect persistence mechanisms</li>
+                        <li>Generate reports for legal proceedings</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use specific parsers:</strong> Select relevant parsers to reduce processing time</li>
+                    <li><strong>Filter early:</strong> Apply filters during psort to focus on key events</li>
+                    <li><strong>Preserve originals:</strong> Work with copies of evidence to maintain integrity</li>
+                    <li><strong>Automate workflows:</strong> Script repetitive tasks for efficiency</li>
+                    <li><strong>Monitor resources:</strong> Large datasets may require significant CPU and RAM</li>
+                    <li><strong>Export to ElasticSearch:</strong> Visualize timelines in Kibana for better analysis</li>
+                    <li><strong>Validate findings:</strong> Cross-check events with other forensic tools</li>
+                    <li><strong>Tag events:</strong> Use tagging rules to highlight suspicious activity</li>
+                    <li><strong>Combine with Autopsy:</strong> Integrate timelines with Autopsy for GUI-based analysis</li>
+                    <li><strong>Document everything:</strong> Save logs and outputs for forensic reporting</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Log2Timeline/Plaso should only be used for:</p>
+                    <ul>
+                        <li>Analyzing systems or data you own or have explicit permission to investigate</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Educational purposes in controlled environments</li>
+                        <li>Security research with institutional approval</li>
+                        <li>Incident response with documented consent</li>
+                    </ul>
+                    <p>Unauthorized use of Log2Timeline/Plaso to analyze systems or data without permission may violate privacy laws, computer crime laws, or other regulations. Forensic investigations should only be performed by qualified professionals with proper authorization. Always ensure data integrity and chain of custody during analysis. Improper handling of evidence can render it inadmissible in court. Maintain detailed documentation of all analysis activities. Follow responsible disclosure practices for any vulnerabilities or incidents discovered. Respect data privacy and confidentiality requirements. Ensure compliance with all relevant laws and regulations during forensic activities.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetworkMiner Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>NetworkMiner: Network Forensic Analysis Tool</h1>
+            <p>Analyze PCAP Files and Extract Artifacts for Network Forensics</p>
+            <a href="../index.html" class="back-link">← Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is NetworkMiner?</h2>
+                <p>NetworkMiner is an open-source Network Forensic Analysis Tool (NFAT) designed for Windows, with compatibility for Linux, macOS, and FreeBSD using the Mono framework. It excels at parsing PCAP files to extract artifacts such as files, images, emails, credentials, and certificates from captured network traffic. NetworkMiner also supports live network sniffing, providing a user-friendly GUI to analyze network sessions, hosts, and protocols. It is widely used by incident response teams, law enforcement, and cybersecurity professionals for its ability to perform passive network analysis without generating network traffic.</p>[](https://www.netresec.com/?page=NetworkMiner)[](https://www.tezgeek.com/2025/07/networkminer-powerful-network-forensic.html?m=1)
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from official site
+# Visit: https://www.netresec.com/?page=NetworkMiner
+# Download NetworkMiner.zip (e.g., NetworkMiner_2-8-1.zip)
+
+# Extract and run
+# Unzip to desired folder
+# Run NetworkMiner.exe (portable, no installation required)
+
+# Verify version
+# Open NetworkMiner -> Help -> About</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Install Mono framework
+sudo apt update
+sudo apt install mono-complete
+
+# Download NetworkMiner
+wget https://www.netresec.com/?download=NetworkMiner -O NetworkMiner.zip
+unzip NetworkMiner.zip -d NetworkMiner
+
+# Run NetworkMiner
+cd NetworkMiner
+mono NetworkMiner.exe
+
+# Verify version
+mono NetworkMiner.exe --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Install Mono framework
+brew install mono
+
+# Download NetworkMiner
+curl -L https://www.netresec.com/?download=NetworkMiner -o NetworkMiner.zip
+unzip NetworkMiner.zip -d NetworkMiner
+
+# Run NetworkMiner
+cd NetworkMiner
+mono NetworkMiner.exe
+
+# Verify version
+mono NetworkMiner.exe --version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull unofficial NetworkMiner Docker image
+docker pull linuxserver/networkminer
+
+# Run NetworkMiner with PCAP file
+docker run --rm -it -v /path/to/pcap:/pcap linuxserver/networkminer mono NetworkMiner.exe /pcap/capture.pcap
+
+# Run with GUI (requires X11 forwarding)
+docker run --rm -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix linuxserver/networkminer mono NetworkMiner.exe</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Loading PCAP Files</h3>
+                    <pre><code># Start NetworkMiner
+NetworkMiner.exe
+
+# Load PCAP file
+# File -> Open -> Select capture.pcap
+# Alternatively, drag and drop PCAP file into NetworkMiner GUI
+
+# Command-line PCAP loading (Linux/macOS)
+mono NetworkMiner.exe /pcap/capture.pcap</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Live Network Sniffing</h3>
+                    <pre><code># Start NetworkMiner
+NetworkMiner.exe
+
+# Select network interface
+# File -> Select Network Adapter -> Choose interface (e.g., eth0)
+# Click "Start" to begin sniffing
+
+# Note: Live sniffing is Windows-only; Linux requires Mono and PCAP-over-IP</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Extracting Artifacts</h3>
+                    <pre><code># Open PCAP file in NetworkMiner
+# Navigate to tabs:
+# - Files: View extracted files (e.g., images, documents)
+# - Credentials: View usernames and passwords
+# - Sessions: View reconstructed HTTP/FTP sessions
+# - Hosts: View IP, MAC, OS, and open ports
+# Right-click artifacts to save or open</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Forensic Techniques</h2>
+                <div class="command-block">
+                    <h3>Session Reconstruction</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Sessions tab
+# Filter by protocol (e.g., HTTP, FTP)
+# Right-click session -> Reconstruct to view full data exchange
+
+# Export reconstructed session
+# Right-click session -> Save As</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Credential Analysis</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Credentials tab
+# View extracted usernames/passwords for protocols (e.g., FTP, SMTP)
+# Search for specific accounts (e.g., Gmail, Facebook)
+
+# Export credentials
+# File -> Export -> Credentials -> Save as CSV</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Extraction</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Files tab
+# View extracted files (e.g., images, PDFs, executables)
+# Right-click file -> Open or Save to disk
+
+# Note: Avoid opening malicious files to prevent self-infection</code></pre>[](https://www.netresec.com/?page=NetworkMiner)
+                </div>
+            </section>
+
+            <section id="filtering">
+                <h2>Data Filtering</h2>
+                <div class="command-block">
+                    <h3>Protocol Filtering</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Sessions tab
+# Filter by protocol (e.g., HTTP, FTP, SMTP)
+# Use dropdown menu to select specific protocols</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Keyword Search</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Parameters tab
+# Enter keyword (e.g., "password", "login") in search field
+# View matching results across packets
+
+# Export filtered results
+# File -> Export -> Parameters -> Save as CSV</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Host-Based Filtering</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Hosts tab
+# Filter by IP, MAC, or hostname
+# Right-click host to view associated sessions/files</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output and Reporting</h2>
+                <div class="command-block">
+                    <h3>Export Artifacts</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Export files
+# Files tab -> Right-click file -> Save As
+
+# Export credentials
+# Credentials tab -> File -> Export -> Credentials -> Save as CSV
+
+# Export sessions
+# Sessions tab -> File -> Export -> Sessions -> Save as CSV</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verbose and Debug Output</h3>
+                    <pre><code># Run with verbose logging (Linux/macOS)
+mono NetworkMiner.exe /verbose /pcap/capture.pcap > networkminer.log
+
+# Save host inventory
+# Hosts tab -> File -> Export -> Hosts -> Save as CSV
+
+# Save detailed packet info
+# Parameters tab -> File -> Export -> Parameters -> Save as CSV</code></pre>
+                </div>
+            </section>
+
+            <section id="tools">
+                <h2>Key Features of NetworkMiner</h2>
+                <div class="command-block">
+                    <h3>Host Inventory</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Hosts tab
+# View IP, MAC, OS, open ports, and sessions
+# Export host data: File -> Export -> Hosts -> Save as CSV</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Extraction</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Files tab
+# View extracted files (e.g., images, PDFs)
+# Save files: Right-click -> Save As</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Credential Extraction</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Credentials tab
+# View usernames/passwords for supported protocols
+# Export: File -> Export -> Credentials -> Save as CSV</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Bash Automation (Linux)</h3>
+                    <pre><code>#!/bin/bash
+pcaps=("/pcap/capture1.pcap" "/pcap/capture2.pcap")
+for pcap in "${pcaps[@]}"; do
+    echo "Analyzing $pcap"
+    mono NetworkMiner.exe /pcap "$pcap" /output "$(basename $pcap .pcap)_output"
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Extract files from output directory
+find /output_directory -type f -name "*.jpg" > extracted_images.txt
+
+# Python script to parse CSV exports
+import csv
+with open('credentials.csv', 'r') as f:
+    reader = csv.reader(f)
+    for row in reader:
+        if 'password' in row[1].lower():
+            print(f"Found credential: {row[0]} - {row[1]}")</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Other Tools</h3>
+                    <pre><code># Generate PCAP with Wireshark
+tshark -i eth0 -w capture.pcap
+
+# Load PCAP into NetworkMiner
+NetworkMiner.exe capture.pcap
+
+# Chain with CapLoader for large PCAPs
+CapLoader.exe capture.pcap --export-to NetworkMiner.exe</code></pre>
+                </div>
+            </section>
+
+            <section id="specialized-techniques">
+                <h2>Specialized Forensic Techniques</h2>
+                <div class="command-block">
+                    <h3>Malware Analysis</h3>
+                    <pre><code># Load malware PCAP
+NetworkMiner.exe malware.pcap
+
+# Navigate to Files tab
+# Check for suspicious executables or scripts
+# Navigate to Credentials tab for C2 server credentials
+
+# Export for further analysis
+# Files tab -> Save As -> Analyze with external tools (e.g., REMnux)</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>OS Fingerprinting</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Hosts tab
+# View OS details (uses p0f/Satori for fingerprinting)
+# Export: File -> Export -> Hosts -> Save as CSV</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Certificate Extraction</h3>
+                    <pre><code># Load PCAP file
+NetworkMiner.exe capture.pcap
+
+# Navigate to Files tab
+# Filter for .cer or .pem files
+# Save certificates: Right-click -> Save As</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Check PCAP file integrity
+md5sum capture.pcap
+
+# Debug NetworkMiner (Linux)
+mono NetworkMiner.exe /verbose /pcap/capture.pcap > debug.log
+
+# Fix Mono errors
+sudo apt install mono-complete libmono-winforms2.0-cil
+
+# Test with sample PCAP
+NetworkMiner.exe /path/to/sample.pcap</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Monitor system resources
+top
+
+# Limit CPU usage
+cpulimit -p $(pgrep NetworkMiner) -l 50
+
+# Use CapLoader for large PCAPs
+CapLoader.exe large.pcap --export-to NetworkMiner.exe
+
+# Copy to local drive for better performance
+cp -r NetworkMiner /local/drive/</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Network Forensics</h3>
+                    <ul>
+                        <li>Extract files from HTTP/FTP sessions</li>
+                        <li>Identify credentials in network traffic</li>
+                        <li>Reconstruct network sessions</li>
+                        <li>Perform OS and host fingerprinting</li>
+                        <li>Analyze malware communication</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Investigate data exfiltration</li>
+                        <li>Detect DDoS attacks</li>
+                        <li>Analyze malware infections</li>
+                        <li>Track unauthorized data transfers</li>
+                        <li>Generate forensic reports</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use sandbox environments:</strong> Analyze malicious PCAPs in a Windows Sandbox or Linux to avoid self-infection</li>[](https://www.netresec.com/?page=NetworkMiner)
+                    <li><strong>Combine with Wireshark:</strong> Capture with Wireshark, analyze with NetworkMiner for artifact extraction</li>
+                    <li><strong>Export regularly:</strong> Save extracted files and credentials for further analysis</li>
+                    <li><strong>Filter noise:</strong> Use protocol and keyword filters to focus on relevant data</li>
+                    <li><strong>Check host inventory:</strong> Use Hosts tab for quick network overview</li>
+                    <li><strong>Avoid HTTPS limitations:</strong> Use PolarProxy for decrypting TLS traffic</li>[](https://www.netresec.com/?page=NetworkMiner)
+                    <li><strong>Monitor resources:</strong> Large PCAPs may require significant CPU and RAM</li>[](https://medium.com/%40edatetkk/networkminer-unveiling-insights-in-network-forensics-analysis-4641ca6f41fc)
+                    <li><strong>Update regularly:</strong> Check for new versions for enhanced features</li>
+                    <li><strong>Use Professional version:</strong> Consider for advanced features like TLS decryption</li>[](https://www.pentesting.org/network-forensics-guide/)
+                    <li><strong>Document findings:</strong> Save logs and exports for forensic reporting</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> NetworkMiner should only be used for:</p>
+                    <ul>
+                        <li>Analyzing network traffic from systems you own or have explicit permission to monitor</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Educational purposes in controlled environments</li>
+                        <li>Security research with institutional approval</li>
+                        <li>Incident response with documented consent</li>
+                    </ul>
+                    <p>Unauthorized use of NetworkMiner to capture or analyze network traffic without permission may violate privacy laws, computer crime laws, or other regulations. Network forensic analysis should only be performed by qualified professionals with proper authorization. Always ensure data integrity and chain of custody during investigations. Improper handling of extracted artifacts, especially malicious files, can lead to system infection or data loss. Maintain detailed documentation of all analysis activities. Follow responsible disclosure practices for any vulnerabilities or incidents discovered. Be aware that network monitoring may be logged or detected by target systems. Respect data privacy and confidentiality requirements. Ensure compliance with all relevant laws and regulations during forensic activities.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

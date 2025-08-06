@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ngrep Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../guide-styles.css" />
+  </head>
+  <body>
+    <div class="guide-container">
+      <header class="guide-header">
+        <h1>ngrep: Network Grep</h1>
+        <p>Master Network Layer Pattern Matching</p>
+        <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+      </header>
+
+      <main class="guide-content">
+        <section id="introduction">
+          <h2>What is ngrep?</h2>
+          <p>
+            ngrep (network grep) is an open-source command-line tool that
+            applies GNU grep's pattern-matching capabilities to network traffic.
+            It captures and filters packets in real-time, searching for
+            specified patterns in packet payloads or headers. ngrep is
+            lightweight, flexible, and widely used for network debugging,
+            security analysis, and troubleshooting by inspecting network traffic
+            at the packet level.
+          </p>
+        </section>
+
+        <section id="installation">
+          <h2>Installation & Setup</h2>
+          <div class="command-block">
+            <h3>Ubuntu/Debian Installation</h3>
+            <pre><code># Install ngrep
+sudo apt update
+sudo apt install ngrep
+
+# Install dependencies
+sudo apt install libpcap0.8-dev
+
+# Verify installation
+ngrep -V</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>CentOS/RHEL Installation</h3>
+            <pre><code># Install EPEL repository
+sudo yum install epel-release
+sudo yum install ngrep
+
+# Install dependencies
+sudo yum install libpcap-devel
+
+# Verify installation
+ngrep -V</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>macOS Installation</h3>
+            <pre><code># Install Homebrew (if not installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install ngrep
+brew install ngrep
+
+# Install dependencies
+brew install libpcap
+
+# Verify installation
+ngrep -V</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Building from Source</h3>
+            <pre><code># Install build tools and dependencies
+sudo apt install build-essential libpcap-dev
+
+# Download and extract source
+wget https://github.com/jpr5/ngrep/archive/master.zip
+unzip master.zip
+cd ngrep-master
+
+# Configure, build, and install
+./configure
+make
+sudo make install</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Verification</h3>
+            <pre><code># Check ngrep version
+ngrep -V
+
+# Test basic functionality
+sudo ngrep -d eth0
+
+# System Requirements:
+# - Linux, macOS, or BSD
+# - 512MB RAM
+# - 100MB free disk space
+# - Supported NIC for packet capture</code></pre>
+          </div>
+        </section>
+
+        <section id="getting-started">
+          <h2>Getting Started</h2>
+          <div class="command-block">
+            <h3>Basic Usage</h3>
+            <pre><code># Capture packets with a pattern
+sudo ngrep -d eth0 "password"
+
+# Monitor specific host
+sudo ngrep -d eth0 host 192.168.1.100
+
+# Filter by protocol and port
+sudo ngrep -d eth0 port 80 tcp
+
+# Example: Search for HTTP GET requests
+sudo ngrep -d eth0 "GET" port 80</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Common Options</h3>
+            <ul>
+              <li>
+                <strong>-d:</strong> Specify network interface (e.g., eth0)
+              </li>
+              <li><strong>-i:</strong> Case-insensitive matching</li>
+              <li>
+                <strong>-q:</strong> Quiet mode (suppress non-matching packets)
+              </li>
+              <li><strong>-t:</strong> Add timestamp to output</li>
+              <li>
+                <strong>-W:</strong> Format output (byline, normal, single)
+              </li>
+              <li><strong>-O:</strong> Save output to pcap file</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>BPF Filters</h3>
+            <pre><code># Use Berkeley Packet Filter (BPF) syntax
+sudo ngrep -d eth0 "user" tcp port 23
+
+# Filter by source and destination
+sudo ngrep -d eth0 src 192.168.1.100 and dst 10.0.0.1
+
+# Combine with protocol
+sudo ngrep -d eth0 "login" udp port 53</code></pre>
+          </div>
+        </section>
+
+        <section id="interface-overview">
+          <h2>CLI Interface Overview</h2>
+          <div class="command-block">
+            <h3>Core Commands</h3>
+            <ul>
+              <li><strong>-d:</strong> Specify interface for packet capture</li>
+              <li><strong>-q:</strong> Suppress non-matching packet output</li>
+              <li><strong>-O:</strong> Output to pcap file</li>
+              <li><strong>-I:</strong> Read from pcap file</li>
+              <li><strong>-v:</strong> Display version information</li>
+              <li><strong>-x:</strong> Hexadecimal packet dump</li>
+              <li><strong>-l:</strong> Line-buffered output</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Output Navigation</h3>
+            <ul>
+              <li>View real-time packet matches in terminal</li>
+              <li>
+                Pipe output to file: <code>sudo ngrep -q > output.txt</code>
+              </li>
+              <li>Use <code>-t</code> for timestamped output</li>
+              <li>Combine with grep for further filtering</li>
+              <li>Save packets for analysis with Wireshark</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="pattern-matching">
+          <h2>Pattern Matching</h2>
+          <div class="command-block">
+            <h3>Basic Pattern Matching</h3>
+            <pre><code># Search for specific string
+sudo ngrep -d eth0 "error" port 80
+
+# Case-insensitive search
+sudo ngrep -i -d eth0 "password"
+
+# Match multiple patterns
+sudo ngrep -d eth0 "(login|password)" tcp port 23</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Regular Expressions</h3>
+            <pre><code># Use regex for advanced matching
+sudo ngrep -d eth0 "user.*admin" port 80
+
+# Match email addresses
+sudo ngrep -d eth0 "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" tcp port 25
+
+# Match URLs
+sudo ngrep -d eth0 "http[s]?://[a-zA-Z0-9.-]+" port 80</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Header Matching</h3>
+            <pre><code># Match specific HTTP headers
+sudo ngrep -d eth0 "User-Agent:.*Mozilla" port 80
+
+# Match TCP flags
+sudo ngrep -d eth0 tcp port 22 and "SYN"</code></pre>
+          </div>
+        </section>
+
+        <section id="analysis-techniques">
+          <h2>Analysis Techniques</h2>
+          <div class="command-block">
+            <h3>Packet Inspection</h3>
+            <pre><code># Inspect HTTP traffic
+sudo ngrep -d eth0 "GET|POST" port 80
+
+# Capture and save packets
+sudo ngrep -O output.pcap -d eth0 port 80
+
+# Analyze saved packets
+sudo ngrep -I output.pcap "error"</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Protocol Analysis</h3>
+            <pre><code># Analyze DNS traffic
+sudo ngrep -d eth0 port 53 udp
+
+# Monitor FTP sessions
+sudo ngrep -d eth0 "USER|PASS" port 21 tcp
+
+# Inspect SMTP traffic
+sudo ngrep -d eth0 "MAIL FROM|RCPT TO" port 25</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Debugging</h3>
+            <pre><code># Debug network issues
+sudo ngrep -d eth0 -t -q "timeout|error"
+
+# Hex dump for detailed analysis
+sudo ngrep -x -d eth0 port 80
+
+# Combine with Wireshark
+sudo ngrep -O output.pcap -d eth0
+wireshark output.pcap</code></pre>
+          </div>
+        </section>
+
+        <section id="output-management">
+          <h2>Output Management</h2>
+          <div class="command-block">
+            <h3>Saving Output</h3>
+            <pre><code># Save to text file
+sudo ngrep -q -d eth0 port 80 > output.txt
+
+# Save to pcap file
+sudo ngrep -O capture.pcap -d eth0 port 80
+
+# Timestamped output
+sudo ngrep -t -d eth0 "error" port 80</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Formatting Output</h3>
+            <pre><code># Line-by-line output
+sudo ngrep -W byline -d eth0 port 80
+
+# Single-line output
+sudo ngrep -W single -d eth0 port 80
+
+# Hex and ASCII output
+sudo ngrep -x -d eth0 port 80</code></pre>
+          </div>
+        </section>
+
+        <section id="integration">
+          <h2>Integration with Other Tools</h2>
+          <div class="command-block">
+            <h3>Packet Analysis Tools</h3>
+            <ul>
+              <li><strong>Wireshark:</strong> Analyze saved pcap files</li>
+              <li><strong>tcpdump:</strong> Combine for advanced filtering</li>
+              <li><strong>Tshark:</strong> Scripted packet analysis</li>
+            </ul>
+            <pre><code># Save ngrep output for Wireshark
+sudo ngrep -O capture.pcap -d eth0 port 80
+wireshark capture.pcap</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>SIEM Integration</h3>
+            <ul>
+              <li><strong>ELK Stack:</strong> Pipe output to Logstash</li>
+              <li><strong>Splunk:</strong> Forward text output</li>
+              <li><strong>Graylog:</strong> Syslog integration</li>
+            </ul>
+            <pre><code># Pipe to Logstash
+sudo ngrep -q -d eth0 port 80 | logger -t ngrep</code></pre>
+          </div>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>Troubleshooting</h2>
+          <div class="command-block">
+            <h3>Common Issues</h3>
+            <pre><code># Permission errors
+# Run with sudo
+sudo ngrep -d eth0
+
+# Interface not found
+# List available interfaces
+ngrep -D
+
+# No packets captured
+# Verify interface and filter
+sudo ngrep -d any port 80
+
+# High CPU usage
+# Limit capture with specific filters
+sudo ngrep -d eth0 -q port 80</code></pre>
+          </div>
+          <div class="command-block">
+            <h3>Debugging Tips</h3>
+            <pre><code># Verbose output
+sudo ngrep -v -d eth0
+
+# Check for packet loss
+sudo ngrep -d eth0 -s 0
+
+# Save packets for analysis
+sudo ngrep -O debug.pcap -d eth0</code></pre>
+          </div>
+        </section>
+
+        <section id="best-practices">
+          <h2>Best Practices</h2>
+          <div class="command-block">
+            <h3>Filtering</h3>
+            <ul>
+              <li>Use specific BPF filters to reduce noise</li>
+              <li>Limit to relevant protocols and ports</li>
+              <li>Use case-insensitive matching when needed</li>
+              <li>Avoid overly broad patterns</li>
+              <li>Test filters before long captures</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Performance</h3>
+            <ul>
+              <li>Capture on specific interfaces</li>
+              <li>Use quiet mode (-q) for efficiency</li>
+              <li>Limit packet size with -s option</li>
+              <li>Save to pcap for offline analysis</li>
+              <li>Monitor system resources</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Security</h3>
+            <ul>
+              <li>Restrict access to captured data</li>
+              <li>Run with least privilege where possible</li>
+              <li>Secure pcap and log files</li>
+              <li>Avoid capturing sensitive data unnecessarily</li>
+              <li>Encrypt stored captures</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="use-cases">
+          <h2>Common Use Cases</h2>
+          <div class="command-block">
+            <h3>Network Debugging</h3>
+            <ul>
+              <li>Diagnose HTTP request issues</li>
+              <li>Troubleshoot DNS resolution</li>
+              <li>Inspect protocol handshakes</li>
+              <li>Monitor API traffic</li>
+              <li>Debug application connectivity</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Security Analysis</h3>
+            <ul>
+              <li>Detect plaintext credentials</li>
+              <li>Identify suspicious patterns</li>
+              <li>Monitor for malware communication</li>
+              <li>Analyze phishing attempts</li>
+              <li>Investigate data leaks</li>
+            </ul>
+          </div>
+          <div class="command-block">
+            <h3>Network Monitoring</h3>
+            <ul>
+              <li>Track specific user activity</li>
+              <li>Monitor server responses</li>
+              <li>Analyze traffic patterns</li>
+              <li>Verify firewall rules</li>
+              <li>Log specific protocol traffic</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="tips">
+          <h2>Pro Tips & Best Practices</h2>
+          <ul>
+            <li>
+              <strong>Use specific filters:</strong> Narrow down traffic to
+              reduce noise
+            </li>
+            <li>
+              <strong>Save captures:</strong> Store pcap files for detailed
+              analysis
+            </li>
+            <li>
+              <strong>Combine tools:</strong> Use with Wireshark or tcpdump
+            </li>
+            <li><strong>Test patterns:</strong> Validate regex before use</li>
+            <li>
+              <strong>Automate monitoring:</strong> Script repetitive tasks
+            </li>
+            <li>
+              <strong>Stay focused:</strong> Target specific protocols or hosts
+            </li>
+            <li>
+              <strong>Learn regex:</strong> Master regular expressions for
+              advanced matching
+            </li>
+          </ul>
+        </section>
+
+        <section id="legal-disclaimer">
+          <h2>Legal Disclaimer</h2>
+          <div class="command-block">
+            <p><strong>WARNING:</strong> ngrep should only be used for:</p>
+            <ul>
+              <li>Monitoring networks with proper authorization</li>
+              <li>Debugging in controlled environments</li>
+              <li>Security analysis with consent</li>
+              <li>Educational purposes with permission</li>
+              <li>Authorized incident response activities</li>
+            </ul>
+            <p>
+              Unauthorized packet capturing or network monitoring may violate
+              privacy laws, computer crime statutes, and other regulations.
+              Ensure compliance with applicable laws, organizational policies,
+              and ethical guidelines. Obtain proper authorization before using
+              ngrep on any network. Be aware of data protection and privacy
+              requirements in your jurisdiction.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

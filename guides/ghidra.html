@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghidra Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Ghidra: NSA's Software Reverse Engineering Framework</h1>
+            <p>Master Binary Analysis and Reverse Engineering</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Ghidra?</h2>
+                <p>Ghidra is a software reverse engineering (SRE) framework created and maintained by the National Security Agency (NSA). It includes a suite of full-featured, high-end software analysis tools that enable users to analyze compiled code on a variety of platforms including Windows, macOS, and Linux. Capabilities include disassembly, assembly, decompilation, graphing, and scripting, along with hundreds of other features.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Prerequisites</h3>
+                    <pre><code># Java 11+ required
+java -version
+
+# Install OpenJDK 11 (Ubuntu/Debian)
+sudo apt update && sudo apt install openjdk-11-jdk
+
+# Install OpenJDK 11 (CentOS/RHEL)
+sudo yum install java-11-openjdk-devel</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Download and Install</h3>
+                    <pre><code># Download from https://ghidra-sre.org/
+# Extract the archive
+unzip ghidra_10.4_PUBLIC_20230928.zip
+cd ghidra_10.4_PUBLIC
+
+# Launch Ghidra
+./ghidraRun
+
+# Windows
+ghidraRun.bat</code></pre>
+                </div>
+            </section>
+
+            <section id="getting-started">
+                <h2>Getting Started</h2>
+                <div class="command-block">
+                    <h3>Creating a Project</h3>
+                    <p>1. Launch Ghidra</p>
+                    <p>2. File → New Project</p>
+                    <p>3. Choose "Non-Shared Project"</p>
+                    <p>4. Select project directory and name</p>
+                    <p>5. Click "Finish"</p>
+                </div>
+                <div class="command-block">
+                    <h3>Importing a Binary</h3>
+                    <p>1. File → Import File</p>
+                    <p>2. Select your binary file</p>
+                    <p>3. Review import options (usually defaults are fine)</p>
+                    <p>4. Click "OK" to import</p>
+                    <p>5. Double-click the imported file to open in CodeBrowser</p>
+                </div>
+            </section>
+
+            <section id="interface">
+                <h2>Interface Overview</h2>
+                <div class="command-block">
+                    <h3>Main Windows</h3>
+                    <ul>
+                        <li><strong>Program Tree:</strong> Shows program structure and memory layout</li>
+                        <li><strong>Listing:</strong> Disassembly view with addresses, bytes, and mnemonics</li>
+                        <li><strong>Decompiler:</strong> C-like pseudocode representation</li>
+                        <li><strong>Symbol Tree:</strong> Functions, labels, and symbols</li>
+                        <li><strong>Data Type Manager:</strong> Data structures and types</li>
+                        <li><strong>Console:</strong> Script output and messages</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Navigation</h3>
+                    <pre><code># Go to address
+Ctrl+G or Navigation → Go To...
+
+# Go to function
+Ctrl+Shift+G
+
+# Back/Forward navigation
+Alt+Left / Alt+Right
+
+# Search for text
+Ctrl+Shift+E
+
+# Search for instruction patterns
+Search → For Instruction Patterns</code></pre>
+                </div>
+            </section>
+
+            <section id="analysis">
+                <h2>Analysis Features</h2>
+                <div class="command-block">
+                    <h3>Auto Analysis</h3>
+                    <p>When you first open a binary, Ghidra will prompt to run auto-analysis:</p>
+                    <ul>
+                        <li><strong>Disassemble:</strong> Convert machine code to assembly</li>
+                        <li><strong>Create Functions:</strong> Identify function boundaries</li>
+                        <li><strong>Decompile:</strong> Generate C-like pseudocode</li>
+                        <li><strong>Find Strings:</strong> Locate ASCII and Unicode strings</li>
+                        <li><strong>Analyze Stack:</strong> Identify stack variables and parameters</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Manual Analysis</h3>
+                    <pre><code># Create function at cursor
+F (or right-click → Create Function)
+
+# Disassemble at cursor
+D
+
+# Create data at cursor
+B (byte), W (word), DW (dword), QW (qword)
+
+# Create string at cursor
+Right-click → Data → Choose string type
+
+# Set function signature
+Right-click function → Edit Function Signature</code></pre>
+                </div>
+            </section>
+
+            <section id="decompiler">
+                <h2>Using the Decompiler</h2>
+                <div class="command-block">
+                    <h3>Decompiler Features</h3>
+                    <ul>
+                        <li><strong>Automatic decompilation:</strong> Converts assembly to C-like code</li>
+                        <li><strong>Variable recovery:</strong> Identifies local variables and parameters</li>
+                        <li><strong>Type propagation:</strong> Infers data types from usage</li>
+                        <li><strong>Control flow recovery:</strong> Reconstructs if/else, loops, switches</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Improving Decompilation</h3>
+                    <pre><code># Rename variables
+Right-click variable → Rename Variable
+
+# Change variable type
+Right-click variable → Retype Variable
+
+# Set function return type
+Right-click function → Edit Function Signature
+
+# Create structure
+Data Type Manager → Right-click → New → Structure
+
+# Apply structure to data
+Right-click data → Data → Choose structure</code></pre>
+                </div>
+            </section>
+
+            <section id="scripting">
+                <h2>Scripting & Automation</h2>
+                <div class="command-block">
+                    <h3>Built-in Scripts</h3>
+                    <pre><code># Access Script Manager
+Window → Script Manager
+
+# Popular built-in scripts:
+- FindCrypt: Find cryptographic constants
+- ExportSymbolsScript: Export symbols to file
+- FindPotentialCorruptionScript: Find buffer overflows
+- FixupELFExternalSymbolsScript: Fix ELF symbols</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Python Scripting Example</h3>
+                    <pre><code># Simple script to find all strings
+from ghidra.program.model.data import StringDataType
+
+# Get current program
+program = getCurrentProgram()
+listing = program.getListing()
+
+# Find all defined strings
+strings = listing.getDefinedData(True)
+for data in strings:
+    if isinstance(data.getDataType(), StringDataType):
+        print("String at {}: {}".format(data.getAddress(), data.getValue()))</code></pre>
+                </div>
+            </section>
+
+            <section id="malware-analysis">
+                <h2>Malware Analysis Workflow</h2>
+                <div class="command-block">
+                    <h3>Initial Analysis</h3>
+                    <ol>
+                        <li><strong>Import sample:</strong> Load malware binary into Ghidra</li>
+                        <li><strong>Run auto-analysis:</strong> Let Ghidra analyze the binary</li>
+                        <li><strong>Check strings:</strong> Look for URLs, file paths, registry keys</li>
+                        <li><strong>Identify entry point:</strong> Find main function or DllMain</li>
+                        <li><strong>Map imports:</strong> Check what APIs the malware uses</li>
+                    </ol>
+                </div>
+                <div class="command-block">
+                    <h3>Finding Interesting Functions</h3>
+                    <pre><code># Search for specific API calls
+Search → For Strings → "CreateFile"
+Search → For Strings → "RegSetValue"
+Search → For Strings → "InternetOpen"
+
+# Look for crypto functions
+Window → Script Manager → FindCrypt
+
+# Find cross-references
+Right-click function → References → Show References to</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Analyzing Obfuscation</h3>
+                    <ul>
+                        <li><strong>String obfuscation:</strong> Look for XOR loops or decryption routines</li>
+                        <li><strong>API hashing:</strong> Check for hash-based API resolution</li>
+                        <li><strong>Control flow obfuscation:</strong> Identify junk code and fake jumps</li>
+                        <li><strong>Packing:</strong> Look for unpacking stubs and compressed sections</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="advanced-features">
+                <h2>Advanced Features</h2>
+                <div class="command-block">
+                    <h3>Version Tracking</h3>
+                    <p>Compare different versions of the same binary:</p>
+                    <ul>
+                        <li>Tools → Version Tracking</li>
+                        <li>Add source and destination programs</li>
+                        <li>Run correlators to find matches</li>
+                        <li>Accept matches to transfer analysis</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Collaborative Analysis</h3>
+                    <p>Share analysis with team members:</p>
+                    <ul>
+                        <li>File → Add to Version Control</li>
+                        <li>Set up Ghidra Server for team collaboration</li>
+                        <li>Check in/out files for concurrent analysis</li>
+                        <li>Merge changes from multiple analysts</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Processor Modules</h3>
+                    <p>Ghidra supports many architectures:</p>
+                    <ul>
+                        <li>x86/x64, ARM, MIPS, PowerPC</li>
+                        <li>8051, AVR, PIC, Z80</li>
+                        <li>Custom processors via SLEIGH</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="debugging">
+                <h2>Debugging Integration</h2>
+                <div class="command-block">
+                    <h3>GDB Integration</h3>
+                    <pre><code># Install GDB connector
+Window → Debugger
+
+# Connect to GDB
+Debugger → Connect → gdb via SSH
+
+# Set breakpoints in Ghidra
+Right-click address → Set Breakpoint
+
+# Sync with live debugging session
+Debugger → Auto-Sync Cursor with Dynamic Listing</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Start with auto-analysis:</strong> Let Ghidra do the heavy lifting first</li>
+                    <li><strong>Use bookmarks:</strong> Mark important locations for easy navigation</li>
+                    <li><strong>Rename everything:</strong> Give meaningful names to functions and variables</li>
+                    <li><strong>Create structures:</strong> Define data structures for better decompilation</li>
+                    <li><strong>Use comments liberally:</strong> Document your analysis findings</li>
+                    <li><strong>Learn keyboard shortcuts:</strong> Speeds up analysis significantly</li>
+                    <li><strong>Export analysis:</strong> Save your work and share with others</li>
+                    <li><strong>Use scripts:</strong> Automate repetitive analysis tasks</li>
+                </ul>
+            </section>
+
+            <section id="keyboard-shortcuts">
+                <h2>Essential Keyboard Shortcuts</h2>
+                <div class="command-block">
+                    <h3>Navigation</h3>
+                    <pre><code>Ctrl+G          Go to address
+Ctrl+Shift+G    Go to function
+Alt+Left/Right  Navigate back/forward
+G               Go to next/previous function
+Ctrl+E          Search memory
+Ctrl+Shift+E    Search for text</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Analysis</h3>
+                    <pre><code>D               Disassemble
+F               Create function
+L               Add label
+;               Add comment
+Ctrl+L          Rename
+B/W/DW/QW       Create byte/word/dword/qword
+Ctrl+Shift+R    Show references</code></pre>
+                </div>
+            </section>
+
+            <section id="resources">
+                <h2>Additional Resources</h2>
+                <div class="command-block">
+                    <h3>Learning Materials</h3>
+                    <ul>
+                        <li><strong>Official Documentation:</strong> ghidra-sre.org</li>
+                        <li><strong>NSA Ghidra Course:</strong> Available on GitHub</li>
+                        <li><strong>Ghidra Book:</strong> "The Ghidra Book" by Chris Eagle and Kara Nance</li>
+                        <li><strong>YouTube Tutorials:</strong> Search for "Ghidra malware analysis"</li>
+                        <li><strong>Practice Binaries:</strong> Crackmes.one, malware samples</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

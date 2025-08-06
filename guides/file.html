@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Command Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>File Command: File Type Detection Tool</h1>
+            <p>Master File Analysis and Type Identification</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is the File Command?</h2>
+                <p>The file command is a standard Unix utility that determines file types by examining file contents rather than relying on file extensions. It uses magic numbers, file signatures, and content analysis to identify file formats accurately. In cybersecurity and digital forensics, the file command is essential for detecting file type spoofing, identifying malware disguised as legitimate files, analyzing unknown file formats, and verifying file integrity. It's particularly valuable when file extensions have been changed to hide malicious content.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Usually pre-installed on all Linux distributions
+file --version
+
+# If not installed (very rare):
+# Ubuntu/Debian
+sudo apt update
+sudo apt install file
+
+# CentOS/RHEL/Fedora
+sudo yum install file
+# or
+sudo dnf install file
+
+# Arch Linux
+sudo pacman -S file</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Option 1: Windows Subsystem for Linux (WSL)
+# Install Ubuntu on WSL, file command is included
+
+# Option 2: Git for Windows
+# Includes file utility in Git Bash
+
+# Option 3: MSYS2/MinGW
+# Install MSYS2, then:
+pacman -S file
+
+# Option 4: Cygwin
+# Install Cygwin with file package</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Pre-installed on macOS
+file --version
+
+# Update via Homebrew (optional)
+brew install file</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verification</h3>
+                    <pre><code># Check installation
+file --version
+
+# Display help
+file --help
+
+# Test basic functionality
+echo "Hello World" > test.txt
+file test.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Simple File Identification</h3>
+                    <pre><code># Identify single file
+file document.pdf
+
+# Identify multiple files
+file *.exe
+
+# Identify all files in directory
+file /path/to/directory/*
+
+# Recursive identification
+find /path/to/directory -type f -exec file {} \;</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Options</h3>
+                    <pre><code># Brief output (no filename)
+file -b document.pdf
+
+# MIME type output
+file -i document.pdf
+file --mime-type document.pdf
+
+# MIME encoding
+file --mime-encoding document.pdf
+
+# Combined MIME information
+file --mime document.pdf
+
+# Machine-readable output
+file -r document.pdf</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Special File Types</h3>
+                    <pre><code># Follow symbolic links
+file -L symlink_file
+
+# Don't follow symbolic links (default)
+file -h symlink_file
+
+# Examine compressed files
+file -z compressed_file.gz
+
+# Look inside tar archives
+file -t archive.tar</code></pre>
+                </div>
+            </section>
+
+            <section id="forensic-analysis">
+                <h2>Forensic Analysis</h2>
+                <div class="command-block">
+                    <h3>File Type Verification</h3>
+                    <pre><code># Verify file extension matches content
+file suspicious_document.pdf
+file malware.txt
+file image.jpg
+
+# Check for file type spoofing
+for f in *; do
+    echo "File: $f"
+    echo "Extension suggests: $(echo $f | sed 's/.*\.//')"
+    echo "Actual type: $(file -b $f)"
+    echo "---"
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Malware Detection</h3>
+                    <pre><code># Identify executables disguised as documents
+file *.pdf *.doc *.txt | grep -i executable
+
+# Find PE files with wrong extensions
+file * | grep -i "pe32\|ms-dos executable"
+
+# Detect packed executables
+file suspicious.exe | grep -i "packed\|upx\|compressed"
+
+# Identify script files
+file * | grep -i "script\|batch\|shell"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Evidence Analysis</h3>
+                    <pre><code># Analyze disk images
+file disk_image.dd
+
+# Examine memory dumps
+file memory_dump.raw
+
+# Identify unknown file formats
+file unknown_file.bin
+
+# Check for encrypted files
+file * | grep -i "encrypted\|pgp\|gpg"</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-options">
+                <h2>Advanced Options</h2>
+                <div class="command-block">
+                    <h3>Magic File Customization</h3>
+                    <pre><code># Use custom magic file
+file -m /path/to/custom/magic file_to_analyze
+
+# Show which magic file is being used
+file --version
+
+# List available magic files
+file -l
+
+# Compile magic file
+file -C -m custom_magic_file</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Detailed Analysis</h3>
+                    <pre><code># Show all matching magic patterns
+file -k file_to_analyze
+
+# Exclude specific tests
+file -e apptype file_to_analyze
+file -e ascii file_to_analyze
+file -e encoding file_to_analyze
+
+# Raw output (no interpretation)
+file -r file_to_analyze
+
+# Print debugging information
+file -d file_to_analyze</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Options</h3>
+                    <pre><code># Limit bytes read
+file -P bytes=1024 large_file.bin
+
+# Skip file system checks
+file -s device_file
+
+# Force file type checking
+file -f file_list.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="batch-analysis">
+                <h2>Batch Analysis</h2>
+                <div class="command-block">
+                    <h3>Directory Analysis</h3>
+                    <pre><code># Analyze all files in directory
+find /path/to/analyze -type f -exec file {} \; > file_analysis.txt
+
+# Group by file type
+find /path/to/analyze -type f -exec file {} \; | awk -F: '{print $2}' | sort | uniq -c | sort -nr
+
+# Find specific file types
+find /path/to/analyze -type f -exec file {} \; | grep -i "executable"
+find /path/to/analyze -type f -exec file {} \; | grep -i "image"
+find /path/to/analyze -type f -exec file {} \; | grep -i "archive"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Suspicious File Detection</h3>
+                    <pre><code># Find files with mismatched extensions
+#!/bin/bash
+for f in $(find /path/to/analyze -type f); do
+    ext=$(echo "$f" | sed 's/.*\.//' | tr '[:upper:]' '[:lower:]')
+    type=$(file -b "$f" | tr '[:upper:]' '[:lower:]')
+    
+    case "$ext" in
+        "pdf") echo "$type" | grep -q "pdf" || echo "MISMATCH: $f" ;;
+        "jpg"|"jpeg") echo "$type" | grep -q "jpeg\|jpg" || echo "MISMATCH: $f" ;;
+        "exe") echo "$type" | grep -q "executable\|pe32" || echo "MISMATCH: $f" ;;
+        "txt") echo "$type" | grep -q "text" || echo "MISMATCH: $f" ;;
+    esac
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Statistical Analysis</h3>
+                    <pre><code># File type distribution
+find /path/to/analyze -type f -exec file -b {} \; | sort | uniq -c | sort -nr > file_type_stats.txt
+
+# MIME type analysis
+find /path/to/analyze -type f -exec file --mime-type {} \; | awk -F: '{print $2}' | sort | uniq -c | sort -nr
+
+# Encoding analysis
+find /path/to/analyze -type f -exec file --mime-encoding {} \; | awk -F: '{print $2}' | sort | uniq -c | sort -nr</code></pre>
+                </div>
+            </section>
+
+            <section id="malware-analysis">
+                <h2>Malware Analysis</h2>
+                <div class="command-block">
+                    <h3>Executable Analysis</h3>
+                    <pre><code># Identify executable types
+file malware_sample.exe
+
+# Check for packing/obfuscation
+file packed_malware.exe | grep -i "packed\|upx\|compressed\|encrypted"
+
+# Analyze DLL files
+file *.dll | grep -i "dynamic\|library"
+
+# Identify script-based malware
+file *.js *.vbs *.ps1 *.bat *.cmd</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Document Malware</h3>
+                    <pre><code># Check Office documents for macros
+file document.docm | grep -i "macro"
+file spreadsheet.xlsm | grep -i "macro"
+
+# Identify PDF with embedded content
+file suspicious.pdf | grep -i "pdf"
+
+# Check for embedded executables
+file document.pdf | grep -i "executable\|pe32"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Archive Analysis</h3>
+                    <pre><code># Identify archive types
+file suspicious_archive.zip
+file malware.rar
+file trojan.7z
+
+# Check for self-extracting archives
+file sfx_malware.exe | grep -i "self-extracting\|sfx"
+
+# Analyze compressed executables
+file -z compressed_malware.gz</code></pre>
+                </div>
+            </section>
+
+            <section id="network-forensics">
+                <h2>Network Forensics</h2>
+                <div class="command-block">
+                    <h3>Packet Capture Analysis</h3>
+                    <pre><code># Identify capture file formats
+file network_capture.pcap
+file traffic_dump.pcapng
+file wireless_capture.cap
+
+# Check for encrypted captures
+file encrypted_capture.pcap | grep -i "encrypted"
+
+# Analyze network logs
+file *.log | grep -i "ascii\|text"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Downloaded File Analysis</h3>
+                    <pre><code># Analyze files from web downloads
+for f in ~/Downloads/*; do
+    echo "File: $(basename "$f")"
+    echo "Type: $(file -b "$f")"
+    echo "MIME: $(file --mime-type -b "$f")"
+    echo "---"
+done
+
+# Check for disguised executables
+file ~/Downloads/* | grep -i "executable" | grep -v "\.exe:"</code></pre>
+                </div>
+            </section>
+
+            <section id="mobile-forensics">
+                <h2>Mobile Forensics</h2>
+                <div class="command-block">
+                    <h3>Mobile App Analysis</h3>
+                    <pre><code># Identify Android APK files
+file *.apk
+
+# Check iOS app bundles
+file -r *.ipa
+
+# Analyze mobile databases
+file *.db *.sqlite *.sqlite3
+
+# Check mobile backup files
+file *.backup *.bak</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Mobile Image Analysis</h3>
+                    <pre><code># Identify mobile device images
+file mobile_dump.dd
+file android_image.img
+file ios_backup.dmg
+
+# Check for encrypted mobile backups
+file *.backup | grep -i "encrypted"</code></pre>
+                </div>
+            </section>
+
+            <section id="automation-scripting">
+                <h2>Automation & Scripting</h2>
+                <div class="command-block">
+                    <h3>Comprehensive Analysis Script</h3>
+                    <pre><code>#!/bin/bash
+# Comprehensive file analysis script
+
+DIRECTORY="$1"
+OUTPUT_FILE="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <directory_to_analyze> <output_file>"
+    exit 1
+fi
+
+echo "=== File Analysis Report ===" > "$OUTPUT_FILE"
+echo "Directory: $DIRECTORY" >> "$OUTPUT_FILE"
+echo "Analysis Date: $(date)" >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+
+# Count total files
+TOTAL_FILES=$(find "$DIRECTORY" -type f | wc -l)
+echo "Total Files Analyzed: $TOTAL_FILES" >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+
+# File type distribution
+echo "=== File Type Distribution ===" >> "$OUTPUT_FILE"
+find "$DIRECTORY" -type f -exec file -b {} \; | sort | uniq -c | sort -nr >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+
+# MIME type distribution
+echo "=== MIME Type Distribution ===" >> "$OUTPUT_FILE"
+find "$DIRECTORY" -type f -exec file --mime-type -b {} \; | sort | uniq -c | sort -nr >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+
+# Suspicious files (extension mismatch)
+echo "=== Potential Extension Mismatches ===" >> "$OUTPUT_FILE"
+find "$DIRECTORY" -type f | while read f; do
+    ext=$(echo "$f" | sed 's/.*\.//' | tr '[:upper:]' '[:lower:]')
+    type=$(file -b "$f" | tr '[:upper:]' '[:lower:]')
+    
+    case "$ext" in
+        "txt") echo "$type" | grep -q "text" || echo "MISMATCH: $f - $type" ;;
+        "pdf") echo "$type" | grep -q "pdf" || echo "MISMATCH: $f - $type" ;;
+        "jpg"|"jpeg") echo "$type" | grep -q "jpeg" || echo "MISMATCH: $f - $type" ;;
+        "exe") echo "$type" | grep -q "executable\|pe32" || echo "MISMATCH: $f - $type" ;;
+    esac
+done >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+
+# Executable files
+echo "=== Executable Files ===" >> "$OUTPUT_FILE"
+find "$DIRECTORY" -type f -exec file {} \; | grep -i "executable" >> "$OUTPUT_FILE"
+echo "" >> "$OUTPUT_FILE"
+
+# Archive files
+echo "=== Archive Files ===" >> "$OUTPUT_FILE"
+find "$DIRECTORY" -type f -exec file {} \; | grep -i "archive\|zip\|rar\|tar" >> "$OUTPUT_FILE"
+
+echo "Analysis completed. Results saved to $OUTPUT_FILE"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Malware Detection Script</h3>
+                    <pre><code>#!/bin/bash
+# Automated malware detection using file command
+
+SCAN_DIR="$1"
+REPORT_FILE="$2"
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <directory_to_scan> <report_file>"
+    exit 1
+fi
+
+echo "=== Malware Detection Report ===" > "$REPORT_FILE"
+echo "Scan Directory: $SCAN_DIR" >> "$REPORT_FILE"
+echo "Scan Date: $(date)" >> "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+
+# Find disguised executables
+echo "=== Disguised Executables ===" >> "$REPORT_FILE"
+find "$SCAN_DIR" -type f ! -name "*.exe" ! -name "*.com" ! -name "*.scr" -exec file {} \; | grep -i "executable\|pe32" >> "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+
+# Find packed executables
+echo "=== Packed/Compressed Executables ===" >> "$REPORT_FILE"
+find "$SCAN_DIR" -type f -exec file {} \; | grep -i "packed\|upx\|compressed" | grep -i "executable" >> "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+
+# Find script files
+echo "=== Script Files ===" >> "$REPORT_FILE"
+find "$SCAN_DIR" -type f -exec file {} \; | grep -i "script\|batch" >> "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+
+# Find documents with macros
+echo "=== Documents with Potential Macros ===" >> "$REPORT_FILE"
+find "$SCAN_DIR" -name "*.docm" -o -name "*.xlsm" -o -name "*.pptm" -exec file {} \; >> "$REPORT_FILE"
+echo "" >> "$REPORT_FILE"
+
+# Find self-extracting archives
+echo "=== Self-Extracting Archives ===" >> "$REPORT_FILE"
+find "$SCAN_DIR" -type f -exec file {} \; | grep -i "self-extracting\|sfx" >> "$REPORT_FILE"
+
+echo "Malware scan completed. Report saved to $REPORT_FILE"</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Integration with Strings</h3>
+                    <pre><code># Combine file type detection with string analysis
+file suspicious.exe
+if file suspicious.exe | grep -q "executable"; then
+    echo "Analyzing strings in executable:"
+    strings suspicious.exe | head -20
+fi</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Hexdump</h3>
+                    <pre><code># Verify file type with hex analysis
+file unknown_file.bin
+echo "Hex signature:"
+hexdump -C -n 16 unknown_file.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Integration with Hash Tools</h3>
+                    <pre><code># File type and hash analysis
+for f in *.exe; do
+    echo "File: $f"
+    echo "Type: $(file -b "$f")"
+    echo "MD5: $(md5sum "$f" | cut -d' ' -f1)"
+    echo "SHA256: $(sha256sum "$f" | cut -d' ' -f1)"
+    echo "---"
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="custom-magic">
+                <h2>Custom Magic Files</h2>
+                <div class="command-block">
+                    <h3>Creating Custom Magic</h3>
+                    <pre><code># Create custom magic file
+cat > custom_magic << 'EOF'
+# Custom magic for specific file types
+0    string    CUSTOM_SIG    Custom file format
+0    belong    0x12345678    Custom binary format
+16   string    MALWARE       Potential malware signature
+EOF
+
+# Compile custom magic
+file -C -m custom_magic
+
+# Use custom magic
+file -m custom_magic unknown_file.bin</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Malware-Specific Magic</h3>
+                    <pre><code># Create malware detection magic
+cat > malware_magic << 'EOF'
+# Malware-specific signatures
+0    string    \x4d\x5a\x90\x00\x03    Potential packed PE
+0    string    UPX!                    UPX packed executable
+0    string    \x60\xbe\x00            Common shellcode pattern
+16   string    This\ program\ cannot   Standard PE error message
+EOF
+
+# Use for malware detection
+file -m malware_magic suspicious_files/*</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># File not found or permission denied
+ls -la file_to_analyze
+chmod +r file_to_analyze
+
+# Magic file issues
+file --version  # Check magic file location
+file -l         # List available magic files
+
+# Large file handling
+file -P bytes=1024 large_file.bin
+
+# Symbolic link issues
+file -L symlink_file  # Follow links
+file -h symlink_file  # Don't follow links</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Speed up analysis for large directories
+find /large/directory -type f -print0 | xargs -0 -n 100 file
+
+# Limit file reading
+file -P bytes=512 *.bin
+
+# Skip certain file types
+find /directory -type f ! -name "*.log" -exec file {} \;</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>File type verification and validation</li>
+                        <li>Detection of file extension spoofing</li>
+                        <li>Analysis of unknown file formats</li>
+                        <li>Evidence integrity checking</li>
+                        <li>Disk image content analysis</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Malware Analysis</h3>
+                    <ul>
+                        <li>Identification of disguised executables</li>
+                        <li>Detection of packed or obfuscated malware</li>
+                        <li>Analysis of document-based malware</li>
+                        <li>Script malware identification</li>
+                        <li>Archive-based threat detection</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>System Administration</h3>
+                    <ul>
+                        <li>File system integrity checking</li>
+                        <li>Backup verification</li>
+                        <li>Data migration validation</li>
+                        <li>Log file analysis</li>
+                        <li>Configuration file identification</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Don't trust extensions:</strong> Always verify file types with content analysis</li>
+                    <li><strong>Use MIME types:</strong> --mime option provides standardized type information</li>
+                    <li><strong>Combine with other tools:</strong> Use with strings, hexdump, and hash tools</li>
+                    <li><strong>Create custom magic:</strong> Develop signatures for specific threats or formats</li>
+                    <li><strong>Batch analysis:</strong> Process large datasets efficiently with scripts</li>
+                    <li><strong>Document findings:</strong> Keep detailed records of file type analysis</li>
+                    <li><strong>Stay updated:</strong> Keep magic files current for new file formats</li>
+                    <li><strong>Verify results:</strong> Cross-check with multiple analysis methods</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> The file command should only be used for:</p>
+                    <ul>
+                        <li>Analyzing files you own or have permission to examine</li>
+                        <li>Authorized security research and malware analysis</li>
+                        <li>Digital forensics investigations with proper legal authority</li>
+                        <li>System administration tasks within your organization</li>
+                        <li>Educational purposes in controlled environments</li>
+                    </ul>
+                    <p>Unauthorized file analysis may violate privacy laws, computer crime statutes, and other regulations. Always ensure you have proper authorization before analyzing files that don't belong to you. Respect intellectual property rights and comply with applicable laws and regulations. File analysis may reveal sensitive information that must be handled appropriately according to privacy laws and data protection requirements.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

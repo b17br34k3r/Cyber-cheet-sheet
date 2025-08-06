@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amass Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Amass: Attack Surface Mapping</h1>
+            <p>Master Network Mapping and External Asset Discovery</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Amass?</h2>
+                <p>The OWASP Amass Project performs network mapping of attack surfaces and external asset discovery using open source information gathering and active reconnaissance techniques. Amass uses information from DNS records, web archives, search engines, certificate transparency logs, and many other sources to build a comprehensive map of an organization's attack surface. It's designed for security professionals, penetration testers, and bug bounty hunters who need to understand the full scope of an organization's external presence.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Download from GitHub releases
+wget https://github.com/OWASP/Amass/releases/download/v3.23.3/amass_linux_amd64.zip
+unzip amass_linux_amd64.zip
+sudo mv amass_linux_amd64/amass /usr/local/bin/
+
+# Using Snap
+sudo snap install amass
+
+# Build from source
+git clone https://github.com/OWASP/Amass.git
+cd Amass
+make build
+sudo cp ./amass /usr/local/bin/
+
+# Verify installation
+amass version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Using Homebrew
+brew install amass
+
+# Download binary
+wget https://github.com/OWASP/Amass/releases/download/v3.23.3/amass_darwin_amd64.zip
+unzip amass_darwin_amd64.zip
+sudo mv amass_darwin_amd64/amass /usr/local/bin/
+
+# Verify installation
+amass version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download from GitHub releases
+# https://github.com/OWASP/Amass/releases/download/v3.23.3/amass_windows_amd64.zip
+
+# Extract and add to PATH
+# Or run directly: amass.exe
+
+# Using Chocolatey
+choco install amass
+
+# Verify installation
+amass.exe version</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull Amass Docker image
+docker pull caffix/amass
+
+# Run basic enumeration
+docker run --rm caffix/amass enum -d example.com
+
+# Run with custom config
+docker run --rm -v $(pwd)/config.ini:/config.ini caffix/amass enum -config /config.ini -d example.com</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Subdomain Enumeration</h3>
+                    <pre><code># Basic subdomain enumeration
+amass enum -d example.com
+
+# Save results to file
+amass enum -d example.com -o subdomains.txt
+
+# Verbose output
+amass enum -d example.com -v
+
+# Include IP addresses
+amass enum -d example.com -ip</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Multiple Domains</h3>
+                    <pre><code># Enumerate multiple domains
+amass enum -d example.com,test.com,demo.com
+
+# From domain list file
+amass enum -df domains.txt
+
+# Exclude subdomains
+amass enum -d example.com -blf blacklist.txt
+
+# Include specific subdomains
+amass enum -d example.com -wl wordlist.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Output Options</h3>
+                    <pre><code># JSON output
+amass enum -d example.com -json results.json
+
+# Directory output
+amass enum -d example.com -dir ./amass_output
+
+# Log file
+amass enum -d example.com -log amass.log
+
+# Configuration file
+amass enum -d example.com -config config.ini</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-enumeration">
+                <h2>Advanced Enumeration</h2>
+                <div class="command-block">
+                    <h3>Active vs Passive</h3>
+                    <pre><code># Passive enumeration only (default)
+amass enum -d example.com -passive
+
+# Active enumeration (includes DNS queries)
+amass enum -d example.com -active
+
+# Brute force enumeration
+amass enum -d example.com -brute
+
+# Include altered names
+amass enum -d example.com -alts</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Data Sources</h3>
+                    <pre><code># List available data sources
+amass enum -list
+
+# Include specific sources
+amass enum -d example.com -src virustotal,crtsh,google
+
+# Exclude specific sources
+amass enum -d example.com -exclude censys,shodan
+
+# Maximum DNS queries per minute
+amass enum -d example.com -freq 100</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scope Control</h3>
+                    <pre><code># Include related domains
+amass enum -d example.com -include example.org,example.net
+
+# Maximum depth for subdomain discovery
+amass enum -d example.com -max-depth 3
+
+# Minimum word length for brute force
+amass enum -d example.com -brute -min-for-recursive 3</code></pre>
+                </div>
+            </section>
+
+            <section id="intel-gathering">
+                <h2>Intelligence Gathering</h2>
+                <div class="command-block">
+                    <h3>Intel Command</h3>
+                    <pre><code># Gather intelligence on organization
+amass intel -org "Example Corp"
+
+# Search by ASN
+amass intel -asn 12345
+
+# Search by IP range
+amass intel -cidr 192.168.1.0/24
+
+# Search by domain
+amass intel -d example.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Reverse Whois</h3>
+                    <pre><code># Reverse whois lookup
+amass intel -whois -d example.com
+
+# Search by email
+amass intel -whois -email admin@example.com
+
+# Search by organization
+amass intel -org "Example Corporation" -whois</code></pre>
+                </div>
+            </section>
+
+            <section id="visualization">
+                <h2>Visualization and Analysis</h2>
+                <div class="command-block">
+                    <h3>Visualization</h3>
+                    <pre><code># Generate visualization
+amass viz -d3 -dir ./amass_output
+
+# Generate Gephi file
+amass viz -gephi -dir ./amass_output
+
+# Generate Graphistry file
+amass viz -graphistry -dir ./amass_output
+
+# Generate Maltego file
+amass viz -maltego -dir ./amass_output</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Database Operations</h3>
+                    <pre><code># Show database summary
+amass db -dir ./amass_output -summary
+
+# List discovered names
+amass db -dir ./amass_output -names
+
+# Show discovered IPs
+amass db -dir ./amass_output -ips
+
+# Export to file
+amass db -dir ./amass_output -names -o exported_names.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="configuration">
+                <h2>Configuration</h2>
+                <div class="command-block">
+                    <h3>Configuration File</h3>
+                    <pre><code># Generate example config
+amass enum -ef
+
+# Example config.ini
+[scope]
+# Domains in scope
+domains = example.com,test.com
+
+[bruteforcing]
+enabled = true
+recursive = true
+minimum_for_recursive = 1
+
+[alterations]
+enabled = true
+minimum_for_word_flip = 2
+edit_distance = 1
+
+[data_sources]
+# API keys for various services
+[data_sources.virustotal]
+apikey = your_virustotal_api_key
+
+[data_sources.shodan]
+apikey = your_shodan_api_key</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>API Integration</h3>
+                    <pre><code># Common API services
+# VirusTotal
+export VIRUSTOTAL_API_KEY="your_key"
+
+# Shodan
+export SHODAN_API_KEY="your_key"
+
+# Censys
+export CENSYS_API_ID="your_id"
+export CENSYS_SECRET="your_secret"
+
+# SecurityTrails
+export SECURITYTRAILS_API_KEY="your_key"
+
+# Use with config file
+amass enum -d example.com -config config.ini</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Batch Processing</h3>
+                    <pre><code># Multi-domain enumeration script
+#!/bin/bash
+domains=("example.com" "test.com" "demo.com")
+output_dir="amass_results"
+mkdir -p "$output_dir"
+
+for domain in "${domains[@]}"; do
+    echo "Enumerating $domain"
+    amass enum -d "$domain" -dir "$output_dir/$domain" -json "$output_dir/${domain}.json"
+    sleep 10
+done
+
+# Combine results
+cat "$output_dir"/*.json | jq -r '.name' | sort -u > "$output_dir/all_subdomains.txt"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Continuous Monitoring</h3>
+                    <pre><code># Continuous monitoring script
+#!/bin/bash
+domain="example.com"
+baseline="baseline_subdomains.txt"
+current="current_subdomains.txt"
+
+# Initial baseline
+if [ ! -f "$baseline" ]; then
+    amass enum -d "$domain" -o "$baseline"
+fi
+
+while true; do
+    echo "Checking for new subdomains..."
+    amass enum -d "$domain" -o "$current"
+    
+    # Find new subdomains
+    new_subdomains=$(comm -13 <(sort "$baseline") <(sort "$current"))
+    
+    if [ ! -z "$new_subdomains" ]; then
+        echo "New subdomains found:"
+        echo "$new_subdomains"
+        
+        # Send notification
+        echo "$new_subdomains" | mail -s "New subdomains for $domain" admin@example.com
+        
+        # Update baseline
+        cp "$current" "$baseline"
+    fi
+    
+    sleep 3600  # Check every hour
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Result Processing</h3>
+                    <pre><code># Parse JSON results
+jq -r '.name' amass_results.json | sort -u > subdomains.txt
+
+# Extract IP addresses
+jq -r '.addresses[]?.ip' amass_results.json | sort -u > ip_addresses.txt
+
+# Python script for processing
+import json
+
+with open('amass_results.json', 'r') as f:
+    for line in f:
+        data = json.loads(line)
+        name = data.get('name', '')
+        addresses = data.get('addresses', [])
+        
+        for addr in addresses:
+            ip = addr.get('ip', '')
+            asn = addr.get('asn', 0)
+            print(f"{name} -> {ip} (ASN: {asn})")</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>Nmap Integration</h3>
+                    <pre><code># Enumerate subdomains then scan with Nmap
+amass enum -d example.com -o subdomains.txt
+nmap -iL subdomains.txt -p 80,443,8080,8443 --open -oN nmap_results.txt
+
+# Extract IPs and scan
+amass enum -d example.com -ip | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | sort -u > ips.txt
+nmap -iL ips.txt -sS -O -oN ip_scan_results.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Subdomain Takeover Testing</h3>
+                    <pre><code># Use Amass results with SubOver
+amass enum -d example.com -o subdomains.txt
+subover -l subdomains.txt -t 50
+
+# Use with subjack
+subjack -w subdomains.txt -t 100 -timeout 30 -o subjack_results.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Web Application Testing</h3>
+                    <pre><code># Use results with web scanners
+amass enum -d example.com -o subdomains.txt
+
+# Test with ffuf
+while read subdomain; do
+    ffuf -u "http://$subdomain/FUZZ" -w /usr/share/wordlists/dirb/common.txt
+done < subdomains.txt
+
+# Test with Gobuster
+while read subdomain; do
+    gobuster dir -u "http://$subdomain" -w wordlist.txt
+done < subdomains.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="performance-tuning">
+                <h2>Performance Tuning</h2>
+                <div class="command-block">
+                    <h3>Speed Optimization</h3>
+                    <pre><code># Increase DNS query frequency
+amass enum -d example.com -freq 200
+
+# Reduce timeout
+amass enum -d example.com -timeout 30
+
+# Limit sources for faster results
+amass enum -d example.com -src crtsh,google,bing
+
+# Passive only for speed
+amass enum -d example.com -passive</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Resource Management</h3>
+                    <pre><code># Monitor resource usage
+top -p $(pgrep amass)
+
+# Limit memory usage
+ulimit -v 2097152  # 2GB limit
+amass enum -d example.com
+
+# Use configuration to control resources
+[settings]
+maximum_dns_queries = 20000
+dns_query_timeout = 10</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Debug mode
+amass enum -d example.com -v -log debug.log
+
+# Test DNS resolution
+nslookup example.com
+
+# Check network connectivity
+curl -I https://crt.sh
+
+# Verify API keys
+amass enum -d example.com -config config.ini -v</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Reduce query frequency
+amass enum -d example.com -freq 50
+
+# Increase timeout
+amass enum -d example.com -timeout 60
+
+# Use fewer data sources
+amass enum -d example.com -src crtsh,virustotal
+
+# Monitor system resources
+iostat -x 1</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Attack Surface Mapping</h3>
+                    <ul>
+                        <li>Comprehensive subdomain discovery</li>
+                        <li>External asset identification</li>
+                        <li>Network infrastructure mapping</li>
+                        <li>Organization footprinting</li>
+                        <li>Attack vector identification</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Security Assessment</h3>
+                    <ul>
+                        <li>Penetration testing reconnaissance</li>
+                        <li>Bug bounty target discovery</li>
+                        <li>Security posture evaluation</li>
+                        <li>Compliance and audit support</li>
+                        <li>Threat modeling and risk assessment</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use API keys:</strong> Configure API keys for enhanced data collection</li>
+                    <li><strong>Combine techniques:</strong> Use both passive and active enumeration</li>
+                    <li><strong>Regular monitoring:</strong> Set up continuous subdomain monitoring</li>
+                    <li><strong>Validate results:</strong> Verify discovered subdomains are accessible</li>
+                    <li><strong>Visualize data:</strong> Use visualization features for better analysis</li>
+                    <li><strong>Save configurations:</strong> Use config files for consistent scans</li>
+                    <li><strong>Integrate workflows:</strong> Combine with other reconnaissance tools</li>
+                    <li><strong>Monitor resources:</strong> Watch system resources during large scans</li>
+                    <li><strong>Document findings:</strong> Maintain organized records of discoveries</li>
+                    <li><strong>Stay updated:</strong> Keep Amass and data sources current</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Amass should only be used for:</p>
+                    <ul>
+                        <li>Testing domains you own or have explicit permission to test</li>
+                        <li>Authorized penetration testing with proper legal agreements</li>
+                        <li>Bug bounty programs with defined scope and rules</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Security research with appropriate institutional approval</li>
+                    </ul>
+                    <p>Unauthorized reconnaissance and attack surface mapping may violate computer crime laws, terms of service, and other regulations. Network reconnaissance should only be performed by qualified professionals with proper authorization and legal agreements. Amass queries multiple third-party services and APIs, which may have their own terms of service and usage policies. Always ensure you have explicit written permission before mapping the attack surface of any organization you do not own. Some enumeration techniques may trigger security monitoring or alerting systems. Maintain proper documentation of testing activities and findings. Follow responsible disclosure practices for any vulnerabilities or sensitive information discovered. Be aware that reconnaissance activities may be logged by target systems and third-party services. Respect the terms of service of data sources and APIs used by the tool. Consider the privacy implications of attack surface mapping and handle any discovered information appropriately. Large-scale enumeration may consume significant system resources and network bandwidth.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

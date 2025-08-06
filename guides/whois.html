@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>whois Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>whois: Domain Registration Information Tool</h1>
+            <p>Master Domain Intelligence and OSINT</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is whois?</h2>
+                <p>whois is a query and response protocol that is widely used for querying databases that store the registered users or assignees of an Internet resource, such as a domain name, an IP address block, or an autonomous system. The whois command-line tool allows you to retrieve registration information about domains, IP addresses, and network blocks, making it essential for OSINT, network administration, and security research.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt update && sudo apt install whois
+
+# CentOS/RHEL
+sudo yum install whois
+
+# Arch Linux
+sudo pacman -S whois</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Pre-installed on macOS
+whois --version
+
+# Install via Homebrew (for latest version)
+brew install whois</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Use Windows Subsystem for Linux
+wsl sudo apt install whois
+
+# Or download Windows whois tool
+# https://docs.microsoft.com/en-us/sysinternals/downloads/whois</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+whois [options] [domain|ip|asn]
+
+# Domain lookup
+whois example.com
+
+# IP address lookup
+whois 8.8.8.8
+
+# ASN lookup
+whois AS15169</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Options</h3>
+                    <pre><code># Specify whois server
+whois -h whois.server.com domain.com
+
+# Raw output (no formatting)
+whois -r domain.com
+
+# Disable recursion
+whois -R domain.com
+
+# Force specific server
+whois -h whois.verisign-grs.com domain.com
+
+# Show available servers
+whois -l</code></pre>
+                </div>
+            </section>
+
+            <section id="domain-queries">
+                <h2>Domain Information Queries</h2>
+                <div class="command-block">
+                    <h3>Basic Domain Lookup</h3>
+                    <pre><code># Standard domain query
+whois example.com
+
+# Get registrar information
+whois google.com
+
+# Check domain availability
+whois nonexistent-domain-12345.com
+
+# Multiple domains
+whois example.com google.com github.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>TLD-Specific Queries</h3>
+                    <pre><code># .com domains
+whois example.com
+
+# .org domains
+whois example.org
+
+# .net domains
+whois example.net
+
+# Country code TLDs
+whois example.co.uk
+whois example.de
+whois example.jp</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Subdomain Analysis</h3>
+                    <pre><code># Check main domain for subdomain info
+whois example.com
+
+# Some subdomains may have separate registrations
+whois subdomain.example.com
+
+# Check parent domain
+whois $(echo subdomain.example.com | cut -d. -f2-)</code></pre>
+                </div>
+            </section>
+
+            <section id="ip-queries">
+                <h2>IP Address & Network Queries</h2>
+                <div class="command-block">
+                    <h3>IP Address Lookup</h3>
+                    <pre><code># Single IP lookup
+whois 8.8.8.8
+
+# Multiple IP addresses
+whois 8.8.8.8 1.1.1.1 9.9.9.9
+
+# IPv6 lookup
+whois 2001:4860:4860::8888
+
+# Private IP (will show IANA info)
+whois 192.168.1.1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Block Information</h3>
+                    <pre><code># CIDR block lookup
+whois 8.8.8.0/24
+
+# ASN lookup
+whois AS15169
+
+# Organization lookup
+whois "Google LLC"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Regional Internet Registries</h3>
+                    <pre><code># ARIN (North America)
+whois -h whois.arin.net 8.8.8.8
+
+# RIPE (Europe)
+whois -h whois.ripe.net 1.1.1.1
+
+# APNIC (Asia-Pacific)
+whois -h whois.apnic.net 1.0.0.1
+
+# LACNIC (Latin America)
+whois -h whois.lacnic.net 200.1.1.1
+
+# AfriNIC (Africa)
+whois -h whois.afrinic.net 41.1.1.1</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-queries">
+                <h2>Advanced Query Techniques</h2>
+                <div class="command-block">
+                    <h3>Server-Specific Queries</h3>
+                    <pre><code># Use specific whois server
+whois -h whois.verisign-grs.com example.com
+
+# Registrar-specific lookup
+whois -h whois.godaddy.com example.com
+
+# ccTLD-specific servers
+whois -h whois.nic.uk example.co.uk
+whois -h whois.denic.de example.de</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Historical and Detailed Queries</h3>
+                    <pre><code># Detailed contact information
+whois -H example.com
+
+# Administrative contact
+whois example.com | grep -i "admin"
+
+# Technical contact
+whois example.com | grep -i "tech"
+
+# Registrant information
+whois example.com | grep -i "registrant"</code></pre>
+                </div>
+            </section>
+
+            <section id="osint-applications">
+                <h2>OSINT & Intelligence Gathering</h2>
+                <div class="command-block">
+                    <h3>Domain Intelligence</h3>
+                    <pre><code># Registration date analysis
+whois example.com | grep -i "creation\|created"
+
+# Expiration date
+whois example.com | grep -i "expir"
+
+# Last updated
+whois example.com | grep -i "updated\|modified"
+
+# Registrar information
+whois example.com | grep -i "registrar"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Contact Information Gathering</h3>
+                    <pre><code># Extract email addresses
+whois example.com | grep -i "email\|@"
+
+# Phone numbers
+whois example.com | grep -i "phone\|tel"
+
+# Physical addresses
+whois example.com | grep -i "address\|street\|city"
+
+# Organization names
+whois example.com | grep -i "org\|organization"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Infrastructure Analysis</h3>
+                    <pre><code># Name servers
+whois example.com | grep -i "name server\|nserver"
+
+# DNS servers analysis
+whois example.com | grep -i "dns"
+
+# Hosting provider identification
+whois $(dig +short example.com)
+
+# CDN detection
+whois $(dig +short www.example.com)</code></pre>
+                </div>
+            </section>
+
+            <section id="batch-operations">
+                <h2>Batch Operations & Automation</h2>
+                <div class="command-block">
+                    <h3>Bulk Domain Analysis</h3>
+                    <pre><code># Create domains list
+echo "example.com" > domains.txt
+echo "google.com" >> domains.txt
+echo "github.com" >> domains.txt
+
+# Batch whois lookup
+while read domain; do
+    echo "=== $domain ==="
+    whois $domain
+    echo ""
+done < domains.txt</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Automated Intelligence Gathering</h3>
+                    <pre><code>#!/bin/bash
+# Domain intelligence script
+domain=$1
+
+echo "=== Domain Information for $domain ==="
+echo "Registration Date:"
+whois $domain | grep -i "creation\|created"
+
+echo "Expiration Date:"
+whois $domain | grep -i "expir"
+
+echo "Registrar:"
+whois $domain | grep -i "registrar:"
+
+echo "Name Servers:"
+whois $domain | grep -i "name server"
+
+echo "Contact Email:"
+whois $domain | grep -i "@" | head -3</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>IP Range Analysis</h3>
+                    <pre><code># Analyze IP range
+for ip in 8.8.8.{1..10}; do
+    echo "=== $ip ==="
+    whois $ip | grep -i "organization\|orgname"
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="privacy-protection">
+                <h2>Privacy Protection & GDPR</h2>
+                <div class="command-block">
+                    <h3>Understanding Privacy Protection</h3>
+                    <pre><code># Domains with privacy protection
+whois example.com | grep -i "privacy\|protected\|redacted"
+
+# GDPR-compliant responses
+whois example.com | grep -i "gdpr\|data protection"
+
+# Proxy services
+whois example.com | grep -i "proxy\|whoisguard\|domains by proxy"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Historical Data Sources</h3>
+                    <pre><code># Note: Current whois may show limited info
+# Consider these alternatives for historical data:
+# - DomainTools
+# - WhoisXML API
+# - SecurityTrails
+# - Wayback Machine</code></pre>
+                </div>
+            </section>
+
+            <section id="output-parsing">
+                <h2>Output Parsing & Analysis</h2>
+                <div class="command-block">
+                    <h3>Extracting Specific Information</h3>
+                    <pre><code># Extract creation date
+whois example.com | grep -i "creation\|created" | head -1
+
+# Extract registrar
+whois example.com | grep -i "registrar:" | head -1
+
+# Extract name servers
+whois example.com | grep -i "name server" | awk '{print $NF}'
+
+# Extract expiration date
+whois example.com | grep -i "expir" | head -1</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Structured Data Extraction</h3>
+                    <pre><code>#!/bin/bash
+# Parse whois data into structured format
+domain=$1
+whois_data=$(whois $domain)
+
+echo "Domain: $domain"
+echo "Registrar: $(echo "$whois_data" | grep -i "registrar:" | head -1 | cut -d: -f2 | xargs)"
+echo "Created: $(echo "$whois_data" | grep -i "creation\|created" | head -1 | cut -d: -f2 | xargs)"
+echo "Expires: $(echo "$whois_data" | grep -i "expir" | head -1 | cut -d: -f2 | xargs)"</code></pre>
+                </div>
+            </section>
+
+            <section id="security-applications">
+                <h2>Security & Threat Intelligence</h2>
+                <div class="command-block">
+                    <h3>Malicious Domain Analysis</h3>
+                    <pre><code># Check suspicious domains
+whois suspicious-domain.com
+
+# Registration date analysis (newly registered domains)
+whois suspicious-domain.com | grep -i "creation\|created"
+
+# Registrar patterns
+whois suspicious-domain.com | grep -i "registrar"
+
+# Contact information analysis
+whois suspicious-domain.com | grep -i "email\|phone"</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Infrastructure Correlation</h3>
+                    <pre><code># Check IP ownership
+whois $(dig +short suspicious-domain.com)
+
+# ASN analysis
+whois AS$(whois $(dig +short suspicious-domain.com) | grep -i "asn\|as[0-9]" | head -1)
+
+# Name server analysis
+for ns in $(dig +short suspicious-domain.com NS); do
+    whois $(dig +short $ns)
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Threat Hunting</h3>
+                    <pre><code># Domain age analysis
+creation_date=$(whois domain.com | grep -i "creation" | head -1)
+echo "Domain created: $creation_date"
+
+# Registrar reputation check
+registrar=$(whois domain.com | grep -i "registrar:" | head -1)
+echo "Registrar: $registrar"
+
+# Contact information validation
+whois domain.com | grep -i "email\|phone\|address"</code></pre>
+                </div>
+            </section>
+
+            <section id="rate-limiting">
+                <h2>Rate Limiting & Best Practices</h2>
+                <div class="command-block">
+                    <h3>Avoiding Rate Limits</h3>
+                    <pre><code># Add delays between queries
+for domain in $(cat domains.txt); do
+    whois $domain
+    sleep 2  # 2-second delay
+done
+
+# Use different whois servers
+whois -h whois.verisign-grs.com example.com
+sleep 1
+whois -h whois.arin.net 8.8.8.8</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Respectful Querying</h3>
+                    <pre><code># Batch processing with delays
+#!/bin/bash
+while read domain; do
+    echo "Querying $domain..."
+    whois $domain > "${domain}.whois"
+    sleep 3  # Respectful delay
+done < domains.txt</code></pre>
+                </div>
+            </section>
+
+            <section id="integration">
+                <h2>Integration with Other Tools</h2>
+                <div class="command-block">
+                    <h3>DNS Tool Integration</h3>
+                    <pre><code># Combine with dig
+domain="example.com"
+echo "=== DNS Records ==="
+dig $domain A
+echo "=== Whois Information ==="
+whois $domain
+
+# Combine with nslookup
+nslookup $domain
+whois $domain</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Network Analysis Pipeline</h3>
+                    <pre><code>#!/bin/bash
+# Complete domain analysis
+domain=$1
+
+echo "=== DNS Resolution ==="
+dig +short $domain A
+
+echo "=== IP Whois ==="
+whois $(dig +short $domain A | head -1)
+
+echo "=== Domain Whois ==="
+whois $domain
+
+echo "=== Name Server Analysis ==="
+for ns in $(dig +short $domain NS); do
+    echo "NS: $ns"
+    whois $(dig +short $ns A | head -1)
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use appropriate delays:</strong> Respect whois server rate limits</li>
+                    <li><strong>Try multiple servers:</strong> Different servers may have different data</li>
+                    <li><strong>Check both domain and IP:</strong> Get complete picture</li>
+                    <li><strong>Understand privacy protection:</strong> GDPR affects data availability</li>
+                    <li><strong>Correlate with other sources:</strong> Combine with DNS and network data</li>
+                    <li><strong>Document findings:</strong> Keep logs of intelligence gathering</li>
+                    <li><strong>Respect terms of service:</strong> Follow whois server policies</li>
+                    <li><strong>Use historical data sources:</strong> For comprehensive analysis</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Common Issues & Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Connection Issues</h3>
+                    <pre><code># Timeout errors
+whois -T 30 domain.com  # 30-second timeout
+
+# Try different server
+whois -h whois.iana.org domain.com
+
+# Check network connectivity
+ping whois.verisign-grs.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>No Data Returned</h3>
+                    <pre><code># Domain doesn't exist
+whois nonexistent-domain-12345.com
+
+# Privacy protection enabled
+whois privacy-protected-domain.com
+
+# Try authoritative server
+whois -h whois.verisign-grs.com domain.com</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Rate Limiting</h3>
+                    <pre><code># Rate limit exceeded
+# Solution: Add delays, use different servers
+sleep 5
+whois -h different-server.com domain.com</code></pre>
+                </div>
+            </section>
+
+            <section id="legal-considerations">
+                <h2>Legal & Ethical Considerations</h2>
+                <div class="command-block">
+                    <p><strong>Legitimate Uses:</strong></p>
+                    <ul>
+                        <li>Network administration and troubleshooting</li>
+                        <li>Domain registration research</li>
+                        <li>Security research and threat intelligence</li>
+                        <li>Legal investigations and due diligence</li>
+                        <li>Academic research and education</li>
+                    </ul>
+                    <p><strong>Ethical Guidelines:</strong></p>
+                    <ul>
+                        <li>Respect rate limits and terms of service</li>
+                        <li>Don't use for harassment or stalking</li>
+                        <li>Understand privacy protection implications</li>
+                        <li>Follow applicable data protection laws</li>
+                        <li>Use information responsibly</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>NOTE:</strong> whois should be used responsibly for:</p>
+                    <ul>
+                        <li>Legitimate network administration and research</li>
+                        <li>Security analysis and threat intelligence</li>
+                        <li>Educational purposes and learning</li>
+                        <li>Legal investigations with proper authorization</li>
+                    </ul>
+                    <p>While whois information is generally public, its use should comply with applicable laws, terms of service, and ethical guidelines. Respect privacy protection measures and don't use whois data for harassment, stalking, or other malicious purposes. Be aware that GDPR and other privacy regulations may limit the availability of personal information in whois records.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

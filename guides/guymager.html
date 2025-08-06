@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guymager Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Guymager: Forensic Disk Imaging Tool</h1>
+            <p>Create Forensically Sound Disk Images with a User-Friendly GUI on Linux</p>
+            <a href="../index.html" class="back-link">← Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Guymager?</h2>
+                <p>Guymager is a free, open-source forensic imaging tool for Linux, designed to create bit-by-bit copies (forensic images) of storage devices such as hard drives, USB drives, and memory cards. It features a Qt-based graphical user interface (GUI) for ease of use, supports multiple image formats (raw/dd, EWF/E01, AFF), and is optimized for speed with multi-threaded data compression and hashing (MD5, SHA-1, SHA-256). Guymager is pre-installed in forensic distributions like Kali Linux and CAINE, making it a popular choice for digital forensics and incident response to preserve evidence while maintaining data integrity.</p>[](https://awjunaid.com/kali-linux/guymager-a-forensic-imaging-tool-for-creating-disk-images-and-performing-hash-verification/)[](https://braincraze.net/guymager/)
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Ubuntu/Debian Installation</h3>
+                    <pre><code># Install Guymager
+sudo apt update
+sudo apt install guymager
+
+# Verify installation
+guymager --version
+
+# Run Guymager (requires root)
+sudo guymager</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Kali Linux Installation</h3>
+                    <pre><code># Pre-installed in Kali Linux
+sudo apt update
+sudo apt install guymager
+
+# Verify installation
+guymager --version
+
+# Run Guymager
+sudo guymager</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>CentOS/RHEL Installation</h3>
+                    <pre><code># Add EPEL repository
+sudo yum install epel-release
+sudo yum install guymager
+
+# Verify installation
+guymager --version
+
+# Run Guymager
+sudo guymager</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Build from Source</h3>
+                    <pre><code># Install dependencies
+sudo apt install build-essential libewf-dev libguytools-dev qt5-default
+
+# Clone repository
+git clone https://github.com/cyberknightX/Guymager.git
+cd Guymager
+
+# Build and install
+qmake
+make
+sudo make install
+
+# Run Guymager
+sudo guymager</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Docker Installation</h3>
+                    <pre><code># Pull forensic environment (e.g., CAINE-based)
+docker pull caine/caine
+
+# Run Guymager in Docker
+docker run --rm -it -v /path/to/evidence:/evidence caine/caine guymager</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage</h2>
+                <div class="command-block">
+                    <h3>Launch Guymager</h3>
+                    <pre><code># Start Guymager GUI (requires root)
+sudo guymager
+
+# Rescan for devices
+# Click "Rescan" or press F5 to detect newly attached devices</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Acquire Disk Image</h3>
+                    <pre><code># Open Guymager GUI
+sudo guymager
+
+# Select device (e.g., /dev/sdc)
+# Right-click -> Acquire Image
+# Choose format (dd, EWF/E01, AFF)
+# Enter case metadata (case number, evidence number, examiner, description)
+# Select destination folder and filename
+# Enable hash calculation (MD5, SHA-1, SHA-256)
+# Click "Start" to begin imaging
+
+# Output: image file (.dd/.E01/.aff) and .info file with metadata</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Clone Disk</h3>
+                    <pre><code># Open Guymager GUI
+sudo guymager
+
+# Select source device (e.g., /dev/sdc)
+# Right-click -> Clone Device
+# Select target device (e.g., /dev/sdd)
+# Enter case metadata
+# Click "Start" to begin cloning
+
+# Warning: Target disk will be overwritten</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Forensic Techniques</h2>
+                <div class="command-block">
+                    <h3>Enable AFF Format</h3>
+                    <pre><code># Edit configuration file to enable AFF
+sudo nano /etc/guymager/local.cfg
+# Add line:
+AffEnabled=true
+
+# Restart Guymager
+sudo guymager</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Custom Configuration</h3>
+                    <pre><code># Create custom config
+guymager cfg=template.cfg
+
+# Edit custom config
+nano template.cfg
+# Example: Set compression and threads
+CompressionLevel=5
+CompressionThreads=4
+
+# Run with custom config
+guymager cfg=template.cfg log=/var/log/custom_guymager.log</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Verify Image Integrity</h3>
+                    <pre><code># Check .info file for hash values
+cat /path/to/image.info
+
+# Manually verify image hash
+sha256sum /path/to/image.E01
+
+# Use ewfverify for EWF files
+ewfverify /path/to/image.E01</code></pre>
+                </div>
+            </section>
+
+            <section id="output-options">
+                <h2>Output and Reporting</h2>
+                <div class="command-block">
+                    <h3>Image Formats</h3>
+                    <pre><code># Raw (dd): Bit-by-bit copy, no metadata
+# EWF (E01): Includes compression, encryption, metadata
+# AFF: Includes metadata, deprecated but can be enabled
+# Output example:
+/images/case001/evidence001.E01
+/images/case001/evidence001.info</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Log Files</h3>
+                    <pre><code># Default log location
+cat /var/log/guymager.log
+
+# Custom log file
+guymager log=/path/to/custom.log
+
+# Review logs for errors or acquisition details
+grep "ERROR" /var/log/guymager.log</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Metadata Info File</h3>
+                    <pre><code># Example .info file content
+cat /images/case001/evidence001.info
+# Contains: Case number, evidence number, examiner, hashes, acquisition time, etc.</code></pre>
+                </div>
+            </section>
+
+            <section id="automation">
+                <h2>Automation and Scripting</h2>
+                <div class="command-block">
+                    <h3>Bash Automation</h3>
+                    <pre><code>#!/bin/bash
+# Script to automate imaging multiple devices
+devices=("/dev/sdb" "/dev/sdc")
+for device in "${devices[@]}"; do
+    echo "Imaging $device"
+    guymager cfg=/etc/guymager/guymager.cfg \
+             log=/var/log/guymager_$(basename $device).log \
+             --destination=/images/case001/$(basename $device).E01 \
+             --case=CASE001 --evidence=$(basename $device) --examiner="John Doe"
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Automate Directory Creation</h3>
+                    <pre><code>#!/bin/bash
+case="CASE001"
+for i in {01..05}; do
+    mkdir -p /images/$case/image$i
+    guymager --destination=/images/$case/image$i/image$i.E01 \
+             --case=$case --evidence=image$i --examiner="John Doe"
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Post-Processing Hashes</h3>
+                    <pre><code># Verify all images in a directory
+find /images/case001 -name "*.E01" -exec sha256sum {} \; > hashes.txt
+
+# Python script to parse .info files
+import re
+with open('/images/case001/evidence001.info', 'r') as f:
+    for line in f:
+        if 'MD5 hash' in line:
+            print(line.strip())</code></pre>
+                </div>
+            </section>
+
+            <section id="specialized-techniques">
+                <h2>Specialized Forensic Techniques</h2>
+                <div class="command-block">
+                    <h3>Image Failing Drives</h3>
+                    <pre><code># Handle bad sectors
+guymager --destination=/images/case001/failing.E01 --bad-sector-handling=skip
+
+# Monitor progress
+tail -f /var/log/guymager.log</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Mount Images for Analysis</h3>
+                    <pre><code># Mount EWF image (read-only)
+sudo ewfmount /images/case001/evidence001.E01 /mnt/ewf
+ls /mnt/ewf
+
+# Mount AFF image (if enabled)
+sudo affuse /images/case001/evidence001.aff /mnt/aff
+ls /mnt/aff</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Resume Interrupted Imaging</h3>
+                    <pre><code># Guymager automatically resumes if same destination file is selected
+sudo guymager
+# Select same device and destination, Guymager will detect partial image</code></pre>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Common Issues</h3>
+                    <pre><code># Check device availability
+lsblk
+
+# Verify write-blocker status
+sudo blockdev --getro /dev/sdc
+
+# Debug Guymager
+guymager log=/var/log/guymager_debug.log --verbose
+
+# Check for missing dependencies
+ldd /usr/bin/guymager</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Issues</h3>
+                    <pre><code># Monitor system resources
+top
+
+# Limit CPU usage
+cpulimit -p $(pgrep guymager) -l 50
+
+# Optimize compression
+guymager cfg=/etc/guymager/guymager.cfg CompressionLevel=3</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Bad Sector Handling</h3>
+                    <pre><code># Skip bad sectors
+guymager --destination=/images/case001/image.E01 --bad-sector-handling=skip
+
+# Log bad sectors
+grep "bad sector" /var/log/guymager.log</code></pre>
+                </div>
+            </section>
+
+            <section id="use-cases">
+                <h2>Common Use Cases</h2>
+                <div class="command-block">
+                    <h3>Digital Forensics</h3>
+                    <ul>
+                        <li>Create forensic images for evidence preservation</li>
+                        <li>Verify image integrity with hashes</li>
+                        <li>Clone disks for legal proceedings</li>
+                        <li>Analyze images with tools like Autopsy or X-Ways</li>
+                        <li>Maintain chain of custody with metadata</li>
+                    </ul>
+                </div>
+                <div class="command-block">
+                    <h3>Incident Response</h3>
+                    <ul>
+                        <li>Image compromised systems for malware analysis</li>
+                        <li>Backup failing drives before data recovery</li>
+                        <li>Acquire images from live systems (with caution)</li>
+                        <li>Generate reports for incident documentation</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use hardware write-blockers:</strong> Prevent accidental writes to source devices</li>[](https://notes.qazeer.io/dfir/common/image_acquisition_and_mounting)
+                    <li><strong>Verify hashes:</strong> Always check source and image hashes to ensure integrity</li>[](https://www.cybrary.it/blog/creating-a-forensic-disk-image-using-the-linux-guymager-utility)
+                    <li><strong>Enable EWF format:</strong> Use EWF for compression and metadata support</li>[](https://www.cqr.tools/tools/guymager)
+                    <li><strong>Label evidence:</strong> Match physical labels with metadata for chain of custody</li>[](https://www.cybrary.it/blog/creating-a-forensic-disk-image-using-the-linux-guymager-utility)
+                    <li><strong>Store images securely:</strong> Use encrypted drives for sensitive data</li>
+                    <li><strong>Monitor logs:</strong> Check /var/log/guymager.log for errors or bad sectors</li>
+                    <li><strong>Use forensic distributions:</strong> Boot CAINE or Kali Linux in forensic mode to prevent auto-mounting</li>[](https://notes.qazeer.io/dfir/common/image_acquisition_and_mounting)
+                    <li><strong>Automate repetitive tasks:</strong> Script imaging for multiple devices</li>[](https://sourceforge.net/p/guymager/wiki/Home/)
+                    <li><strong>Backup images:</strong> Store multiple copies on separate drives</li>[](https://sourceforge.net/p/guymager/wiki/Home/)
+                    <li><strong>Test with small drives:</strong> Practice on USB drives before imaging large disks</li>
+                </ul>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Guymager should only be used for:</p>
+                    <ul>
+                        <li>Imaging devices you own or have explicit permission to acquire</li>
+                        <li>Authorized forensic investigations with proper legal authority</li>
+                        <li>Educational purposes in controlled environments</li>
+                        <li>Security research with institutional approval</li>
+                        <li>Incident response with documented consent</li>
+                    </ul>
+                    <p>Unauthorized use of Guymager to image devices without permission may violate privacy laws, computer crime laws, or other regulations. Forensic investigations should only be performed by qualified professionals with proper authorization. Always ensure data integrity and chain of custody during imaging. Improper handling of evidence can render it inadmissible in court. Maintain detailed documentation of all imaging activities. Follow responsible disclosure practices for any vulnerabilities or incidents discovered. Respect data privacy and confidentiality requirements. Ensure compliance with all relevant laws and regulations during forensic activities.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

