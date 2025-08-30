@@ -99,7 +99,7 @@ This repository contains a curated collection of cheat sheets for various cyber 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/cyber-cheat-sheet.git
+   git clone https://github.com/b17br34k3r/cyber-cheat-sheet.git
    cd cyber-cheat-sheet
    ```
 
